@@ -26,9 +26,12 @@ Put the answers in `BRIEF.md`. The structure of a talking video is the person's 
 ## 2. Transcribe
 
 ```
-# first: make step 3 (init <dir>, copy frame.md); then
-node parts/transcribe-local/transcribe.mjs <recording> --language <code> --out <dir>/words.raw.json
+# first: make step 3 (init <dir>, copy frame.md); then, always:
+node parts/transcribe-local/normalize.mjs <recording> --out <dir>/assets/work.mp4
+node parts/transcribe-local/transcribe.mjs <dir>/assets/work.mp4 --language <code> --out <dir>/words.raw.json
 ```
+
+**Always normalize first.** Phone recordings have a variable frame rate and a rotation flag; cutting them directly lets captions drift (about 0.2 s per minute, measured). `normalize` makes a constant-frame-rate, upright working copy; every later step uses `work.mp4`, never the original.
 
 Free and local. The first run downloads whisper and its model (minutes); say so before starting. Read the words before using them (HyperFrames' captions.md): a transcript full of `♪` or nonsense means retry with `--model medium`. Names and brand words are often wrong; fix them in the JSON by hand now, once.
 
@@ -37,7 +40,7 @@ Free and local. The first run downloads whisper and its model (minutes); say so 
 The transcriber marks words it is unsure of (`"unsure": true`) and lists them. Show the person each one with its sentence and ask what was said; if they can't be asked, keep the word, flag it in `BRIEF.md`, and never put an unsure word on a card.
 
 ```
-node parts/silence-cut/silence-cut.mjs plan --video <recording> --words <dir>/words.raw.json --out <dir>/edl.json --mode <tight|normal>
+node parts/silence-cut/silence-cut.mjs plan --video <dir>/assets/work.mp4 --words <dir>/words.raw.json --out <dir>/edl.json --mode <tight|normal>
 ```
 
 Open `edl.md`. Show the person the totals and the unusual cuts: what was removed (seconds, count), every filler with its context, and any pause longer than 2 s. Nothing is cut before they say yes. They may keep a cut (`"approved": false`) or ask for a different `--min-pause`; re-plan, do not hand-edit times. Then:
@@ -65,6 +68,21 @@ node parts/captions/frame-vars.mjs <dir>/frame.md --out <dir>/assets/brand.css
 
 Spec, `check`, snapshots: as in make steps 4-5. Snapshot at the first caption, a card's start and settle, a cut join, and the end.
 
+## 4b. Long recordings (over about 2 minutes): assemble with ffmpeg
+
+Rendering every frame of footage through HyperFrames takes about 13 s per second of video on a small laptop (an hour for 5 minutes). For anything longer than about 2 minutes, don't build the footage into a composition; assemble it:
+
+```
+node parts/assemble-long/assemble-long.mjs assemble --video <dir>/assets/cut.mp4 --words <dir>/words.json \
+     --frame <dir>/frame.md --out <dir>/renders/<slug>.mp4 --cards <dir>/cards.json --chapters <dir>/chapters.json
+```
+
+- `cards.json`: the same cards as in step 4 with their times; HyperFrames renders only the cards (transparent) and ffmpeg overlays them.
+- `chapters.json`: `[{"start": 0, "title": "…"}, …]`, first at 0, at least 3, ≥ 10 s apart, titles in the person's words; it writes YouTube's `chapters.txt` next to the MP4 and a sentence-level `.srt`. Put both in the hand-over (the chapter list goes into the YouTube description, the SRT can be uploaded as subtitles).
+- Captions here are clean sentence lines shown on the words' timing (no per-word pop animation on this path).
+
+Verify it with `npx create-video-engine verify <dir> --mp4 <file> --no-composition --expect-duration <cut length> --expect-audio`.
+
 ## 5. Verify
 
 ```
@@ -89,11 +107,14 @@ Fix, re-render, re-verify; deliver with make step 6.
 node parts/shorts-from-long/shorts.mjs pick --words <dir>/words.json --out <dir>/shorts.json
 ```
 
-Read `shorts.md` and choose with the person: whole thoughts, a hook in the first 2 s (the picker flags when there is none; say so honestly instead of picking a weak one), a clear end. Adjust a start or end to another sentence boundary if the text asks for it. Then per chosen short:
+Read `shorts.md` and choose with the person: whole thoughts, a hook in the first 2 s (the picker flags when there is none; say so honestly instead of picking a weak one), a clear end. Adjust a start or end to another sentence boundary if the text asks for it. Then per chosen short, track the speaker and cut with a crop that follows them:
 
 ```
-node parts/shorts-from-long/shorts.mjs cut --video <dir>/assets/cut.mp4 --words <dir>/words.json --from <dir>/shorts.json --id N --out brands/<brand>/videos/<slug>-short-N/assets/short.mp4 [--face-x ..]
+node parts/subject-track/subject-track.mjs --video <dir>/assets/cut.mp4 --out <dir>/track.json --start <s> --end <e>
+node parts/shorts-from-long/shorts.mjs cut --video <dir>/assets/cut.mp4 --words <dir>/words.json --from <dir>/shorts.json --id N --track <dir>/track.json --out brands/<brand>/videos/<slug>-short-N/assets/short.mp4
 ```
+
+The cut also writes `short.safe-text.json`: the band where text can go without covering the face. Put captions and cards there (`--band y=<y_min>`). If it says `fits: false` (the speaker is close to the camera and there is no room under the chin), put text in the top band below the platform's top 270 px, never over the mouth or eyes. Snapshot a few frames of the short and check the face stays in frame; `--face-x` is the manual fallback.
 
 Each short is its own HyperFrames project (`init --resolution portrait`, `frame.md` copied): 9:16, `short-N.words.json` into captions in `pop` style, the name card only if the short stands alone, cards in the upper band. Same check, render and verify as the long video, with make's 9:16 rules (text out of the top 270 px, the bottom 420 px and the right 130 px, frame 0 is the thumbnail: the face and the hook caption already on screen). Each short gets its own ledger entry and `share-copy.txt` in the person's language.
 
