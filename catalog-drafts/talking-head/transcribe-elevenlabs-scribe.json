@@ -1,0 +1,30 @@
+{
+  "id": "transcribe-elevenlabs-scribe",
+  "kind": "tool",
+  "title": "ElevenLabs Scribe transcription helper",
+  "what_it_does": "Sends audio to ElevenLabs speech-to-text and writes a word-level JSON beside the input.",
+  "when_to_use": "Only for someone who already pays for ElevenLabs.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "scripts/transcribe-elevenlabs.mjs"
+  ],
+  "needs": [
+    "node",
+    "ELEVENLABS_API_KEY"
+  ],
+  "paid_api": true,
+  "decision": "skip",
+  "why": "Paid cloud API and the audio leaves the machine; we offer local whisper.cpp first. The word-JSON shape it writes is worth supporting as an input.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

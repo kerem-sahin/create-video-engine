@@ -1,0 +1,44 @@
+{
+  "schema": 2,
+  "id": "shorts-from-long",
+  "kind": "recipe",
+  "title": "Shorts from a long talking video (pick and reframe to 9:16)",
+  "what_it_does": "Proposes 15-45 s segments made of whole sentences with a hook in the first 2 s (a question, a number, a hook word or a short opener), then cuts one and reframes it to 1080x1920 (centre crop, optional --face-x, or a blurred-background fit) with its own word file for captions.",
+  "when_to_use": "When a long recording should also give Reels/Shorts. The picker proposes; the agent reads the text and the person chooses. Not a face tracker: if the speaker is not centred, pass --face-x.",
+  "lanes": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    {
+      "from": "files/shorts.mjs",
+      "to": "parts/shorts-from-long/shorts.mjs"
+    }
+  ],
+  "docs": "files/README.md",
+  "requires": [
+    "transcribe-local"
+  ],
+  "needs": [
+    "ffmpeg",
+    "ffprobe"
+  ],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [],
+  "notes": "Own code. Whole-sentence ranking follows the idea of digitalsamba/claude-code-video-toolkit's highlights.py (MIT); nothing is copied. End-to-end proof: catalog/lanes/talking-head/example/run-proof.sh."
+}

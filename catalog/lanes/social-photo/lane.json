@@ -1,0 +1,9 @@
+{
+  "schema": 2,
+  "id": "social-photo",
+  "title": "Social videos from photos",
+  "for": "Mert: a small brand that turns product photos into short social videos.",
+  "ask": "Do you turn photos (products, collections, campaigns) into short social media videos?",
+  "parts": ["cve-motion", "music-scorer", "mp4-checks"],
+  "recipe": "recipe.md"
+}

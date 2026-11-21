@@ -1,0 +1,33 @@
+{
+  "id": "audio-meter-lufs",
+  "kind": "check",
+  "title": "Audio meter: LUFS, loudness range, true peak",
+  "what_it_does": "Decodes any audio or video file via ffmpeg and reports integrated LUFS (BS.1770), LRA and true peak, cross-checked against ffmpeg's own ebur128 and failing if they differ by more than 0.5 LU.",
+  "when_to_use": "Checking the mix of a finished video.",
+  "lane": [
+    "talking-head",
+    "social"
+  ],
+  "source": {
+    "repo": "talsiach/take-one",
+    "url": "https://github.com/talsiach/take-one",
+    "licence": "MIT",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "scripts/audio-check.mjs",
+    "LICENSES/anidoodle-LICENSE-Apache-2.0.txt",
+    "LICENSES/anidoodle-NOTICE.txt"
+  ],
+  "needs": [
+    "node",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "Duplicates loudness.py and check.py of ffmpeg-skill; and the file is adapted from anidoodle under Apache-2.0, adding a second licence to carry.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

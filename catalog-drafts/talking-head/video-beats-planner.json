@@ -1,0 +1,28 @@
+{
+  "id": "video-beats-planner",
+  "kind": "recipe",
+  "title": "Plan overlay beats for a talking-head video",
+  "what_it_does": "Skill that turns footage plus transcript into a paced set of motion graphics: what the viewer should remember, glass lower thirds versus full-screen takeovers, anchors in the transcript, and not covering the speaker needlessly.",
+  "when_to_use": "Deciding where cards and callouts go on a long talking-head video.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    ".claude/skills/hyperframes-video-beats/SKILL.md",
+    ".claude/skills/video-storytelling/SKILL.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT; HyperFrames-specific and matches the beat validator; the AIS brand examples must be removed.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "id": "launch-v1-shot-catalog",
+  "kind": "recipe",
+  "title": "Fourteen claim-carrying shots",
+  "what_it_does": "Shot catalogue (kinetic type beats, crowding problem, held thesis, prompt/composer, chart variant, hardware hero, ...) with what each must do and how it fails.",
+  "when_to_use": "Choosing shots at storyboard time.",
+  "lane": [
+    "product-launch",
+    "explainer"
+  ],
+  "source": {
+    "repo": "AbubakrChan/product-launch-motion",
+    "url": "https://github.com/AbubakrChan/product-launch-motion",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "legacy/references/09-shot-catalog.md",
+    "legacy/references/04-motion-grammar.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "The v1 (GSAP + HyperFrames) material is the part that fits; v2 dropped HyperFrames. Reuse the shot ideas in our storyboard recipe. NOTICE: sample films and brand frames are not MIT, copy none.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

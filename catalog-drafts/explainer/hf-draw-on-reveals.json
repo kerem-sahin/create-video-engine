@@ -1,0 +1,32 @@
+{
+  "id": "hf-draw-on-reveals",
+  "kind": "motion",
+  "title": "Draw-on and stroke reveals",
+  "what_it_does": "whiteboard-ink (write-on line art), svg-stroke-trace, svg-line-draw-loader, svg-mask-reveal, outline-draw.",
+  "when_to_use": "Drawing a diagram or logo line by line.",
+  "lane": [
+    "explainer",
+    "tutorial"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes",
+    "url": "https://github.com/heygen-com/hyperframes",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "registry/components/whiteboard-ink/",
+    "registry/components/svg-stroke-trace/",
+    "registry/components/outline-draw/"
+  ],
+  "needs": [
+    "gsap (jsDelivr CDN, fixed 3.14.2)"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Official, deterministic, matches the hand-drawn explainer look.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

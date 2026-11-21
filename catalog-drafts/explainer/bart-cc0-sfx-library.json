@@ -1,0 +1,32 @@
+{
+  "id": "bart-cc0-sfx-library",
+  "kind": "sound",
+  "title": "CC0 sound-effects library (136 files)",
+  "what_it_does": "136 short sound effects (whoosh, click, pop, riser, impact, tick, typing, glitch, ding, ambience) trimmed and peak-normalised, with a manifest of source, author and licence per file and a default kit of seven.",
+  "when_to_use": "Putting real sound on every cue in a motion piece.",
+  "lane": [
+    "explainer",
+    "product-launch",
+    "social",
+    "tutorial"
+  ],
+  "source": {
+    "repo": "Barty-Bart/motion-graphics",
+    "url": "https://github.com/Barty-Bart/motion-graphics",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "skills/sound-effects/sfx/",
+    "skills/sound-effects/sfx/manifest.json",
+    "skills/sound-effects/LICENSES.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Verified: LICENSES.md says all bundled files are CC0 (Kenney packs and per-file CC0 Freesound), 2.6 MB. The 'typing' kit sound is a Mixkit download at runtime and must not be bundled. Keep LICENSES.md with the files.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

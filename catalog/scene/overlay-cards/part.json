@@ -1,0 +1,51 @@
+{
+  "schema": 2,
+  "id": "overlay-cards",
+  "kind": "scene",
+  "title": "Overlay cards over a speaker (5 templates, 16:9 and 9:16)",
+  "what_it_does": "Writes one transparent card scene for a talking-head video: lower-third (name and role), takeaway (label and sentence), stat (number and meaning), quote, keyword. Every colour and font is a frame.md variable; each card exists for 16:9 and 9:16.",
+  "when_to_use": "On the beats of the speech: a name when the person first speaks, a number when they say it, a takeaway when they sum up. About one card per 6-8 s at most. Not a replacement for full-screen explainer scenes.",
+  "lanes": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "ref": "10511e5af86fc47756ea89803b397422e2d89284",
+    "licence": "MIT",
+    "assets_licence": "The AI Automation Society brand assets of the upstream repo (logo, brand tokens, guideline, example project content) are not licensed and are not included; no AIS colours or fonts remain.",
+    "how": "copied"
+  },
+  "attribution": "overlay-cards: adapted from nateherkai/herk-edit-kit style-library/02-kallaway tier-2 cards (MIT, (c) 2026 Nate Herk; Herk Edit Kit Use Permission retained in parts/overlay-cards/PIPELINE-USE-PERMISSION.txt)",
+  "builtin": false,
+  "registry": null,
+  "files": [
+    {
+      "from": "files/build-card.mjs",
+      "to": "parts/overlay-cards/build-card.mjs"
+    },
+    {
+      "from": "files/LICENSE",
+      "to": "parts/overlay-cards/LICENSE"
+    },
+    {
+      "from": "files/PIPELINE-USE-PERMISSION.txt",
+      "to": "parts/overlay-cards/PIPELINE-USE-PERMISSION.txt"
+    }
+  ],
+  "docs": "files/README.md",
+  "requires": [
+    "captions"
+  ],
+  "needs": [
+    "node"
+  ],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [],
+  "notes": "Adapted, not verbatim: the anatomy and entrance stagger of the byline, takeaway and metric cards were kept; the markup, sizes, 9:16 layout and all tokens are rewritten. The upstream PIPELINE-USE-PERMISSION notice must travel with the files, so it is installed next to them. The five-template set is deliberately small; the upstream style library has about 120 more. End-to-end proof: catalog/lanes/talking-head/example/run-proof.sh."
+}

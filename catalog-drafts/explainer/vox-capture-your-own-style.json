@@ -1,0 +1,28 @@
+{
+  "id": "vox-capture-your-own-style",
+  "kind": "recipe",
+  "title": "Capture any visual style into your own pack",
+  "what_it_does": "A 7-step method for turning a style seen elsewhere into a reusable pack (palette, type, motion, texture, laws).",
+  "when_to_use": "When a person wants their own channel look instead of a preset.",
+  "lane": [
+    "explainer",
+    "social"
+  ],
+  "source": {
+    "repo": "Cele-san/vox-style-animation",
+    "url": "https://github.com/Cele-san/vox-style-animation",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "skills/vox-style-animation/references/capture-your-own-style.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Short prose, MIT, fits our setup flow where each person ends up with a personal style.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

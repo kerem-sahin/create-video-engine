@@ -1,0 +1,28 @@
+{
+  "id": "hf-launches-other",
+  "kind": "scene",
+  "title": "Other HeyGen launch films",
+  "what_it_does": "Full compositions for Figma, Claude, SpaceX, Codex, Cloud Render, Inspector, Variables and others, with STORYBOARD and HANDOFF files.",
+  "when_to_use": "Study only: how a 30 to 60 s launch is storyboarded, seam by seam.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes-launches",
+    "url": "https://github.com/heygen-com/hyperframes-launches",
+    "licence": "Apache-2.0",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "sfx-music-launch/STORYBOARD.md",
+    "texture-launch-video/DESIGN.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "link-only",
+  "why": "Code is Apache-2.0 but each film is built around a third-party brand (Claude, Figma, SpaceX), logos, audio and fonts that the NOTICE excludes. Not a part; read the storyboards as a model for our own STORYBOARD format.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

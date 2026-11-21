@@ -1,0 +1,9 @@
+{
+  "schema": 2,
+  "engine": "create-video-engine@__ENGINE_VERSION__",
+  "hyperframes": "__HYPERFRAMES_VERSION__",
+  "brands": [],
+  "lanes": [],
+  "paid": false,
+  "parts": []
+}

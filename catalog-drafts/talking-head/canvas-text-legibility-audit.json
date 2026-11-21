@@ -1,0 +1,31 @@
+{
+  "id": "canvas-text-legibility-audit",
+  "kind": "check",
+  "title": "On-screen text legibility audit for a phone",
+  "what_it_does": "Records every fillText the page draws, joins them into time spans, and fails text held 0.6 s or longer that is too small at phone width (about 6.7 px on a 360 px phone), warns under 8.7 px.",
+  "when_to_use": "Checking captions and cards for phone readability.",
+  "lane": [
+    "talking-head",
+    "social"
+  ],
+  "source": {
+    "repo": "talsiach/take-one",
+    "url": "https://github.com/talsiach/take-one",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "scripts/text-audit.mjs"
+  ],
+  "needs": [
+    "node",
+    "chrome"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "It hooks canvas fillText, which HyperFrames HTML does not use; keep the thresholds and the idea (HyperFrames' own check already measures contrast).",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "vox-alpha-overlay-pack",
+  "kind": "recipe",
+  "title": "Alpha overlays for editing in another app",
+  "what_it_does": "How to render lower-third cards and kinetic pop-ups with transparent background (WebM/ProRes/PNG sequence) and place them over a cut.",
+  "when_to_use": "Person edits in Premiere/Final Cut/CapCut and only wants graphics layers.",
+  "lane": [
+    "explainer",
+    "talking-head"
+  ],
+  "source": {
+    "repo": "Cele-san/vox-style-animation",
+    "url": "https://github.com/Cele-san/vox-style-animation",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skills/vox-style-animation/references/overlay-pack.md"
+  ],
+  "needs": [
+    "gsap",
+    "anime.js"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Useful topic, but HyperFrames already has `render` with transparent output and registry lower thirds; write a short note from our own tests instead of copying.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

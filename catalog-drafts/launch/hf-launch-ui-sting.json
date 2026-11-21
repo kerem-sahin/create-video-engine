@@ -1,0 +1,33 @@
+{
+  "id": "hf-launch-ui-sting",
+  "kind": "scene",
+  "title": "HeyGen launch template 01-ui-sting",
+  "what_it_does": "10.8 s square sting: logo, sign-in card, counter, nav, click, menu, endcard, cut as one camera move with a vector ledger per seam.",
+  "when_to_use": "Short product sting for a feature or app intro; slots map onto any product surface.",
+  "lane": [
+    "product-launch",
+    "social"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes-launches",
+    "url": "https://github.com/heygen-com/hyperframes-launches",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "heygen-apple-motion/01-ui-sting/index.html",
+    "heygen-apple-motion/01-ui-sting/README.md",
+    "heygen-apple-motion/01-ui-sting/ledger.json"
+  ],
+  "needs": [
+    "hyperframes",
+    "gsap"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Apache-2.0 composition source by HeyGen, built to be re-branded (720x720, 30 fps). Copy only index.html, README and ledger; do not copy the HeyGen logo and wordmark SVGs (NOTICE excludes brand assets from the licence). Upstream pins hyperframes 0.7.94 and gsap 3.14.2, so a render under 0.9.67 still has to be confirmed.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

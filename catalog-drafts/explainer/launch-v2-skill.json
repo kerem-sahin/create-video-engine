@@ -1,0 +1,31 @@
+{
+  "id": "launch-v2-skill",
+  "kind": "recipe",
+  "title": "Website URL to launch film (v2)",
+  "what_it_does": "Skill that reads a site, writes a story, directs scenes and renders a 60 fps film with music and SFX.",
+  "when_to_use": "Product-launch videos.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "AbubakrChan/product-launch-motion",
+    "url": "https://github.com/AbubakrChan/product-launch-motion",
+    "licence": "MIT",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "SKILL.md",
+    "references/prompts.md"
+  ],
+  "needs": [
+    "playwright",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "link-only",
+  "why": "MIT, but the sample films and logos are excluded by NOTICE and it no longer targets HyperFrames. Link to it from the product-launch lane.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

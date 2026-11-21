@@ -1,0 +1,32 @@
+{
+  "id": "beat-sync-validator",
+  "kind": "check",
+  "title": "Overlay-to-speech sync validator",
+  "what_it_does": "Reads a HyperFrames index.html, resolves every beat's absolute start, finds each beat's data-anchor word in the transcript, and fails if the overlay starts more than 0.2 s before or 1.8 s after that word. Can print corrected data-start values.",
+  "when_to_use": "After placing overlays or cards on a talking-head HyperFrames project.",
+  "lane": [
+    "talking-head",
+    "tutorial"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "scripts/validate-beat-sync.mjs"
+  ],
+  "needs": [
+    "node",
+    "a HyperFrames project",
+    "word-level transcript"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT, written for HyperFrames compositions; an objective check that overlays land on the words they illustrate.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

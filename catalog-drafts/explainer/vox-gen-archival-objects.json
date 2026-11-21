@@ -1,0 +1,30 @@
+{
+  "id": "vox-gen-archival-objects",
+  "kind": "tool",
+  "title": "Archival object image generator",
+  "what_it_does": "Calls the OpenAI image API to generate white-background object illustrations for the halftone baker.",
+  "when_to_use": "Making collage objects when the person has no images.",
+  "lane": [
+    "explainer"
+  ],
+  "source": {
+    "repo": "Cele-san/vox-style-animation",
+    "url": "https://github.com/Cele-san/vox-style-animation",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skills/vox-style-animation/scripts/gen_archival_objects.py"
+  ],
+  "needs": [
+    "python",
+    "OPENAI_API_KEY"
+  ],
+  "paid_api": true,
+  "decision": "idea",
+  "why": "Tied to one paid provider and trivial (65 lines). Reimplement against whichever image source the person has, or use free stock.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "id": "brag-poster-frame",
+  "kind": "tool",
+  "title": "Bake poster as frame 0",
+  "what_it_does": "Picks the strongest settled frame, extracts it, and overlays it on frame 0 so every thumbnail grabber shows it.",
+  "when_to_use": "After render, for any video that will be posted.",
+  "lane": [
+    "product-launch",
+    "social"
+  ],
+  "source": {
+    "repo": "latent-spaces/brag",
+    "url": "https://github.com/latent-spaces/brag",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skills/brag/references/step-4-deliver.md"
+  ],
+  "needs": [
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "Already reimplemented in our engine; nothing more to take.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

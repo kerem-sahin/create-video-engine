@@ -1,0 +1,34 @@
+{
+  "id": "kallaway-overlay-cards",
+  "kind": "scene",
+  "title": "Kallaway-style dark overlay cards (full-screen and lower-third)",
+  "what_it_does": "About 300 HTML cards in a dark creator style: tier 1 full-screen takeovers (stats, agenda, comparisons, flows) and tier 2 floating callouts, badges and labels over the speaker, with slots and a registry.json index.",
+  "when_to_use": "Adding designed cards over a talking-head video.",
+  "lane": [
+    "talking-head",
+    "explainer"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "style-library/02-kallaway/cards/",
+    "style-library/02-kallaway/style.json",
+    "style-library/registry.json",
+    "style-library/GUIDE.md"
+  ],
+  "needs": [
+    "HyperFrames",
+    "gsap"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT-style grant covers the cards; colours come from the AIS brand (tokens.css) and AIS logo/guideline are explicitly not licensed, so take the cards and replace the tokens with ours. Card HTML is 1920x1080 fixed, so vertical needs rework.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

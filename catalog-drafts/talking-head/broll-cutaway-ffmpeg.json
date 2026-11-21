@@ -1,0 +1,30 @@
+{
+  "id": "broll-cutaway-ffmpeg",
+  "kind": "tool",
+  "title": "B-roll cutaway (ffmpeg)",
+  "what_it_does": "Shows clip B over clip A for a chosen window while A's audio keeps playing (or B's, or a mix), then returns to A. Output stays exactly as long as A. Several cutaways per call.",
+  "when_to_use": "Adding product or screen footage over a talking-head take at known timestamps.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "kajisho5/ffmpeg-skill",
+    "url": "https://github.com/kajisho5/ffmpeg-skill",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "scripts/broll.py"
+  ],
+  "needs": [
+    "ffmpeg 6.1+",
+    "python3"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Small, well-documented, does what a B-roll cut needs; an alternative to doing the cutaway as HyperFrames layers when no motion is needed.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

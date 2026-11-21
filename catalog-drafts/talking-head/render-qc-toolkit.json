@@ -1,0 +1,35 @@
+{
+  "id": "render-qc-toolkit",
+  "kind": "check",
+  "title": "Render QC: loudness, dead frames, empty first frame",
+  "what_it_does": "qc.py checks a render against YouTube loudness (-14 LUFS, -1 dBTP), finds stretches over 3 s where nothing on screen changes, black gaps, and an empty first frame (the cover on Shorts and Reels), plus per-scene pacing in words per minute.",
+  "when_to_use": "Before delivering any video; the first-frame and dead-picture checks are the ones people forget.",
+  "lane": [
+    "talking-head",
+    "social",
+    "explainer"
+  ],
+  "source": {
+    "repo": "digitalsamba/claude-code-video-toolkit",
+    "url": "https://github.com/digitalsamba/claude-code-video-toolkit",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "tools/qc.py",
+    "tools/pacing.py",
+    "tests/python/test_qc_opening.py",
+    "tests/python/test_qc_motion_stop.py"
+  ],
+  "needs": [
+    "ffmpeg",
+    "python3"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "The file is 1072 lines tied to Remotion project configs; only the --render checks are portable, so reimplement those against a HyperFrames output instead of copying.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

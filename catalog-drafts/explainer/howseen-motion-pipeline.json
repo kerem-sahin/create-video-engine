@@ -1,0 +1,32 @@
+{
+  "id": "howseen-motion-pipeline",
+  "kind": "tool",
+  "title": "Playwright + ffmpeg motion pipeline",
+  "what_it_does": "seek(t) engine, subframe motion blur, beat/drop analysis, SFX by measured peak, remake mode that copies another video 1:1.",
+  "when_to_use": "Alternative renderer.",
+  "lane": [
+    "explainer"
+  ],
+  "source": {
+    "repo": "howseen-ai/claude-motion-design",
+    "url": "https://github.com/howseen-ai/claude-motion-design",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skill/motion-design/scripts/",
+    "skill/motion-design/scripts/remake/"
+  ],
+  "needs": [
+    "python",
+    "playwright",
+    "imageio-ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "We render with HyperFrames. Remake mode copies existing films shot by shot, which is a copyright and brand risk we should not ship.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

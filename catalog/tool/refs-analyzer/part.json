@@ -1,0 +1,38 @@
+{
+  "schema": 2,
+  "id": "refs-analyzer",
+  "kind": "tool",
+  "title": "Reference video analyzer",
+  "what_it_does": "Measures a reference video (cuts, shot lengths, palette, motion energy) and writes analysis.json, GRAMMAR.md and a contact sheet.",
+  "when_to_use": "In setup, for each video the person loves or dislikes: take its grammar (rhythm, cut rate), never its content, logo or exact palette.",
+  "lanes": [
+    "product-launch",
+    "social-photo",
+    "talking-head"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": true,
+  "registry": null,
+  "files": [],
+  "docs": null,
+  "requires": [],
+  "needs": [],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [
+    "B8"
+  ],
+  "notes": "The source url is a placeholder (OWNER) until the repository is published. Builtin: a command of this CLI; add only records it in the studio."
+}

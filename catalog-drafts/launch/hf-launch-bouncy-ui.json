@@ -1,0 +1,32 @@
+{
+  "id": "hf-launch-bouncy-ui",
+  "kind": "scene",
+  "title": "HeyGen launch template 02-bouncy-ui",
+  "what_it_does": "12 s square: a prompt is typed and generated, result UI flips and threads in with springy 3D and shadows.",
+  "when_to_use": "AI or generative product launch where the result arriving is the story.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes-launches",
+    "url": "https://github.com/heygen-com/hyperframes-launches",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "heygen-apple-motion/02-bouncy-ui/index.html",
+    "heygen-apple-motion/02-bouncy-ui/README.md",
+    "heygen-apple-motion/02-bouncy-ui/ledger.json"
+  ],
+  "needs": [
+    "hyperframes",
+    "gsap"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Apache-2.0 composition source by HeyGen, built to be re-branded (1080x1080). Copy only index.html, README and ledger; do not copy the HeyGen logo and wordmark SVGs (NOTICE excludes brand assets from the licence). Upstream pins hyperframes 0.7.94 and gsap 3.14.2, so a render under 0.9.67 still has to be confirmed.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

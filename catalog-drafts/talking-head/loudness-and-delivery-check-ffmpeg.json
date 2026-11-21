@@ -1,0 +1,34 @@
+{
+  "id": "loudness-and-delivery-check-ffmpeg",
+  "kind": "check",
+  "title": "Loudness normalise and delivery check (ffmpeg)",
+  "what_it_does": "loudness.py measures and normalises to a LUFS target; check.py tests a finished file against a platform (codec, size, aspect, fps, loudness, length) and reports pass/warn with the numbers.",
+  "when_to_use": "Last step before upload; catches wrong loudness and format problems.",
+  "lane": [
+    "talking-head",
+    "social",
+    "tutorial"
+  ],
+  "source": {
+    "repo": "kajisho5/ffmpeg-skill",
+    "url": "https://github.com/kajisho5/ffmpeg-skill",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "scripts/loudness.py",
+    "scripts/check.py",
+    "scripts/_platforms.py"
+  ],
+  "needs": [
+    "ffmpeg 6.1+",
+    "python3"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Numbers come from measurement, not guesses; the platform table notes which limits are guidance only.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

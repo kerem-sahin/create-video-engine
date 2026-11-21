@@ -1,0 +1,30 @@
+{
+  "id": "left-glass-popout-template",
+  "kind": "scene",
+  "title": "Camera reframe with glass panel over footage",
+  "what_it_does": "HyperFrames scene template: crop and reframe a talking-head clip to one side while an animated glass card pops out on the other; supply source.mp4 and edit copy and timing.",
+  "when_to_use": "A talking-head intro or key point with one card.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "style-templates/left-glass-popout/"
+  ],
+  "needs": [
+    "HyperFrames",
+    "gsap"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT; real hyperframes.json project at 1920x1080/60fps; loads GSAP from a CDN, so localise it when copying.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

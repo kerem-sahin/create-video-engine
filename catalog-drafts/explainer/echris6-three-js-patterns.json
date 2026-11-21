@@ -1,0 +1,31 @@
+{
+  "id": "echris6-three-js-patterns",
+  "kind": "recipe",
+  "title": "Deterministic Three.js scene patterns",
+  "what_it_does": "Seekable Three.js scenes, projected overlay callouts, lab template for one component.",
+  "when_to_use": "3D object scenes on the HyperFrames clock.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "echris6/motion-video-kit",
+    "url": "https://github.com/echris6/motion-video-kit",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "business-motion-film/references/three-js-patterns.md",
+    "business-motion-film/templates/projected-overlays.js",
+    "business-motion-film/templates/component-lab.html"
+  ],
+  "needs": [
+    "three.js"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Product-launch material, not core to explainers. Passing to that lane.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

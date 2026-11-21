@@ -1,0 +1,31 @@
+{
+  "id": "click-zoom-screen-recording",
+  "kind": "motion",
+  "title": "Click-aware camera for screen recordings",
+  "what_it_does": "Detects clicks in a screen recording and writes a zoom track strong enough that text at each click reaches a minimum on-screen size on a phone.",
+  "when_to_use": "Tutorials with screen recordings watched on phones.",
+  "lane": [
+    "tutorial"
+  ],
+  "source": {
+    "repo": "veedstudio/open-edit",
+    "url": "https://github.com/veedstudio/open-edit",
+    "licence": "Apache-2.0",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "cli/src/commands/zoom.ts",
+    "cli/src/zoom/"
+  ],
+  "needs": [
+    "node",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Tutorial lane, not talking-head; keep the idea for the tutorial group.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "id": "bart-explainer-templates",
+  "kind": "recipe",
+  "title": "Three explainer styles (high-energy, default demo, engaging one-take)",
+  "what_it_does": "Skill briefs for a 12-20 s hype promo, a 45-90 s calm product demo and a 10-30 s one-take story with a hero element travelling through stations.",
+  "when_to_use": "Product explainers; one-take story is the interesting one.",
+  "lane": [
+    "product-launch",
+    "explainer"
+  ],
+  "source": {
+    "repo": "Barty-Bart/motion-graphics",
+    "url": "https://github.com/Barty-Bart/motion-graphics",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skills/explainer-high-energy/SKILL.md",
+    "skills/explainer-default/SKILL.md",
+    "skills/explainer-engaging/SKILL.md"
+  ],
+  "needs": [
+    "python",
+    "playwright"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Render pipeline is their own, not HyperFrames. The structure (brief, beat map, stations on one canvas) is worth reimplementing as a HyperFrames recipe.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

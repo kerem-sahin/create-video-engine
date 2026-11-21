@@ -1,0 +1,29 @@
+{
+  "id": "edl-review-page",
+  "kind": "check",
+  "title": "EDL review page (kept vs cut, side by side)",
+  "what_it_does": "Builds one HTML page with a timeline showing kept (green) and removed (red) parts, the biggest cuts listed, and the original and edited videos side by side so each cut can be heard.",
+  "when_to_use": "After automatic silence or mistake cutting, to let the person approve it.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "scripts/build-edl-review.mjs"
+  ],
+  "needs": [
+    "node"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT, self-contained HTML; it makes automatic cutting trustworthy because the person can hear what was removed.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

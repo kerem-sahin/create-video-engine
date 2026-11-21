@@ -1,0 +1,29 @@
+{
+  "id": "hf-bar-chart-race",
+  "kind": "scene",
+  "title": "Bar chart race",
+  "what_it_does": "Ranked bars grow and overtake each other over a time series; axis rescales and the accent follows the leader. Data, title and periods are editable variables.",
+  "when_to_use": "Showing how a ranking changed over time (market share, subscribers, scores).",
+  "lane": [
+    "explainer"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes",
+    "url": "https://github.com/heygen-com/hyperframes",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "registry/blocks/bar-chart-race/"
+  ],
+  "needs": [
+    "gsap (jsDelivr CDN, fixed 3.14.2)"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Official block, 10 variables, installs with `hyperframes add bar-chart-race`; fills the chart-race slot nothing else covers.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

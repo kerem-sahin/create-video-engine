@@ -1,0 +1,37 @@
+{
+  "schema": 2,
+  "id": "onetake-continuity",
+  "kind": "motion",
+  "title": "onetake (continuity between scenes), link only",
+  "what_it_does": "Points to onetake, a project about keeping one element carried across a cut so scenes do not read as separate slides.",
+  "when_to_use": "Read it for the idea only. Its licence forbids commercial use, so nothing from it is copied: our own continuity helper is written from the idea alone.",
+  "lanes": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "onetake",
+    "url": "https://github.com/search?q=onetake+video&type=repositories",
+    "ref": null,
+    "licence": "PolyForm-Noncommercial",
+    "assets_licence": null,
+    "how": "link-only"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [],
+  "docs": null,
+  "requires": [],
+  "needs": [],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [
+    "G4",
+    "C10"
+  ],
+  "notes": "Link-only. PolyForm Noncommercial: do not copy its code or text. The url is a search link because the exact repository address was not checked; replace it with the repo address before publishing."
+}

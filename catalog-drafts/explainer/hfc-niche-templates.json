@@ -1,0 +1,31 @@
+{
+  "id": "hfc-niche-templates",
+  "kind": "scene",
+  "title": "Niche templates (duo, x-posting-license, prod-by-claude, session-story, day-in-my-life)",
+  "what_it_does": "Five single-purpose templates: foldable-phone comparison, X profile ID card, Strudel code music video, two session-story films from local Claude history.",
+  "when_to_use": "Meme or personal-brand one-offs.",
+  "lane": [
+    "social"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes-community-skills",
+    "url": "https://github.com/heygen-com/hyperframes-community-skills",
+    "licence": "Apache-2.0",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "skills/duo/",
+    "skills/x-posting-license/",
+    "skills/prod-by-claude/",
+    "skills/session-story/",
+    "skills/day-in-my-life/"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "Not explainer work. session-story and day-in-my-life read local Claude Code history, a privacy risk to avoid; the X one imitates another brand's ID style.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

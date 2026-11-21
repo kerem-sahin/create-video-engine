@@ -1,0 +1,32 @@
+{
+  "id": "personal-brand-video-skill",
+  "kind": "recipe",
+  "title": "Personal brand video storyboard skill",
+  "what_it_does": "SKILL.md and references for a 6-scene founder/portfolio video: hook, what I build, proof, how, impact, CTA, storyboard template, QA checklist.",
+  "when_to_use": "Planning a founder intro video.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "yusufferdogan/Personal-Brand-Video-Skill",
+    "url": "https://github.com/yusufferdogan/Personal-Brand-Video-Skill",
+    "licence": "none (no LICENSE file in repo)",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "SKILL.md",
+    "references/storyboard-template.md",
+    "references/scene-patterns.md",
+    "references/quality-checklist.md"
+  ],
+  "needs": [
+    "Remotion"
+  ],
+  "paid_api": false,
+  "decision": "link-only",
+  "why": "The repo has no LICENSE file (GitHub shows none), so default copyright applies; also Remotion-only and last updated 2026-01-25. We write our own 6-scene founder structure.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

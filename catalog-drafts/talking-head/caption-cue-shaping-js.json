@@ -1,0 +1,33 @@
+{
+  "id": "caption-cue-shaping-js",
+  "kind": "motion",
+  "title": "Caption cue layout (plain JS for an HTML page)",
+  "what_it_does": "Pure JS that turns word timings into caption cues: 2 lines of 42 characters (Netflix timed-text rules), cues held half a second past the last word, small gaps closed, at most two emphasised key words, fitted to the element width. The look stays in the page's CSS.",
+  "when_to_use": "Captions on any HTML composition, including HyperFrames.",
+  "lane": [
+    "talking-head",
+    "social",
+    "tutorial"
+  ],
+  "source": {
+    "repo": "veedstudio/open-edit",
+    "url": "https://github.com/veedstudio/open-edit",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "cli/src/captions/page-script.ts",
+    "cli/src/commands/captions.ts",
+    "cli/tests/ (captions tests)"
+  ],
+  "needs": [
+    "node"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Apache-2.0; written as plain source on purpose so it can be injected into a page. It expects the open-edit page clock (__seek), so it needs a small adapter to HyperFrames' GSAP timeline.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

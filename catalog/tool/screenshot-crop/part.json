@@ -1,0 +1,36 @@
+{
+  "schema": 2,
+  "id": "screenshot-crop",
+  "kind": "tool",
+  "title": "Screenshot crop (real app screen only)",
+  "what_it_does": "Crops a store screenshot to the real app screen by removing the caption band, margins and device frame, optionally also the iOS status bar.",
+  "when_to_use": "Whenever a video uses an App Store or marketing screenshot: video may show only the real UI, never the caption or the phone frame.",
+  "lanes": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": true,
+  "registry": null,
+  "files": [],
+  "docs": null,
+  "requires": [],
+  "needs": [],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [
+    "B7"
+  ],
+  "notes": "The source url is a placeholder (OWNER) until the repository is published. Builtin: a command of this CLI; add only records it in the studio."
+}

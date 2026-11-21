@@ -1,0 +1,33 @@
+{
+  "id": "tugra-theme-gallery",
+  "kind": "recipe",
+  "title": "101 visual themes with theme picker",
+  "what_it_does": "101 theme sheets (data storytelling, metaphor, type, era, material, light, character, camera). Each has a summary, look, component kit, motion plan and per-theme story; pick_themes.py shortlists by tone/audience and skips the last five films' themes.",
+  "when_to_use": "Choosing a concept for a new video; 10 themes are data-story ones (Sankey, bar race, Rosling bubbles, nightingale rose, streamgraph, hex cartogram).",
+  "lane": [
+    "explainer",
+    "product-launch",
+    "social"
+  ],
+  "source": {
+    "repo": "tugrawork-creator/saas-motion-kit",
+    "url": "https://github.com/tugrawork-creator/saas-motion-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "docs/themes/data/",
+    "tools/pick_themes.py",
+    "creative/tone-matrix.md"
+  ],
+  "needs": [
+    "python"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "The sheets are static SVG/HTML concept boards, not runnable compositions, so they are ideas to build from. Ship only the JSON data (about 100 small files) and the picker; leave the 12 MB of thumbnails.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

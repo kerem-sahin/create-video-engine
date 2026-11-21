@@ -1,0 +1,29 @@
+{
+  "id": "echris6-motion-grammar",
+  "kind": "recipe",
+  "title": "Motion grammar and pacing numbers",
+  "what_it_does": "Six rules, 16 reusable mechanisms and pacing numbers distilled from 28 launch films, with links only to originals.",
+  "when_to_use": "Planning scene variety and pacing.",
+  "lane": [
+    "product-launch",
+    "explainer"
+  ],
+  "source": {
+    "repo": "echris6/motion-video-kit",
+    "url": "https://github.com/echris6/motion-video-kit",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "business-motion-film/references/motion-grammar.md",
+    "business-motion-film/references/launch-film-notes.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Good, but skewed to commercials; fold the rules into our storyboard recipe rather than shipping the file.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

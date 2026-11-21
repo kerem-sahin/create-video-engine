@@ -1,0 +1,33 @@
+{
+  "id": "hfc-velocity-matched-transitions",
+  "kind": "motion",
+  "title": "Velocity-matched transitions and keyframe overlap",
+  "what_it_does": "Rules plus GSAP templates for zoom-through, directional and other cuts that keep speed across the seam, and overlapping stages of one element's motion so there is no dead frame.",
+  "when_to_use": "Smooth scene changes and entrance chains.",
+  "lane": [
+    "explainer",
+    "product-launch"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes-community-skills",
+    "url": "https://github.com/heygen-com/hyperframes-community-skills",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "skills/vox-explainer/references/velocity-matched-transitions.md",
+    "skills/vox-explainer/references/velocity-matched-transitions-gsap.md",
+    "skills/vox-explainer/references/animation-overlap.md",
+    "skills/vox-explainer/references/motion-continuity.md"
+  ],
+  "needs": [
+    "gsap (jsDelivr CDN, fixed 3.14.2)"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "This is the nearest thing to our carry helper and is written for HyperFrames. Read it against ours before deciding which wins; the overlap rule (no dead frame between two stages) is the new part.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

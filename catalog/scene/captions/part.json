@@ -1,0 +1,45 @@
+{
+  "schema": 2,
+  "id": "captions",
+  "kind": "scene",
+  "title": "Captions from the word JSON (clean and pop)",
+  "what_it_does": "Writes a HyperFrames caption sub-composition from the word JSON: 'clean' shows sentence lines on a soft scrim, 'pop' highlights the spoken word, 2-3 words at a time. Colours and fonts come from the brand's frame.md (frame-vars.mjs makes the CSS variables). Safe zones for 16:9 and 9:16.",
+  "when_to_use": "Any video with speech that needs on-screen text; most viewers watch muted. Feed it the retimed word JSON from silence-cut (or a short's word file). Not for lyrics or non-spaced scripts (Chinese, Japanese).",
+  "lanes": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    {
+      "from": "files/build-captions.mjs",
+      "to": "parts/captions/build-captions.mjs"
+    },
+    {
+      "from": "files/frame-vars.mjs",
+      "to": "parts/captions/frame-vars.mjs"
+    }
+  ],
+  "docs": "files/README.md",
+  "requires": [],
+  "needs": [
+    "node"
+  ],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [],
+  "notes": "Own code, following HyperFrames' references/captions.md (group size, hard kill, safe zones). Expected check warnings: composition_file_too_large and timeline_track_too_dense on long videos; they are about file size, not about the picture. End-to-end proof: catalog/lanes/talking-head/example/run-proof.sh."
+}

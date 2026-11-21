@@ -1,0 +1,44 @@
+{
+  "schema": 2,
+  "id": "silence-cut",
+  "kind": "tool",
+  "title": "Silence and filler cut with an EDL to approve",
+  "what_it_does": "Finds pauses (ffmpeg silencedetect) and filler words (Turkish ıı/eee, optionally şey; English um/uh), writes an edit decision list the person can approve, then cuts frame-accurately into cut.mp4 and writes the word JSON retimed to the cut. Keeps 0.12 s of audio around speech.",
+  "when_to_use": "After transcribe-local on a talking recording, before captions and cards. The cut file, not the raw file, is what the composition uses, so captions stay in sync. Not for music or footage without speech.",
+  "lanes": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    {
+      "from": "files/silence-cut.mjs",
+      "to": "parts/silence-cut/silence-cut.mjs"
+    }
+  ],
+  "docs": "files/README.md",
+  "requires": [
+    "transcribe-local"
+  ],
+  "needs": [
+    "ffmpeg",
+    "ffprobe"
+  ],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [],
+  "notes": "Own code. The EDL-then-apply idea follows herk-edit-kit's cut-silences and the filler/pause options follow kajisho5/ffmpeg-skill's silence.py (both MIT); no code from either is copied. End-to-end proof: catalog/lanes/talking-head/example/run-proof.sh."
+}

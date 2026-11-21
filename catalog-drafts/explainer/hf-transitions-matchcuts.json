@@ -1,0 +1,38 @@
+{
+  "id": "hf-transitions-matchcuts",
+  "kind": "motion",
+  "title": "Transitions and match cuts",
+  "what_it_does": "Scene-to-scene transitions: the transitions-* block families (push, cover, blur, dissolve, grid, radial, ...), match-cut, text-match-cut, type-match-cut, whip-pan-cut, iris-reveal, curtain-reveal, fade-through, directional-wipe, plus GPU shader transitions.",
+  "when_to_use": "Every cut between explainer scenes.",
+  "lane": [
+    "explainer",
+    "product-launch",
+    "social"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes",
+    "url": "https://github.com/heygen-com/hyperframes",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "registry/blocks/transitions-push/",
+    "registry/blocks/transitions-dissolve/",
+    "registry/components/match-cut/",
+    "registry/components/text-match-cut/",
+    "registry/components/type-match-cut/",
+    "registry/components/whip-pan-cut/",
+    "registry/components/iris-reveal/"
+  ],
+  "needs": [
+    "gsap (jsDelivr CDN, fixed 3.14.2)",
+    "WebGL/WebGPU for shader ones"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Official. Shader transitions need GPU in the render browser; offer the DOM/clip-path ones by default.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

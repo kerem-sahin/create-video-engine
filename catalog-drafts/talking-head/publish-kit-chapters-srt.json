@@ -1,0 +1,33 @@
+{
+  "id": "publish-kit-chapters-srt",
+  "kind": "recipe",
+  "title": "YouTube publish kit: SRT and chapters",
+  "what_it_does": "publish_kit.py transcribes the final render once, aligns it to the script, writes video.srt and chapters.txt (first chapter at 0:00, at least three, each 10 s or longer, short scenes merged into the previous one).",
+  "when_to_use": "After the render, before uploading to YouTube.",
+  "lane": [
+    "talking-head",
+    "tutorial",
+    "explainer"
+  ],
+  "source": {
+    "repo": "digitalsamba/claude-code-video-toolkit",
+    "url": "https://github.com/digitalsamba/claude-code-video-toolkit",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "tools/publish_kit.py",
+    "tests/python/test_publish_kit.py"
+  ],
+  "needs": [
+    "python3",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Chapter rules are the valuable bit; the script depends on the toolkit's scene files and Scribe or Whisper, so write our own that reads our project's scenes.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

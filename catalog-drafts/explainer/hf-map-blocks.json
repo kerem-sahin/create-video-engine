@@ -1,0 +1,35 @@
+{
+  "id": "hf-map-blocks",
+  "kind": "scene",
+  "title": "Map blocks (world, US, Spain, choropleth, bubbles, flow arcs)",
+  "what_it_does": "Choropleth/bubble/hex/flow-arc map scenes: world-map, us-map, us-map-bubble, us-map-flow, us-map-hex, spain-map.",
+  "when_to_use": "Geography stories, where something happens or spreads.",
+  "lane": [
+    "explainer"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes",
+    "url": "https://github.com/heygen-com/hyperframes",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "registry/blocks/world-map/",
+    "registry/blocks/us-map/",
+    "registry/blocks/us-map-bubble/",
+    "registry/blocks/us-map-flow/",
+    "registry/blocks/us-map-hex/",
+    "registry/blocks/spain-map/"
+  ],
+  "needs": [
+    "gsap (jsDelivr CDN, fixed 3.14.2)",
+    "d3 7.9.0, topojson-client, world-atlas/us-atlas/es-atlas JSON from jsDelivr at render time"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Official. They fetch map data from a CDN while rendering, so a render needs network unless the data is vendored; note this in the part's README. No Turkey map exists: that one would have to be written.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "edit-video-pipeline",
+  "kind": "recipe",
+  "title": "Full talking-head edit pipeline",
+  "what_it_does": "Master skill: probe, transcribe, silence cut, mistake review, beat sheet, composition, preflight and lint, draft render, listen across cuts, then a VERIFY.md of what was checked and what remains. Says outright that automatic detectors propose and a person decides.",
+  "when_to_use": "A complete edit of a raw recording for YouTube.",
+  "lane": [
+    "talking-head",
+    "tutorial"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    ".claude/skills/edit-video/SKILL.md",
+    "docs/WORKFLOW.md",
+    "docs/VERIFICATION.md",
+    "docs/EDITING-PLAYBOOK.md"
+  ],
+  "needs": [
+    "node",
+    "ffmpeg",
+    "HyperFrames"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT; ties the other herk parts together; replace Nate's ElevenLabs default with our local transcription.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

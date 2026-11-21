@@ -1,0 +1,31 @@
+{
+  "id": "hfc-vox-explainer",
+  "kind": "recipe",
+  "title": "Plain-sight explainer workflow (collage explainer)",
+  "what_it_does": "End-to-end 60-90 s collage explainer: topic or document routing, research, 9-beat script (about 150 words per minute), static design approval, voiceover timing, motion continuity rules, seam gate. Marked 'Vox-inspired, not affiliated'.",
+  "when_to_use": "The standard narrated explainer from a topic or document.",
+  "lane": [
+    "explainer"
+  ],
+  "source": {
+    "repo": "heygen-com/hyperframes-community-skills",
+    "url": "https://github.com/heygen-com/hyperframes-community-skills",
+    "licence": "Apache-2.0",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "skills/vox-explainer/SKILL.md",
+    "skills/vox-explainer/references/"
+  ],
+  "needs": [
+    "node >= 22",
+    "optional TTS/transcription API (asks first)"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Apache-2.0, maintained by HeyGen's org (last push 2026-11-17) and built for HyperFrames. Best-fitting explainer workflow found. Rename the 'Vox' wording in our catalog.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

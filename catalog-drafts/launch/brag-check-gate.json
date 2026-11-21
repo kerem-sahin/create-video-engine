@@ -1,0 +1,29 @@
+{
+  "id": "brag-check-gate",
+  "kind": "check",
+  "title": "Pre-render check gate rules",
+  "what_it_does": "Rules brag attaches to hyperframes check: contrast failures are errors, 0/0 text checks means contrast is unverified, oklch colors must become hex, and no per-element bypass.",
+  "when_to_use": "When a launch composition passes check but shows no audited text; add as a post-check warning.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "latent-spaces/brag",
+    "url": "https://github.com/latent-spaces/brag",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skills/brag/references/step-4-deliver.md"
+  ],
+  "needs": [
+    "hyperframes"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "The rules are short and already fit our check step; reimplement the 0/0 coverage warning ourselves instead of copying text.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

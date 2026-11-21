@@ -1,0 +1,39 @@
+{
+  "schema": 2,
+  "id": "openverse-source",
+  "kind": "sound",
+  "title": "Openverse stock track search",
+  "what_it_does": "Searches Openverse for a CC0 or CC BY track that fits a mood and length, downloads it and writes the attribution line the video needs.",
+  "when_to_use": "Only when the person asks for a real recorded track. It cannot follow the cuts, so the scorer stays the default; a CC BY track always needs its credit shown.",
+  "lanes": [
+    "product-launch",
+    "social-photo"
+  ],
+  "source": {
+    "repo": "Openverse (WordPress)",
+    "url": "https://openverse.org",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": true,
+  "registry": null,
+  "files": [],
+  "docs": null,
+  "requires": [
+    "music-scorer"
+  ],
+  "needs": [],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [
+    "D2"
+  ],
+  "notes": "The licence field is for our code. The tracks it finds are CC0 or CC BY, and CC BY needs attribution (creditFor builds it). Needs network; that is why it is opt-in with --source openverse. Builtin: a command of this CLI; add only records it in the studio."
+}

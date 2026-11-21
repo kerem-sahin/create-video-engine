@@ -1,0 +1,32 @@
+{
+  "id": "kinetic-reel-skill",
+  "kind": "recipe",
+  "title": "Kinetic typography reel (three.js and canvas)",
+  "what_it_does": "Skill for portfolio and work reels with condensed display type, HUD micro-type and WebGL layers.",
+  "when_to_use": "Showreels and intro films, not footage editing.",
+  "lane": [
+    "product-launch",
+    "social"
+  ],
+  "source": {
+    "repo": "tuzhechen2005/opus-video-skills",
+    "url": "https://github.com/tuzhechen2005/opus-video-skills",
+    "licence": "MIT",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "skills/kinetic-reel/"
+  ],
+  "needs": [
+    "node",
+    "chrome",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "Generates the whole film in code and never edits footage; painted-animation in the same repo is cartoon animation. MIT, so another group can take it.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

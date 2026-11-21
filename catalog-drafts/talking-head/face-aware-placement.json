@@ -1,0 +1,32 @@
+{
+  "id": "face-aware-placement",
+  "kind": "tool",
+  "title": "Face-aware caption and graphic placement",
+  "what_it_does": "MediaPipe finds faces and burned-in graphics shot by shot (faces.json/faces.js); captions and elements are placed away from faces, with one position held through each shot.",
+  "when_to_use": "Captions or lower-thirds on a talking-head video where the speaker moves.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "veedstudio/open-edit",
+    "url": "https://github.com/veedstudio/open-edit",
+    "licence": "Apache-2.0",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "cli/src/commands/faces.ts",
+    "cli/src/faces/"
+  ],
+  "needs": [
+    "node",
+    "python3 + mediapipe",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Good idea but heavy (MediaPipe install, a large TypeScript module); we would do a simple version first: sample face boxes with one ffmpeg/Python script and pick a caption row.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

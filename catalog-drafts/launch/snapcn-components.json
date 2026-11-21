@@ -1,0 +1,31 @@
+{
+  "id": "snapcn-components",
+  "kind": "scene",
+  "title": "snapcn Remotion components (21)",
+  "what_it_does": "Text reveals, device frames, terminal, captions, logo stings and scenes as Remotion React components installed with the shadcn CLI.",
+  "when_to_use": "Not usable: they are React plus Remotion, not HTML plus GSAP.",
+  "lane": [
+    "product-launch",
+    "tutorial"
+  ],
+  "source": {
+    "repo": "shadcn-labs/snapcn",
+    "url": "https://github.com/shadcn-labs/snapcn",
+    "licence": "MIT",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "registry/snap-cn/"
+  ],
+  "needs": [
+    "remotion",
+    "react"
+  ],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "MIT but the wrong runtime for HyperFrames; porting each would be a rewrite. Take the registry design instead.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

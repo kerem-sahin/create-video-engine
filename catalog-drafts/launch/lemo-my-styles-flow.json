@@ -1,0 +1,27 @@
+{
+  "id": "lemo-my-styles-flow",
+  "kind": "recipe",
+  "title": "Make a style your own (idea)",
+  "what_it_does": "One-question-at-a-time interview, summary of each part before and after, one style frame first, a short demo film, then keep it as a named personal style.",
+  "when_to_use": "Shape for our own brand-style setup; the process, not the text.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "lemomo-ai/lemo-opuscar",
+    "url": "https://github.com/lemomo-ai/lemo-opuscar",
+    "licence": "CC-BY-NC-4.0 (README text)",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "README.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Only the idea of safe-to-change versus fixed parts and a frame preview before a film is taken, written fresh by us. README text is CC BY-NC and is not copied.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

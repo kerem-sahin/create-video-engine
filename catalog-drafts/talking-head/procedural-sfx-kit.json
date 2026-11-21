@@ -1,0 +1,35 @@
+{
+  "id": "procedural-sfx-kit",
+  "kind": "sound",
+  "title": "Procedural sound-effect kit",
+  "what_it_does": "Node script that synthesises sound effects in code (no samples, no API), deterministic per seed, and places them on exact frames over a music bed with a cue plan; kit mode checks every sound's metrics.",
+  "when_to_use": "Whooshes and hits under cards and cuts, with no sound library.",
+  "lane": [
+    "talking-head",
+    "product-launch",
+    "social"
+  ],
+  "source": {
+    "repo": "talsiach/take-one",
+    "url": "https://github.com/talsiach/take-one",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "scripts/sfx.mjs",
+    "scripts/music/dsp.mjs",
+    "scripts/music/instruments.mjs",
+    "LICENSES/anidoodle-NOTICE.txt"
+  ],
+  "needs": [
+    "node",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Free, no samples, so no sample licences; adapted from anidoodle (Apache-2.0), so keep its NOTICE. Listen before shipping: synthesised effects can sound thin.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

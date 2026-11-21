@@ -1,0 +1,51 @@
+{
+  "schema": 2,
+  "id": "mp4-checks",
+  "kind": "check",
+  "title": "MP4 checks (the verify measurements)",
+  "what_it_does": "Measures the rendered file: duration and frame rate, first frame, blank, frozen, near-empty and still stretches, cuts on the beat, transition variety against the ledger, poster frame, on-screen numbers against the brief, audio presence and loudness; writes per-shot frames for the critic and five moments for the human. A check that could not run is reported as skipped, never as passed.",
+  "when_to_use": "Before every delivery. The verify skill runs it and reads the report; do not call a video done without it.",
+  "lanes": [
+    "product-launch",
+    "social-photo",
+    "talking-head"
+  ],
+  "source": {
+    "repo": "create-video-engine (ideas: loudness from lemo-opuscar and motion-video-kit, numbers from open-edit, variety from saas-motion-kit, poster from brag, moments from Barty-Bart; all MIT, own code)",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": true,
+  "registry": null,
+  "files": [],
+  "docs": null,
+  "requires": [],
+  "needs": [],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  },
+  "example": null,
+  "requirements": [
+    "E2",
+    "E3",
+    "E4",
+    "E5",
+    "E6",
+    "E7",
+    "E9",
+    "E10",
+    "C7",
+    "C8",
+    "C11",
+    "C12",
+    "C13",
+    "D6"
+  ],
+  "notes": "One card for the whole group: the checks share one report and one set of thresholds, so they are installed together. Builtin: a command of this CLI; add only records it in the studio."
+}

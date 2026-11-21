@@ -1,0 +1,34 @@
+{
+  "id": "cut-mistakes-review",
+  "kind": "tool",
+  "title": "Stutter, false-start and retake finder (review-gated)",
+  "what_it_does": "find-cut-candidates.mjs lists stutters, repeats, false starts and retakes (similar sentences) with context and a recommendation; a person approves each, then apply-cuts.mjs applies the approved ranges. It says plainly that emphasis repeats look like stutters.",
+  "when_to_use": "Second pass after silence removal, when the speaker re-recorded lines.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    ".claude/skills/cut-mistakes/SKILL.md",
+    ".claude/skills/cut-mistakes/scripts/find-cut-candidates.mjs",
+    ".claude/skills/cut-mistakes/scripts/apply-cuts.mjs",
+    "tests/editing.test.mjs"
+  ],
+  "needs": [
+    "node",
+    "ffmpeg",
+    "word-level transcript"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT; has tests; the review gate is the right design for filler and mistake cutting.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

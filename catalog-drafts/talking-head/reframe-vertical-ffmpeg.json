@@ -1,0 +1,34 @@
+{
+  "id": "reframe-vertical-ffmpeg",
+  "kind": "tool",
+  "title": "16:9 to 9:16 reframe and platform export (ffmpeg)",
+  "what_it_does": "fit.py and crop.py fit footage to a target aspect (crop, pad, blur background); render.py templates (youtube, shorts, reels, tiktok, x, linkedin, podcast, audiogram) bundle the right size, length and loudness per platform.",
+  "when_to_use": "Turning a YouTube video into a Reel or Short, or exporting for a platform.",
+  "lane": [
+    "talking-head",
+    "social"
+  ],
+  "source": {
+    "repo": "kajisho5/ffmpeg-skill",
+    "url": "https://github.com/kajisho5/ffmpeg-skill",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "scripts/fit.py",
+    "scripts/crop.py",
+    "scripts/render.py",
+    "templates/"
+  ],
+  "needs": [
+    "ffmpeg 6.1+",
+    "python3"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Platform templates are the useful part; reframe is centre-or-manual, not face-aware (see the toolkit cutdown card for face tracking).",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

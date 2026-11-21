@@ -1,0 +1,28 @@
+{
+  "id": "hyperframes-bundled-skills",
+  "kind": "recipe",
+  "title": "Bundled HyperFrames skills (hyperframes, cli, registry, gsap)",
+  "what_it_does": "Copies of HeyGen's own skills, adapted for portable paths.",
+  "when_to_use": "None; we already have the upstream.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "nateherkai/herk-edit-kit",
+    "url": "https://github.com/nateherkai/herk-edit-kit",
+    "licence": "MIT",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    ".claude/skills/hyperframes/",
+    ".claude/skills/gsap/"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "Duplicates HyperFrames upstream (Apache-2.0); use the upstream copy for 0.9.67.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "bart-sound-pass",
+  "kind": "tool",
+  "title": "Measured sound pass",
+  "what_it_does": "Script that takes a silent MP4 and a cue list, checks the music beat grid against kick drums, places one real effect per cue, mixes to -16 LUFS with true peak below -4 dBFS measured on the exported file, and writes CREDITS.txt and checks.",
+  "when_to_use": "Sound design pass after the render.",
+  "lane": [
+    "explainer",
+    "product-launch",
+    "social"
+  ],
+  "source": {
+    "repo": "Barty-Bart/motion-graphics",
+    "url": "https://github.com/Barty-Bart/motion-graphics",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skills/sound-effects/scripts/sound_pass.py",
+    "skills/sound-effects/scripts/report.py",
+    "skills/sound-effects/SKILL.md"
+  ],
+  "needs": [
+    "python",
+    "librosa",
+    "scipy",
+    "matplotlib",
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Good method (credit to Vox @Voxyz_ai in the file) but overlaps our beat-grid scorer and hyperframes `audio`/`beats`/`normalize-audio`. Take the licence-check and measure-the-MP4 rules, not the script.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

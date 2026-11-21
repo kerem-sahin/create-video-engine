@@ -1,0 +1,15 @@
+{
+  "schema": 2,
+  "id": "talking-head",
+  "title": "Talking-head videos (YouTube, Reels clips)",
+  "for": "Ayşe: records herself talking; wants cuts, captions, cards and short clips.",
+  "ask": "Do you record yourself talking to the camera (YouTube, podcasts, lessons)?",
+  "parts": [
+    "transcribe-local",
+    "silence-cut",
+    "captions",
+    "overlay-cards",
+    "shorts-from-long"
+  ],
+  "recipe": "recipe.md"
+}

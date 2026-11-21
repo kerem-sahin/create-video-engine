@@ -1,0 +1,32 @@
+{
+  "id": "tugra-transition-atlas",
+  "kind": "recipe",
+  "title": "24-transition atlas",
+  "what_it_does": "24 transitions in six families (cut, carry, camera, mask, material, time) with what it is, when to use, when to avoid, energy level and tones, as data plus a browsable page.",
+  "when_to_use": "Picking a transition on purpose instead of defaulting to a fade.",
+  "lane": [
+    "explainer",
+    "product-launch"
+  ],
+  "source": {
+    "repo": "tugrawork-creator/saas-motion-kit",
+    "url": "https://github.com/tugrawork-creator/saas-motion-kit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "docs/transitions/data.json",
+    "creative/transition-atlas.md",
+    "tools/build_transitions.py"
+  ],
+  "needs": [
+    "python"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT (verified LICENSE; API shows NOASSERTION only because of a font note). Pure prose and JSON, so it is cheap and safe to ship.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

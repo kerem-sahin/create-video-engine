@@ -1,0 +1,34 @@
+{
+  "id": "launch-v1-master-and-verify",
+  "kind": "tool",
+  "title": "Two-pass loudness master, SFX levelling, cue verification",
+  "what_it_does": "master.sh (two-pass loudnorm with true-peak limiter), level-sfx.mjs (level the asset, not the cue volume), verify-cue.sh (prove a cue is audible in the delivered file).",
+  "when_to_use": "Final audio mastering of any piece.",
+  "lane": [
+    "explainer",
+    "product-launch"
+  ],
+  "source": {
+    "repo": "AbubakrChan/product-launch-motion",
+    "url": "https://github.com/AbubakrChan/product-launch-motion",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "legacy/scripts/master.sh",
+    "legacy/scripts/level-sfx.mjs",
+    "legacy/scripts/verify-cue.sh",
+    "legacy/references/07-sound-and-master.md"
+  ],
+  "needs": [
+    "ffmpeg",
+    "node"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "Real lessons encoded (clipping after a louder SFX, limiter makeup gain). Check against hyperframes `normalize-audio` first; keep what that does not do.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

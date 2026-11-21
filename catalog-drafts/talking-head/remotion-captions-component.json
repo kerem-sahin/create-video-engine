@@ -1,0 +1,31 @@
+{
+  "id": "remotion-captions-component",
+  "kind": "scene",
+  "title": "Karaoke captions component (Remotion)",
+  "what_it_does": "React component that reads word-timed Caption[] JSON and shows paged karaoke captions with sentence and pause breaks.",
+  "when_to_use": "Not applicable on HyperFrames.",
+  "lane": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "digitalsamba/claude-code-video-toolkit",
+    "url": "https://github.com/digitalsamba/claude-code-video-toolkit",
+    "licence": "MIT",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "lib/components/Captions.tsx",
+    "tools/captions.py"
+  ],
+  "needs": [
+    "remotion",
+    "node"
+  ],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "Remotion-only; the paging rules are covered by the open-edit captions card, which is plain JS for an HTML page.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

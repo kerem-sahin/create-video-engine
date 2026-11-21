@@ -1,0 +1,30 @@
+{
+  "id": "brag-beat-grid-music",
+  "kind": "sound",
+  "title": "Beat grid and cue presets for music",
+  "what_it_does": "analyze_music_cues.py output (beats, strong cues) per bundled track, plus planning notes for the first 20 to 25 seconds.",
+  "when_to_use": "Syncing cuts to a music track.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "latent-spaces/brag",
+    "url": "https://github.com/latent-spaces/brag",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skills/brag/scripts/analyze_music_cues.py",
+    "skills/brag/assets/music/cues/"
+  ],
+  "needs": [
+    "python"
+  ],
+  "paid_api": false,
+  "decision": "skip",
+  "why": "Already reimplemented. Note: the bundled tracks are CC BY 4.0 by Sascha Ende, not MIT, and need the credit line if ever shipped.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

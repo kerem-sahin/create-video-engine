@@ -1,0 +1,30 @@
+{
+  "id": "howseen-critique-loop",
+  "kind": "check",
+  "title": "Frame-watching critique loop",
+  "what_it_does": "Contact sheet, strip around fast moves and phone-width sheet, then a 1-10 score on hook, readability at 360 px, motion quality, variety, composition, accuracy, sound sync, listing the three worst problems with timestamps.",
+  "when_to_use": "Review step before delivering any render.",
+  "lane": [
+    "explainer",
+    "social"
+  ],
+  "source": {
+    "repo": "howseen-ai/claude-motion-design",
+    "url": "https://github.com/howseen-ai/claude-motion-design",
+    "licence": "MIT",
+    "how": "own code"
+  },
+  "files_upstream": [
+    "skill/motion-design/SKILL.md"
+  ],
+  "needs": [
+    "ffmpeg"
+  ],
+  "paid_api": false,
+  "decision": "idea",
+  "why": "Own Playwright pipeline, not HyperFrames, but this checklist is renderer-neutral and short. Merge with the Gauntlet prompts below into one check part.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

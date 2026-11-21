@@ -1,0 +1,27 @@
+{
+  "id": "onetake-continuity",
+  "kind": "recipe",
+  "title": "onetake continuous-take launch films",
+  "what_it_does": "Skill that designs the boundary between beats so something on screen carries into the next beat, with a probe script that checks continuity per boundary; 11 case films.",
+  "when_to_use": "Reference for a one-camera launch style; our seam ledger is the permissive route to the same goal.",
+  "lane": [
+    "product-launch"
+  ],
+  "source": {
+    "repo": "feitangyuan/onetake",
+    "url": "https://github.com/feitangyuan/onetake",
+    "licence": "PolyForm-Noncommercial-1.0.0",
+    "how": "link-only"
+  },
+  "files_upstream": [
+    "README.md"
+  ],
+  "needs": [],
+  "paid_api": false,
+  "decision": "link-only",
+  "why": "LICENSE is PolyForm Noncommercial 1.0.0 (commercial use needs the paid Pro licence), so only README and LICENSE were read and nothing is copied or paraphrased into a part.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

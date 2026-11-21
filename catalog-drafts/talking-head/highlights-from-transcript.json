@@ -1,0 +1,35 @@
+{
+  "id": "highlights-from-transcript",
+  "kind": "tool",
+  "title": "Transcript-ranked highlights for Shorts",
+  "what_it_does": "Takes a punctuated word-timed transcript, ranks complete sentences (with optional keywords), merges them within a time budget, dedups near-repeats, and cuts accurately with ffmpeg. Keeps whole sentences so a clip never ends mid-thought.",
+  "when_to_use": "Long video to one or several Shorts/Reels.",
+  "lane": [
+    "talking-head",
+    "social"
+  ],
+  "source": {
+    "repo": "digitalsamba/claude-code-video-toolkit",
+    "url": "https://github.com/digitalsamba/claude-code-video-toolkit",
+    "licence": "MIT",
+    "how": "copied"
+  },
+  "files_upstream": [
+    "tools/highlights.py",
+    "tools/transcript.py",
+    "tools/media_ops.py",
+    "tests/python/test_highlights.py"
+  ],
+  "needs": [
+    "ffmpeg",
+    "python3",
+    "a punctuated Whisper/WhisperX transcript"
+  ],
+  "paid_api": false,
+  "decision": "install",
+  "why": "MIT, has tests, no API of its own; needs a transcript with sentence punctuation, which whisper.cpp or the ffmpeg-skill transcriber can produce.",
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-19"
+  }
+}

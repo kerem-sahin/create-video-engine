@@ -1,0 +1,45 @@
+{
+  "name": "create-video-engine",
+  "version": "0.1.0",
+  "description": "Your own video studio, set up by your coding agent: learns your brand, installs only the parts for the videos you make, verifies every render. Built on HyperFrames.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "create-video-engine": "bin/cli.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+    "bin",
+    "catalog",
+    "docs",
+    "skills",
+    "src",
+    "templates"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.mjs"
+  },
+  "keywords": [
+    "video",
+    "hyperframes",
+    "claude-code",
+    "agent",
+    "skills",
+    "motion-graphics",
+    "reels",
+    "youtube"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kerem-sahin/create-video-engine.git"
+  },
+  "homepage": "https://github.com/kerem-sahin/create-video-engine#readme",
+  "bugs": {
+    "url": "https://github.com/kerem-sahin/create-video-engine/issues"
+  }
+}
