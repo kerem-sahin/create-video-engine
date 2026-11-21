@@ -20,9 +20,9 @@ async function binVersion(bin, cwd) {
 }
 
 /** Layer 1: `hyperframes check --json` with the studio's local binary. */
-export async function runHfCheck(project, { disabled = false } = {}) {
+export async function runHfCheck(project, { disabled = false, reason: skipReason = 'skipped by request (--no-hf-check)' } = {}) {
   if (disabled) {
-    return { layer: { status: 'skipped', reason: 'skipped by request (--no-hf-check)', summary: {}, findings: [] }, byRequest: true, version: null };
+    return { layer: { status: 'skipped', reason: skipReason, summary: {}, findings: [] }, byRequest: true, version: null };
   }
   const bin = findHyperframesBin(project);
   if (!bin) {

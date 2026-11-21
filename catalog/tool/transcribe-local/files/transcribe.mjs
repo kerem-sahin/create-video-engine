@@ -6,6 +6,7 @@
 //     "words": [ { "w": "Merhaba", "start": 0.01, "end": 0.72 }, ... ] }
 // "w" keeps the punctuation Whisper wrote ("arkadaşlar,") so sentence ends can be found later.
 //
+//   (phone recordings: run normalize.mjs first and transcribe its output; this file warns when it sees a variable frame rate)
 //   node transcribe.mjs <audio-or-video> --language tr --out talk.words.json
 //        [--model small|medium|large-v3|small.en|...]  [--hf <path to the hyperframes binary>] [--unsure-below 0.5]
 //
@@ -123,6 +124,17 @@ if (!input || !a.out || typeof a.language !== "string") {
 }
 const src = resolve(input);
 if (!existsSync(src)) die(`no such file: ${src}`);
+
+// Times from a variable-frame-rate or rotated phone file will not stay in step with the cut: say so before the long work.
+{
+  const pr = spawnSync("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=r_frame_rate,avg_frame_rate:side_data=rotation", "-of", "json", src], { encoding: "utf8" });
+  try {
+    const v = JSON.parse(pr.stdout || "{}").streams?.[0];
+    const f = (t) => { const [n, d = 1] = String(t || "0/0").split("/").map(Number); return n && d ? n / d : null; };
+    const r = f(v?.r_frame_rate), av = f(v?.avg_frame_rate);
+    if (r && av && Math.abs(r - av) / r > 0.005) console.error(`transcribe-local: warning: ${src} has a variable frame rate (${v.r_frame_rate}, average ${v.avg_frame_rate}). Run parts/transcribe-local/normalize.mjs first and transcribe, cut and assemble that copy, or captions will drift against the sound.`);
+  } catch {}
+}
 
 // Find the hyperframes binary: --hf, $HYPERFRAMES_BIN, node_modules/.bin walking up from here and from the cwd.
 function findHf() {

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 // shorts-from-long: pick 15-45 s highlight segments from a word-timed transcript, then cut and reframe one to 9:16.
 // Own code, zero dependencies (Node >= 22, ffmpeg, ffprobe). The picker only PROPOSES: the agent reads shorts.md,
-// may adjust, and the person chooses. No face detection: reframe is a centre crop, or a crop centred on --face-x.
+// may adjust, and the person chooses. No face detection: reframe is a centre crop, a crop centred on --face-x, or a moving crop
+// that follows a track.json made by the subject-track part (--track).
 //
 //   node shorts.mjs pick --words cut.words.json --out shorts.json [--min 15] [--max 45] [--count 5] [--keywords a,b] [--lang tr|en]
 //   node shorts.mjs cut  --video cut.mp4 --words cut.words.json (--from shorts.json --id 1 | --start 12.3 --end 41.2)
-//                        --out short-1.mp4 [--mode crop|fit] [--face-x 0.5] [--size 1080x1920]
+//                        --out short-1.mp4 [--mode crop|fit] [--face-x 0.5 | --track track.json] [--size 1080x1920]
 //                        with --from, --start and/or --end override that candidate's times (no hand-editing of the JSON)
 //
 // Pick rules (each is checked, flagged in the output, and explained in shorts.md):
@@ -17,6 +18,12 @@
 //   4. length 15-45 s, pace 2-3.6 words/s preferred, few filler words, optional keyword hits.
 // cut: --mode crop (default) fills 9:16 from a centre crop (x centre at --face-x of the width, 0..1); --mode fit keeps the
 // whole picture over a blurred copy. Writes <out>.words.json: the words of the segment with times starting at 0, for captions.
+// --track track.json (crop mode): the source is scaled to the target height and a 9:16 window slides over it, following the
+// smoothed head centre (cx) with a piecewise-linear x(t) that is evaluated per frame, so the pan has no steps. The result is
+// measured and printed (share of frames with the head inside the middle 60 % of the window). It also writes
+// <out>.safe-text.json {band, y_min, y_max, x_max, ...}: where text can go without covering the face (below the chin if there is
+// room above the bottom 420 px, else below the top 270 px, at 1080x1920) and prints the --band y=<px> to give captions/cards.
+// --face-x stays the manual fallback when there is no track.
 import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -131,6 +138,44 @@ function pick() {
   if (!chosen.some((c) => c.hook_ok)) console.log("  note: none of them has a clear hook in the first 2 s; consider whether the source has a short at all");
 }
 
+/** Ramer-Douglas-Peucker on (t, x) points: keeps the knots needed to stay within `tol` pixels of the track. */
+function simplify(pts, tol) {
+  const keep = new Uint8Array(pts.length); keep[0] = keep[pts.length - 1] = 1;
+  const rec = (i, j) => {
+    let worst = -1, wd = 0;
+    for (let k = i + 1; k < j; k++) { const f = (pts[k].t - pts[i].t) / (pts[j].t - pts[i].t || 1); const d = Math.abs(pts[k].x - (pts[i].x + f * (pts[j].x - pts[i].x))); if (d > wd) { wd = d; worst = k; } }
+    if (wd > tol) { keep[worst] = 1; rec(i, worst); rec(worst, j); }
+  };
+  rec(0, pts.length - 1);
+  return pts.filter((_, i) => keep[i]);
+}
+/** x(t) as a sum of ramps: x0 + sum (slope change) * gte(t,ti) * (t - ti). ffmpeg's expression parser nests one level per term
+ *  (about 100 at most), so the terms go into parenthesised groups of 16. */
+function rampExpr(knots) {
+  const terms = []; let prev = 0;
+  for (let i = 0; i < knots.length - 1; i++) {
+    const dt = knots[i + 1].t - knots[i].t, s = dt > 0 ? (knots[i + 1].x - knots[i].x) / dt : 0;
+    if (Math.abs(s - prev) > 1e-9) terms.push(`${(s - prev).toFixed(5)}*gte(t,${r3(knots[i].t)})*(t-${r3(knots[i].t)})`);
+    prev = s;
+  }
+  const groups = []; for (let i = 0; i < terms.length; i += 16) groups.push("(" + terms.slice(i, i + 16).join("+") + ")");
+  return [String(r2(knots[0].x)), ...groups].join("+");
+}
+const clamp01 = (x) => Math.min(1, Math.max(0, x));
+const pct = (arr, p) => { const s = [...arr].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.max(0, Math.round(p * (s.length - 1))))]; };
+
+/** Where text can go without covering the face, from the head extent of the frames in the Short (sizes in output pixels). */
+function safeText(frames, tw, th) {
+  const k = th / 1920, chin = pct(frames.map((f) => f.head_bottom * th), 0.9), headTop = pct(frames.map((f) => f.head_top * th), 0.05);
+  const bottomSafe = Math.round(420 * k), topSafe = Math.round(270 * k), rightSafe = Math.round(130 * (tw / 1080)), margin = Math.round(40 * k), minH = Math.round(140 * k);
+  const below = { y_min: Math.round(chin + margin), y_max: th - bottomSafe }, above = { y_min: topSafe, y_max: Math.round(headTop - margin) };
+  const bFit = below.y_max - below.y_min >= minH, tFit = above.y_max - above.y_min >= minH;
+  let band = "bottom", pick = below, fits = bFit;
+  if (!bFit && tFit) { band = "top"; pick = above; fits = true; }
+  else if (!bFit && !tFit) { fits = false; if (above.y_max - above.y_min > below.y_max - below.y_min) { band = "top"; pick = above; } }
+  return { band, y_min: pick.y_min, y_max: Math.max(pick.y_min, pick.y_max), x_min: 0, x_max: tw - rightSafe, fits, chin_y: Math.round(chin), head_top_y: Math.round(headTop), size: `${tw}x${th}`, note: fits ? null : "no band clear of the face inside the safe zones: shrink the text or move it, do not cover the face" };
+}
+
 function cut() {
   if (!a.video || !a.words || !a.out) die("usage: cut --video <file> --words <words.json> (--from shorts.json --id N | --start s --end s) --out <short.mp4>", 64);
   let start = a.start !== undefined ? +a.start : NaN, end = a.end !== undefined ? +a.end : NaN;
@@ -143,18 +188,40 @@ function cut() {
   if (!(end > start) || start < 0) die("need --from + --id, or --start and --end (end after start, start not negative)", 64);
   const video = resolve(a.video);
   if (!existsSync(video)) die("no such video: " + video);
-  const pr = run("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate", "-of", "json", video]);
+  const pr = run("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,r_frame_rate:stream_side_data=rotation", "-of", "json", video]);
   const st = JSON.parse(pr.stdout).streams?.[0];
   if (!st) die("no video stream in " + video);
   const [tw, th] = String(a.size || "1080x1920").split("x").map(Number);
-  const iw = st.width, ih = st.height;
+  const rot = Math.abs(Math.round(+(st.side_data_list?.find((d) => d.rotation !== undefined)?.rotation ?? 0))) % 180 === 90;   // ffmpeg applies the rotation tag
+  const iw = rot ? st.height : st.width, ih = rot ? st.width : st.height;
   const [fn, fd] = st.r_frame_rate.split("/").map(Number);
   const fps = fd ? fn / fd : 30;
   const faceX = Math.min(1, Math.max(0, +(a["face-x"] ?? 0.5)));
   const mode = a.mode || "crop";
   const dur = end - start;
-  let vf;
-  if (mode === "fit") {
+  let vf, tracked = null;
+  if (a.track && mode !== "crop") console.error("shorts-from-long: --track only applies to --mode crop; ignored");
+  if (a.track && mode === "crop") {
+    const tj = JSON.parse(readFileSync(resolve(a.track), "utf8"));
+    const fr = (tj.frames || []).filter((f) => Number.isFinite(f.t) && Number.isFinite(f.cx));
+    if (fr.length < 2) die("track has no usable frames: " + a.track, 1);
+    const tfps = tj.fps || 10;
+    if (fr[0].t > start + 0.5 / tfps + 0.2 || fr[fr.length - 1].t < end - 0.5 / tfps - 0.2) die(`track covers ${r2(fr[0].t)}-${r2(fr[fr.length - 1].t)} s but the short is ${r2(start)}-${r2(end)} s; run subject-track over the whole video`, 1);
+    const sw = Math.round((iw * th) / ih / 2) * 2;
+    if (sw <= tw) console.error("shorts-from-long: the source is not wider than the target aspect, nothing to pan; --track ignored");
+    else {
+      const at = (key, t) => { let i = 0; while (i < fr.length - 2 && fr[i + 1].t < t) i++; const p = fr[i], q = fr[i + 1], k = clamp01((t - p.t) / (q.t - p.t || 1)); return p[key] + k * (q[key] - p[key]); };
+      const ts = [0]; for (const f of fr) if (f.t - start > 1e-6 && f.t - start < dur - 1e-6) ts.push(f.t - start); ts.push(dur);
+      const pts = ts.map((t) => { const cx = at("cx", start + t); return { t, cx, hx: cx * sw, x: Math.max(0, Math.min(sw - tw, cx * sw - tw / 2)) }; });
+      const knots = simplify(pts, 1);
+      const inMid = pts.filter((p) => { const pos = (p.hx - p.x) / tw; return pos >= 0.2 && pos <= 0.8; }).length / pts.length;
+      const inSeg = fr.filter((f) => f.t >= start - 0.5 / tfps && f.t <= end + 0.5 / tfps);
+      tracked = { knots: knots.length, inMid, safe: safeText(inSeg.length ? inSeg : fr, tw, th), minHeadroom: Math.round(Math.min(...inSeg.map((f) => f.head_top)) * th), lowConf: inSeg.filter((f) => f.source === "hold" || f.source === "centre").length / (inSeg.length || 1) };
+      vf = `[0:v]scale=${sw}:${th}:flags=lanczos,crop=${tw}:${th}:'if(gte(t,0),round(${rampExpr(knots)}),${Math.round(knots[0].x)})':0,setsar=1[v]`;
+    }
+  }
+  if (tracked) { /* vf set above */ }
+  else if (mode === "fit") {
     vf = `[0:v]split[a][b];[a]scale=${tw}:${th}:force_original_aspect_ratio=increase,crop=${tw}:${th},boxblur=30:3[bg];[b]scale=${tw}:-2:flags=lanczos[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1[v]`;
   } else {
     // crop window of the target aspect, as large as the source allows, centred on face-x of the width
@@ -178,7 +245,15 @@ function cut() {
     .map((w) => ({ w: w.w, start: r3(Math.max(0, w.start - start)), end: r3(Math.min(dur, w.end - start)) }));
   const wp = resolve(String(a.out).replace(/\.[^.]+$/, "") + ".words.json");
   writeFileSync(wp, JSON.stringify({ schema: 1, language, engine, duration: r3(dur), words: seg, from: { start, end } }, null, 2) + "\n");
-  console.log(`short: ${r2(dur)} s, ${tw}x${th} (${mode}${mode === "crop" ? ", face-x " + faceX : ""}) -> ${resolve(a.out)}\n  words: ${seg.length} -> ${wp}`);
+  console.log(`short: ${r2(dur)} s, ${tw}x${th} (${mode}${tracked ? ", tracked " + a.track : mode === "crop" ? ", face-x " + faceX : ""}) -> ${resolve(a.out)}\n  words: ${seg.length} -> ${wp}`);
+  if (tracked) {
+    const sp = resolve(String(a.out).replace(/\.[^.]+$/, "") + ".safe-text.json");
+    writeFileSync(sp, JSON.stringify({ schema: 1, ...tracked.safe }, null, 2) + "\n");
+    const sf = tracked.safe;
+    console.log(`  track: head centre inside the middle 60 % of the window in ${Math.round(tracked.inMid * 100)} % of the samples, ${tracked.knots} pan knots, headroom above the head >= ${tracked.minHeadroom} px, ${Math.round(tracked.lowConf * 100)} % of frames held/centred`);
+    if (tracked.inMid < 0.95) console.log("  warning: the head leaves the middle 60 % where the speaker is near the frame edge (the window cannot go past the source)");
+    console.log(`  safe-text: ${sf.band} band y ${sf.y_min}-${sf.y_max}, x 0-${sf.x_max} (chin at y ${sf.chin_y}, head top at y ${sf.head_top_y})${sf.fits ? "" : "; NO clear band: " + sf.note} -> ${sp}\n  pass to captions/cards: --band y=${sf.y_min}`);
+  }
 }
 
 if (cmd === "pick") pick();

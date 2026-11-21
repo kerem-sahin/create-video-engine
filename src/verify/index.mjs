@@ -4,15 +4,23 @@ import { runMp4Checks } from './checks.mjs';
 import { runHfCheck } from './hfcheck.mjs';
 import { findNewestMp4, readRoot, scanAudioDeclared, listSoundCues, findSfxManifest } from './project.mjs';
 import { ffmpegVersion, probeMedia } from './util.mjs';
+import { DEFAULT_FPS } from './thresholds.mjs';
 
-const USAGE = 'usage: verify <video-project-dir> [--mp4 <file>] [--json] [--no-hf-check]';
+const USAGE = 'usage: verify <video-project-dir> [--mp4 <file>] [--json] [--no-hf-check] [--no-composition [--expect-duration <s>] [--expect-audio]]';
 
 function parseArgs(argv) {
-  const o = { project: null, mp4: null, json: false, noHf: false };
+  const o = { project: null, mp4: null, json: false, noHf: false, noComposition: false, expectDuration: null, expectAudio: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--json') o.json = true;
     else if (a === '--no-hf-check') o.noHf = true;
+    else if (a === '--no-composition') o.noComposition = true;
+    else if (a === '--expect-audio') o.expectAudio = true;
+    else if (a === '--expect-duration') {
+      const v = Number(argv[++i]);
+      if (!(v > 0)) return { error: '--expect-duration needs a number of seconds' };
+      o.expectDuration = v;
+    }
     else if (a === '--mp4') {
       const v = argv[++i];
       if (!v || v.startsWith('--')) return { error: '--mp4 needs a file' };
@@ -22,6 +30,7 @@ function parseArgs(argv) {
     else return { error: `unexpected argument ${a}` };
   }
   if (!o.project) return { error: 'missing <video-project-dir>' };
+  if ((o.expectDuration !== null || o.expectAudio) && !o.noComposition) return { error: '--expect-duration and --expect-audio only go with --no-composition' };
   return o;
 }
 
@@ -41,7 +50,7 @@ export async function runVerify(argv) {
   const ffv = await ffmpegVersion();
 
   // Layer 1
-  const hf = await runHfCheck(project, { disabled: args.noHf });
+  const hf = await runHfCheck(project, { disabled: args.noHf || args.noComposition, reason: args.noComposition ? 'skipped by request (--no-composition: the video was assembled by ffmpeg, there is no composition to check)' : undefined });
 
   // Layer 2
   let mp4Path = args.mp4 ? resolve(args.mp4) : findNewestMp4(project);
@@ -49,7 +58,7 @@ export async function runVerify(argv) {
   let contactSheet = null;
   let frames = [];
   let moments = [];
-  const soundCues = listSoundCues(project, findSfxManifest(project));
+  const soundCues = args.noComposition ? [] : listSoundCues(project, findSfxManifest(project));
   if (!mp4Path) {
     mp4Layer = { status: 'skipped', reason: 'no --mp4 given and no .mp4 found under renders/ or out/', checks: [] };
   } else if (!existsSync(mp4Path)) {
@@ -65,8 +74,18 @@ export async function runVerify(argv) {
       };
     } else {
       mkdirSync(join(project, '.cve'), { recursive: true });
+      // An ffmpeg-assembled video has no index.html: what the composition would declare comes from the flags,
+      // and what is not given is skipped (never passed).
+      const root = args.noComposition
+        ? (args.expectDuration !== null
+          ? { found: true, duration: args.expectDuration, fps: probe.fps || DEFAULT_FPS, fpsDeclared: false, fromFlag: true }
+          : { found: false, skippedByRequest: true, reason: '--no-composition: no composition to compare the duration with (give --expect-duration <seconds>)' })
+        : readRoot(project);
+      const audio = args.noComposition
+        ? (args.expectAudio ? { scanned: 1, declared: true, in: ['--expect-audio'] } : { scanned: 0, declared: false, in: [], skippedByRequest: true })
+        : scanAudioDeclared(project);
       const res = await runMp4Checks({
-        mp4: mp4Path, project, probe, root: readRoot(project), audio: scanAudioDeclared(project), ffmpegVersion: ffv, soundCues,
+        mp4: mp4Path, project, probe, root, audio, ffmpegVersion: ffv, soundCues,
       });
       contactSheet = res.contactSheet;
       frames = res.frames;

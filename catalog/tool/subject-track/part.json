@@ -1,0 +1,42 @@
+{
+  "schema": 2,
+  "id": "subject-track",
+  "kind": "tool",
+  "title": "Speaker track (horizontal centre and head extent per frame)",
+  "what_it_does": "Estimates, without any model, where the speaker's head is in every frame of a talking video: a median background of small YCbCr frames, the largest foreground blob, a skin-tone region as a second witness, then a smoothed track (deadband, critically damped pan with a speed limit). Writes track.json {fps, frames:[{t, cx, head_top, head_bottom, confidence, source}]} that shorts-from-long uses for a moving 9:16 crop and a face-safe text band.",
+  "when_to_use": "Before cutting a 9:16 Short from a 16:9 talking-head video where the speaker moves sideways, so the fixed crop loses the face. Run it over the whole video once. Not a face detector: it fails on empty footage and is weak when the camera is handheld and the speaker never moves; check the crop by eye.",
+  "lanes": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    {
+      "from": "files/subject-track.mjs",
+      "to": "parts/subject-track/subject-track.mjs"
+    }
+  ],
+  "docs": "files/README.md",
+  "requires": [],
+  "needs": [
+    "ffmpeg",
+    "ffprobe"
+  ],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-21"
+  },
+  "example": null,
+  "requirements": [],
+  "notes": "Own code, zero dependencies. Method: classic background subtraction (temporal median) plus a YCbCr skin range; nothing is copied."
+}

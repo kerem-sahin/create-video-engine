@@ -2,9 +2,9 @@
   "schema": 2,
   "id": "transcribe-local",
   "kind": "tool",
-  "title": "Local transcription to word JSON",
-  "what_it_does": "Turns a recording into a word-timed JSON ({words:[{w,start,end}], language, engine}) on this machine with HyperFrames' own whisper.cpp engine; free, no account, Turkish and English tested. It moves words that whisper timed inside a pause back to where the sound is.",
-  "when_to_use": "First step for any recording of a person talking, before silence-cut, captions or shorts. Not for speech over loud music (use --model medium) and not when the person asked for a paid, more accurate engine.",
+  "title": "Constant-rate working copy (normalize) and local transcription to word JSON",
+  "what_it_does": "normalize.mjs turns a phone/camera recording (variable frame rate, rotation flag) into a constant 30 fps, upright, 48 kHz working copy and measures that it is steady; transcribe.mjs turns that copy into a word-timed JSON ({words:[{w,start,end}], language, engine}) on this machine with HyperFrames' own whisper.cpp engine; free, no account, Turkish and English tested. It moves words that whisper timed inside a pause back to where the sound is.",
+  "when_to_use": "First step for any recording of a person talking: normalize, then transcribe the normalized copy, then silence-cut that same copy, so every later time is on one clock (needed for anything over a minute or two). Not for speech over loud music (use --model medium) and not when the person asked for a paid, more accurate engine.",
   "lanes": [
     "talking-head"
   ],
@@ -21,6 +21,10 @@
   "registry": null,
   "files": [
     {
+      "from": "files/normalize.mjs",
+      "to": "parts/transcribe-local/normalize.mjs"
+    },
+    {
       "from": "files/transcribe.mjs",
       "to": "parts/transcribe-local/transcribe.mjs"
     }
@@ -35,9 +39,9 @@
   "paid_api": null,
   "verified_with": {
     "hyperframes": "0.9.67",
-    "date": "2026-11-19"
+    "date": "2026-11-21"
   },
   "example": null,
   "requirements": [],
-  "notes": "Wraps `hyperframes transcribe --engine whisper` (HyperFrames, Apache-2.0); no HyperFrames code is copied. First run downloads the runtime and the ~470 MB 'small' model (about 6 minutes on a home connection); later runs of 'small' take about 1/5 of the audio length on an M1. End-to-end proof: catalog/lanes/talking-head/example/run-proof.sh."
+  "notes": "Wraps `hyperframes transcribe --engine whisper` (HyperFrames, Apache-2.0); no HyperFrames code is copied. First run downloads the runtime and the ~470 MB 'small' model (about 6 minutes on a home connection); later runs of 'small' take about 1/5 of the audio length on an M1. End-to-end proof: catalog/lanes/talking-head/example/run-proof.sh. normalize: x264 superfast with videotoolbox decoding on a Mac (a 64 s HEVC HLG phone clip in 24 s on an 8 GB M1 under load); HDR is not tone-mapped (this ffmpeg has no zscale)."
 }

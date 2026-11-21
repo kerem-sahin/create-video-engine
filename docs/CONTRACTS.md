@@ -41,7 +41,7 @@ CLI surface (`npx create-video-engine <command>`):
 |---|---|
 | `doctor [--json]` | environment check |
 | `init <dir> [--no-install] [--json]` | create a studio |
-| `verify <video-project-dir> [--mp4 <file>] [--json] [--no-hf-check]` | layers 1–2 of verification |
+| `verify <video-project-dir> [--mp4 <file>] [--json] [--no-hf-check] [--no-composition [--expect-duration <s>] [--expect-audio]]` | layers 1–2 of verification. `--no-composition` is for a video assembled by ffmpeg (assemble-long): no HyperFrames check, and the duration and audio checks take their expectation from the flags; without the flags they are `skipped` (exit 2), never `pass` |
 | `refs <video-file> --out <dir> [--json]` | analyse a reference video into grammar notes |
 | `music --score <cues.json> --out <video-project-dir> [--json]` (or `--mood … --duration …` for a bed without cues) | score music to the edit's beat grid (§6) |
 | `crop <image> --out <file.png> [--auto] [--rect x,y,w,h] [--status-bar] [--json]` | crop a store screenshot to the real app screen (no caption, no device frame); `--auto` exits 1 when no confident rectangle is found, and leaves an already full-bleed image unchanged |

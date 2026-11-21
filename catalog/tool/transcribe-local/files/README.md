@@ -1,9 +1,21 @@
 # transcribe-local
 
-Recording in, word-timed JSON out, on this machine, free.
+Recording in, word-timed JSON out, on this machine, free. Two files: `normalize.mjs` first, then `transcribe.mjs`.
+
+## normalize (do this first, always for anything over a minute)
 
 ```
-node parts/transcribe-local/transcribe.mjs talk.mp4 --language tr --out talk.words.json
+node parts/transcribe-local/normalize.mjs raw.mov --out work.mp4 [--fps 30] [--max-side 1920 | --keep-size] [--no-hwaccel]
+```
+
+A phone writes variable-frame-rate video (timestamps jitter, frames are skipped, the average rate is e.g. 29.67 fps) with the rotation as a flag. Cutting such a file by time drifts the picture against the sound (0.2 s in a 64 s clip). `normalize` makes one working copy with a fixed frame grid: constant 30 fps (or `--fps`, fractions like `30000/1001` stay exact), rotation baked in, long side at most 1920, audio 48 kHz starting at 0 and as long as the picture, H.264 with a keyframe every second. **Transcribe, cut and assemble this copy, never the raw file**: then every time (words, cuts, captions, cards, chapters) is on one clock.
+
+It measures its own result and exits 1 if it is not steady: constant frame step, no rotation flag left, picture and sound within one frame, frame count = duration x fps. The numbers (including the source's own frame-step jitter, so "it was VFR" is a measurement) go to `work.mp4.normalize.json` and the screen. HDR (HLG/PQ) sources are converted to 8-bit BT.709 without tone mapping (no zscale in this ffmpeg): colours come out a little flat, the report says `hdr: true`, look at one frame. Speed: decoding on the Mac's media engine, x264 `superfast`; a 64 s HEVC phone clip took 24 s on an 8 GB M1 (a 30 minute clip: roughly 10 minutes).
+
+## transcribe
+
+```
+node parts/transcribe-local/transcribe.mjs work.mp4 --language tr --out work.words.json
 ```
 
 Output: `{ "schema":1, "language":"tr", "engine":"whisper:small", "aligned":true, "duration":49.06, "words":[{"w":"Merhaba","start":0.01,"end":0.72}, ...] }`. `w` keeps Whisper's punctuation (`arkadaşlar,`) so later steps can find sentence ends.

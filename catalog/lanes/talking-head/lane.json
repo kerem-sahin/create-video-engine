@@ -9,7 +9,9 @@
     "silence-cut",
     "captions",
     "overlay-cards",
-    "shorts-from-long"
+    "assemble-long",
+    "shorts-from-long",
+    "subject-track"
   ],
   "recipe": "recipe.md"
 }

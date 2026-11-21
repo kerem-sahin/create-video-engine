@@ -21,7 +21,7 @@
 //   --sey               also cut Turkish "sey" (it is a real word, so off by default)
 //   --extra-fillers a,b more filler words to cut
 // apply options
-//   --crf 18  --preset veryfast  --fps <n> (default: the source's)
+//   --crf 18  --preset superfast  --fps <n> (default: the source's)
 //
 // Exit: 0 ok, 1 refused (bad EDL), 2 cannot run (missing ffmpeg/input), 64 usage.
 import { spawnSync } from "node:child_process";
@@ -44,6 +44,7 @@ function parseArgs(argv) {
   return a;
 }
 const DURATION_TOLERANCE_FRAMES = 2;
+const MIN_WORD = 0.08;   // seconds; the shortest a retimed word is given
 function die(msg, code = 2) { console.error("silence-cut: " + msg); process.exit(code); }
 function run(cmd, args, opts = {}) {
   const r = spawnSync(cmd, args, { encoding: "utf8", maxBuffer: 256 * 1024 * 1024, ...opts });
@@ -56,9 +57,15 @@ function probe(file) {
   const j = JSON.parse(r.stdout);
   const v = j.streams.find((s) => s.codec_type === "video");
   const au = j.streams.find((s) => s.codec_type === "audio");
-  let fps = 30;
-  if (v?.avg_frame_rate && v.avg_frame_rate !== "0/0") { const [n, d] = v.avg_frame_rate.split("/").map(Number); if (n && d) fps = n / d; }
-  return { duration: parseFloat(j.format.duration), fps, hasVideo: !!v, hasAudio: !!au, width: v?.width, height: v?.height };
+  const frac = (s) => { if (!s || s === "0/0") return null; const [n, d] = s.split("/").map(Number); return n && d ? n / d : null; };
+  // the nominal rate (r_frame_rate) is the frame grid of a constant-rate file; the average only describes a phone's variable rate
+  const rFps = frac(v?.r_frame_rate), avgFps = frac(v?.avg_frame_rate);
+  const fps = rFps || avgFps || 30;
+  const vfr = !!(rFps && avgFps && Math.abs(rFps - avgFps) / rFps > 0.005);
+  return { duration: parseFloat(j.format.duration), fps, fpsText: rFps ? v.r_frame_rate : avgFps ? v.avg_frame_rate : "30/1", vfr, hasVideo: !!v, hasAudio: !!au, width: v?.width, height: v?.height };
+}
+function vfrWarning(info, video) {
+  if (info.vfr) console.error(`silence-cut: warning: ${video} has a variable frame rate (nominal ${info.fpsText}, real average differs). Cuts by time will drift against the sound by up to a few frames. Run parts/transcribe-local/normalize.mjs on the recording first, then transcribe and cut the normalized copy.`);
 }
 function norm(w) {
   return String(w).toLocaleLowerCase("tr").replace(/[\p{P}\p{S}\s]+/gu, "");
@@ -67,6 +74,8 @@ function readWords(file) {
   const j = JSON.parse(readFileSync(file, "utf8"));
   const words = (j.words || j).map((x) => ({ w: x.w ?? x.text ?? x.word, start: +x.start, end: +x.end, ...(x.unsure === true ? { unsure: true } : {}) }));
   if (!words.every((x) => typeof x.w === "string" && isFinite(x.start) && isFinite(x.end))) die("word file is not {words:[{w,start,end}]}", 1);
+  // a word with no length (whisper does that) was still spoken: give it the minimal one rather than lose it
+  for (const w of words) if (w.end - w.start < MIN_WORD) w.end = w.start + MIN_WORD;
   return { words, language: j.language || null, engine: j.engine || null };
 }
 
@@ -112,6 +121,7 @@ function plan(a) {
   const video = resolve(a.video);
   if (!existsSync(video)) die(`no such video: ${video}`);
   const info = probe(video);
+  vfrWarning(info, video);
   const mode = a.mode === undefined || a.mode === true ? "tight" : String(a.mode);
   if (!["tight", "normal"].includes(mode)) die("--mode must be tight or normal", 64);
   const minPause = +(a["min-pause"] ?? (mode === "tight" ? 0.5 : 0.8));
@@ -231,6 +241,7 @@ function apply(a) {
   const video = resolve(a.video || edl.source);
   if (!existsSync(video)) die(`no such video: ${video}`);
   const info = probe(video);
+  vfrWarning(info, video);
   if (Math.abs(info.duration - edl.source_duration) > 0.25) die(`video is ${info.duration}s but the EDL was made for ${edl.source_duration}s; plan again`, 1);
   const fps = +(a.fps || info.fps);
   const snap = (t) => Math.round(t * fps) / fps;
@@ -248,7 +259,7 @@ function apply(a) {
   const inputs = keep.map((_, i) => (info.hasVideo ? `[v${i}]` : "") + (info.hasAudio ? `[a${i}]` : "")).join("");
   f.push(`${inputs}concat=n=${keep.length}:v=${info.hasVideo ? 1 : 0}:a=${info.hasAudio ? 1 : 0}${info.hasVideo ? "[v]" : ""}${info.hasAudio ? "[a]" : ""}`);
   const args = ["-hide_banner", "-nostats", "-loglevel", "error", "-y", "-i", video, "-filter_complex", f.join(";")];
-  if (info.hasVideo) args.push("-map", "[v]", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", String(a.crf ?? 18), "-preset", String(a.preset ?? "veryfast"), "-r", String(r3(fps)), "-g", String(Math.round(fps)));
+  if (info.hasVideo) args.push("-map", "[v]", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", String(a.crf ?? 18), "-preset", String(a.preset ?? "superfast"), "-r", a.fps ? String(a.fps) : info.fpsText, "-g", String(Math.round(fps)));
   if (info.hasAudio) args.push("-map", "[a]", "-c:a", "aac", "-b:a", "192k", "-ar", "48000");
   args.push("-movflags", "+faststart", resolve(a.out));
   const r = run("ffmpeg", args);
@@ -272,9 +283,15 @@ function apply(a) {
     const seg = keep.findIndex(([s, e]) => mid >= s && mid <= e);
     if (seg < 0) continue; // inside a cut: a cut filler or a hallucination
     const [s, e] = keep[seg];
-    const ns = offsets[seg] + Math.max(w.start, s) - s;
-    const ne = offsets[seg] + Math.min(w.end, e) - s;
-    if (ne - ns < 0.02) continue;
+    let ns = offsets[seg] + Math.max(w.start, s) - s;
+    let ne = offsets[seg] + Math.min(w.end, e) - s;
+    // whisper sometimes gives a word no length (start == end): that is a word that was spoken, so it gets a minimal one
+    // instead of being dropped (a caption would vanish). Stays inside its segment, which is long enough (>= 1 frame).
+    if (ne - ns < MIN_WORD) {
+      const segEnd = offsets[seg] + (e - s);
+      ne = Math.min(segEnd, ns + MIN_WORD);
+      ns = Math.max(offsets[seg], ne - MIN_WORD);
+    }
     out.push({ w: w.w, start: r3(ns), end: r3(ne), ...(w.unsure ? { unsure: true } : {}) });
   }
   const wp = resolve(a["words-out"] || String(a.out).replace(/\.[^.]+$/, "") + ".words.json");

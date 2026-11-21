@@ -1,0 +1,52 @@
+{
+  "schema": 2,
+  "id": "assemble-long",
+  "kind": "tool",
+  "title": "Fast final assembly for long talking-head videos",
+  "what_it_does": "Builds the final MP4 for a 10-30 minute talking-head video with ffmpeg instead of rendering every frame in Chrome: captions (pop or clean, in the brand's colours and fonts from frame.md) are drawn once per state as transparent stills by HyperFrames and shown by ffmpeg; cards are rendered once on a transparent ground (WebM with alpha) and overlaid at their times; audio is loudness-normalised to -16 LUFS with true peak <= -1 dBTP in the same pass. Also writes an SRT and a YouTube chapters.txt (validated against YouTube's rules), and measures what it made.",
+  "when_to_use": "When the video is longer than about two minutes, or when render time matters. Feed it the cut.mp4 and cut.words.json from silence-cut (made from a normalized copy). For short pieces with rich motion, the HyperFrames composition path of the captions and overlay-cards parts is fine. Not for footage that is not constant frame rate: run normalize first.",
+  "lanes": [
+    "talking-head"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    {
+      "from": "files/assemble-long.mjs",
+      "to": "parts/assemble-long/assemble-long.mjs"
+    },
+    {
+      "from": "files/text.mjs",
+      "to": "parts/assemble-long/text.mjs"
+    }
+  ],
+  "docs": "files/README.md",
+  "requires": [
+    "transcribe-local",
+    "silence-cut",
+    "captions",
+    "overlay-cards"
+  ],
+  "needs": [
+    "ffmpeg",
+    "ffprobe",
+    "hyperframes (the studio's pinned binary, for the caption stills and the cards)"
+  ],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-21"
+  },
+  "example": null,
+  "requirements": [],
+  "notes": "Overlay path: HyperFrames renders WebM with alpha (`--format webm` is transparent), ffmpeg decodes it with libvpx-vp9 and overlays; no splice needed. ffmpeg's ass/subtitles filter was not used: the Homebrew ffmpeg 9.0.2 here has no libass (nor drawtext), so captions are stills (no pop-in animation, the spoken word is accent-coloured and enlarged statically). Measured on a 46 s real phone clip: 80 caption stills in 19 s, 2 cards in 46 s (mostly Chrome start-up), x264 veryfast about 3 CPU-seconds per video second."
+}

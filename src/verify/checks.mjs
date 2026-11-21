@@ -177,7 +177,9 @@ export async function runMp4Checks({ mp4, project, probe, root, audio, ffmpegVer
     { data: { width: probe.width, height: probe.height, fps: probe.fps, duration: dur, frames: probe.frames, hasAudio: probe.hasAudio } });
 
   // duration
-  if (!root.found) {
+  if (!root.found && root.skippedByRequest) {
+    add('duration', 'skipped', root.reason);
+  } else if (!root.found) {
     add('duration', 'error', `cannot verify duration: ${root.reason === 'no index.html in project' ? 'no root data-duration in index.html (no index.html in project)' : `no root data-duration in index.html (${root.reason})`}`);
   } else {
     const frame = 1 / root.fps;
@@ -186,13 +188,13 @@ export async function runMp4Checks({ mp4, project, probe, root, audio, ffmpegVer
     const frameDiff = probe.frames === null ? null : Math.abs(probe.frames - expectedFrames);
     const data = { expected: root.duration, actual: dur, expectedFrames, actualFrames: probe.frames, fps: root.fps, fpsDeclared: root.fpsDeclared };
     if (diff > frame + 1e-3) {
-      add('duration', 'fail', `video is ${fmtT(dur)} but index.html says data-duration=${root.duration}s (off by ${fmtT(diff)}, limit one frame = ${fmtT(frame)})`, { data });
+      add('duration', 'fail', `video is ${fmtT(dur)} but ${root.fromFlag ? '--expect-duration' : 'index.html says data-duration'}=${root.duration}s (off by ${fmtT(diff)}, limit one frame = ${fmtT(frame)})`, { data });
     } else if (frameDiff === null) {
       add('duration', 'warn', `duration matches (${fmtT(dur)}) but the frame count could not be read`, { data });
     } else if (frameDiff > T.FRAME_COUNT_TOLERANCE) {
       add('duration', 'fail', `frame count ${probe.frames}, expected ${expectedFrames} (${root.duration}s x ${root.fps}fps)`, { data });
     } else {
-      add('duration', 'pass', `${fmtT(dur)}, ${probe.frames} frames (expected ${root.duration}s, ${expectedFrames} frames)`, { data });
+      add('duration', 'pass', `${fmtT(dur)}, ${probe.frames} frames (expected ${root.duration}s, ${expectedFrames} frames${root.fromFlag ? ', from --expect-duration' : ''})`, { data });
     }
   }
 
@@ -305,10 +307,10 @@ export async function runMp4Checks({ mp4, project, probe, root, audio, ffmpegVer
 
   // audio-present
   if (audio.scanned === 0) {
-    add('audio-present', 'skipped', 'no html files found in the project to tell whether audio is expected');
+    add('audio-present', 'skipped', audio.skippedByRequest ? '--no-composition: nothing declares whether audio is expected (give --expect-audio)' : 'no html files found in the project to tell whether audio is expected');
   } else if (audio.declared) {
-    if (probe.hasAudio) add('audio-present', 'pass', 'composition declares audio and the MP4 has an audio stream');
-    else add('audio-present', 'fail', 'composition declares audio (<audio> or data-has-audio="true") but the MP4 has no audio stream');
+    if (probe.hasAudio) add('audio-present', 'pass', audio.in?.[0] === '--expect-audio' ? '--expect-audio given and the MP4 has an audio stream' : 'composition declares audio and the MP4 has an audio stream');
+    else add('audio-present', 'fail', audio.in?.[0] === '--expect-audio' ? '--expect-audio given but the MP4 has no audio stream' : 'composition declares audio (<audio> or data-has-audio="true") but the MP4 has no audio stream');
   } else {
     add('audio-present', 'pass', `composition declares no audio (${audio.scanned} html file(s) scanned); MP4 ${probe.hasAudio ? 'has' : 'has no'} audio stream`);
   }
