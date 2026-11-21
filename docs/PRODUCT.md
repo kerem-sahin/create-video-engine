@@ -62,8 +62,8 @@ Kerem: "gerçekten işe yarar bi noktaya geldiğinde başlıcam reklama." Repo G
 
 | # | Şart | Ölçü |
 |---|---|---|
-| R1 | Uzun konuşma videosu | 10 dk kayıt → birkaç dakikada YouTube videosu; altyazı kayması yok; bölüm başlıkları ve SRT |
-| R2 | Shorts kalitesi | altyazı yüze binmiyor, yüz kadrajda kalıyor; Kerem "paylaşırım" diyor |
+| R1 | Uzun konuşma videosu | 10 dk kayıt → birkaç dakikada YouTube videosu; altyazı kayması yok; bölüm başlıkları ve SRT — 22 Kasım: ⚠️ 6 dk deneme (gerçek klip ×6): kayma 0 ms (ölçüldü), toplam ~13 dk yüklü makinede (Chrome yoluyla ~1 saat), SRT + bölümler var; altyazı bu yolda animasyonsuz cümle satırı (Homebrew ffmpeg'de libass yok); gerçek 10 dk kayıtla denenecek |
+| R2 | Shorts kalitesi | altyazı yüze binmiyor, yüz kadrajda kalıyor; Kerem "paylaşırım" diyor — 22 Kasım: ⚠️ yüz takibi geldi (Kerem'in klibinde yüz %100 kadrajda; sabit kırpmada kayboluyordu); yakın çekimde çene altında yer yoksa yazı üst banda; Kerem'in onayı bekleniyor |
 | R3 | Müzik | gerçek enstrüman örnekleri; Kerem "hep aynı" demiyor (D8) |
 | R4 | Markalar farklı görünür | 3 marka yan yana "aynı şablon" denmiyor (C16) |
 | R5 | Bizi tanımayan biri kurar | en az 1 dış kullanıcı yardımsız kurup video çıkarır (K3) |
