@@ -187,6 +187,8 @@ Her adımda ne olmalı, ne ters gidebilir, hangi şart onu korur.
 | L2 | Demo: "bir kişi, üç marka" + "1. video → geri bildirim → 2. video" | ⚠️ 2 marka hazır, müzikli sürümler yok |
 | L3 | GitHub'a yayın, npm paketi | ❌ (Kerem onayıyla) |
 | L4 | Duyuru planı: X, Reddit, HN, Türkçe video | ❌ |
+| L5 | **Repo tasarımı:** README görselleri kötü (Kerem, 21 Kasım). brag reposundaki gibi özenli bir kimlik: logo/başlık görseli, düzgün demo (seçilmiş anlar, yüksek kalite, ses için video bağlantısı), hatları ve akışı anlatan görseller; büyük duyurudan önce | ❌ |
+| L6 | npm yayını: bu ağdan registry.npmjs.org'a erişilemiyor (21 Kasım); Kerem evden deneyecek, sonra `npm login` + publish | ❌ |
 
 ---
 
