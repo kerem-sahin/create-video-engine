@@ -56,6 +56,19 @@ Her aşama sonunda Kerem'e tek tablo: **"Ayşe / Kerem / Mert bugün sistemi kul
 
 Kerem: "off yapalım artık … her şeyi hazırladık mı da test yapıp duruyoruz?" Kapsam sabitlendi: üç hat (tanıtım ✅, fotoğraf ✅, konuşma beta), add/remove/upgrade, verify, learn, müzik. Bilinen eksikler README'de açıkça yazılı (müzik tınısı, düzen benzerliği, konuşma hattı gerçek çekimsiz, yalnız Claude Code + macOS). 0.2: gerçek enstrüman örnekli müzik (D8), markaya özgü düzen (C16), ikinci ajan (A4), Ayşe gerçek çekim.
 
+## Reklama (duyuruya) hazır demek — 21 Kasım
+
+Kerem: "gerçekten işe yarar bi noktaya geldiğinde başlıcam reklama." Repo GitHub ve npm'de sessizce duruyor; duyuru şu şartların hepsi sağlanınca:
+
+| # | Şart | Ölçü |
+|---|---|---|
+| R1 | Uzun konuşma videosu | 10 dk kayıt → birkaç dakikada YouTube videosu; altyazı kayması yok; bölüm başlıkları ve SRT |
+| R2 | Shorts kalitesi | altyazı yüze binmiyor, yüz kadrajda kalıyor; Kerem "paylaşırım" diyor |
+| R3 | Müzik | gerçek enstrüman örnekleri; Kerem "hep aynı" demiyor (D8) |
+| R4 | Markalar farklı görünür | 3 marka yan yana "aynı şablon" denmiyor (C16) |
+| R5 | Bizi tanımayan biri kurar | en az 1 dış kullanıcı yardımsız kurup video çıkarır (K3) |
+| R6 | Repo vitrini | brag ayarında tasarım, kaliteli demo (L5) |
+
 ## Neden bu sayfa var
 
 İki kez aynı hata yapıldı: proje tek bir videoyla (ürün tanıtımı) ölçüldü ve asıl fikir — "herkes kendi sistemini kurar, sistem ihtiyaca göre parça seçer" — kenarda kaldı. Kolay ölçülen şeye doğru kayıldı. Bu sayfa ölçüyü üç kişiye bağlar.
