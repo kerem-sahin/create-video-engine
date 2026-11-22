@@ -1,0 +1,63 @@
+{
+ "speakers": [
+  "A",
+  "B"
+ ],
+ "turns": [
+  {
+   "start": 0,
+   "end": 31,
+   "speaker": "A"
+  },
+  {
+   "start": 31.6,
+   "end": 38,
+   "speaker": "B"
+  },
+  {
+   "start": 38.4,
+   "end": 44,
+   "speaker": "A"
+  },
+  {
+   "start": 44.8,
+   "end": 70,
+   "speaker": "B"
+  },
+  {
+   "start": 70.2,
+   "end": 74,
+   "speaker": "A"
+  },
+  {
+   "start": 74.2,
+   "end": 77,
+   "speaker": "B"
+  },
+  {
+   "start": 77.2,
+   "end": 120,
+   "speaker": "A"
+  },
+  {
+   "start": 120.4,
+   "end": 134,
+   "speaker": "B"
+  },
+  {
+   "start": 134.9,
+   "end": 146,
+   "speaker": "A"
+  },
+  {
+   "start": 146.2,
+   "end": 155,
+   "speaker": "B"
+  },
+  {
+   "start": 155.5,
+   "end": 180,
+   "speaker": "A"
+  }
+ ]
+}

@@ -18,6 +18,13 @@
 //        [--captions pop|clean|none] [--accent] [--band bottom|top|y=<px>] [--cards cards.json] [--chapters chapters.json]
 //        [--aspect 16:9|9:16] [--lufs -16] [--crf 18] [--preset veryfast] [--encoder x264|videotoolbox [--bitrate 14M]] [--fonts "Family=file.ttf,..."]
 //        [--hf <hyperframes binary>] [--parts <dir with captions/ and overlay-cards/>] [--work <dir>] [--keep-work]
+//   node assemble-long.mjs assemble --audio episode.m4a --scenes scenes.json --turns speakers.json --frame frame.md --out final.mp4
+//        [--words episode.words.json] [--captions pop|clean|none] [--podcast podcast.json] [--look ink-sketch|clean] [--aspect 16:9|9:16]
+//        [--fps 30] [--loop 8] [--chunk 96] [--encoder ...] [--parts <dir>] [--work <dir>] [--keep-work]
+//      AUDIO MODE (podcasts, no picture): the stage (show background with slow motion) is rendered ONCE as a short seamless loop and looped by ffmpeg;
+//      the speaker plates (lit when that host talks, from the turns), the waveform (from pre-computed levels) and the captions are overlays;
+//      the timed scene blocks (punchline, quote, topic, reaction, lower-third) are rendered on a transparent ground in a few HyperFrames renders.
+//      See the podcast-scenes part (build-scene.mjs, levels.mjs). scenes.json: [{ "start": 12.5, "end": 15, "kind": "punchline", "text": "...", "speaker": "A" }]
 //   node assemble-long.mjs chapters --chapters chapters.json (--duration <s> | --video final.mp4) [--out chapters.txt]
 //   node assemble-long.mjs srt --words cut.words.json --out final.srt
 //
@@ -30,7 +37,7 @@
 //   700 px); top: 100 px (16:9) / 280 px (9:16) from the top; y=<px>: the block's bottom edge at that y from the top.
 // Outputs: <out> (H.264 + AAC MP4, faststart), <out without extension>.srt, chapters.txt next to <out> (with --chapters),
 //   <out>.assemble.json (every measurement). Exit: 0 ok, 1 a measured check failed, 2 cannot run, 64 usage.
-import { spawnSync } from "node:child_process";
+import { spawnSync, spawn } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync, rmSync, readdirSync, copyFileSync, realpathSync } from "node:fs";
 import { dirname, join, resolve, basename } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -104,12 +111,14 @@ function hfRender(hf, project, args) {
 }
 
 // ---- loudness ---------------------------------------------------------------------------------------
-function measureLoudness(file, target, tp) {
-  const r = run("ffmpeg", ["-hide_banner", "-nostdin", "-nostats", "-i", file, "-vn", "-af", `loudnorm=I=${target}:TP=${tp}:LRA=11:print_format=json`, "-f", "null", "-"]);
-  const m = r.stderr.match(/\{[^{}]*"input_i"[^{}]*\}/);
-  if (!m) die("loudnorm measurement failed:\n" + r.stderr.slice(-600));
-  const j = JSON.parse(m[0]);
-  return { i: +j.input_i, tp: +j.input_tp, lra: +j.input_lra, thresh: +j.input_thresh, offset: +j.target_offset };
+function measureLoudness(file) {
+  // ebur128 is the same BS.1770 measurement loudnorm makes first, about 5x faster (loudnorm's analysis dominated a 28 min podcast)
+  const r = run("ffmpeg", ["-hide_banner", "-nostdin", "-nostats", "-i", file, "-vn", "-af", "ebur128=peak=true:framelog=quiet", "-f", "null", "-"]);
+  const sum = r.stderr.slice(Math.max(0, r.stderr.lastIndexOf("Integrated loudness:")));
+  const num = (re) => { const m = sum.match(re); return m ? (m[1] === "-inf" ? -120 : +m[1]) : NaN; };
+  const i = num(/\bI:\s+(-?[\d.]+|-inf) LUFS/), tpk = num(/Peak:\s+(-?[\d.]+|-inf) dBFS/), lra = num(/LRA:\s+(-?[\d.]+) LU/);
+  if (!isFinite(i) || !isFinite(tpk)) die("loudness measurement failed:\n" + r.stderr.slice(-600));
+  return { i, tp: tpk, lra };
 }
 
 // Gain + peak limiter instead of loudnorm: a quiet phone recording needs +15 dB, which loudnorm's linear mode cannot give
@@ -124,7 +133,7 @@ function buildAudio(video, dir, target, before) {
     const r = run("ffmpeg", ["-hide_banner", "-nostdin", "-nostats", "-loglevel", "error", "-y", "-i", video, "-vn", "-map", "0:a:0",
       "-af", `volume=${gain.toFixed(3)}dB,alimiter=limit=${limit.toFixed(4)}:attack=5:release=60:level=disabled,aresample=48000`, "-c:a", "aac", "-b:a", "192k", "-ar", "48000", file]);
     if (r.status !== 0) die("audio pass failed:\n" + r.stderr.slice(-800));
-    const m = measureLoudness(file, target, -2);
+    const m = measureLoudness(file);
     tries.push({ gain_db: r3(gain), limit: r3(limit), lufs: m.i, true_peak: m.tp });
     const err = target - m.i;
     if (Math.abs(err) <= 0.4 && m.tp <= -1.2) break;
@@ -214,8 +223,49 @@ ${js}      window.__timelines["${id}"] = tl;
 `);
 }
 
+// ---- caption stills: render the states once, then lay them on the frame grid ---------------------------------------
+// Returns { entries: [{file, f0, f1}], blank, stats, placement }; writeCaptionList turns a frame range of it into an ffconcat list.
+function captionPlan({ hf, workDir, words, style, portrait, W, H, duration, fps, band, accent, brandCss, fontCss }) {
+  const bandH = CAP.bandH(style, portrait);
+  const placement = bandPlacement(band, portrait, H, bandH);
+  const highlight = style === "pop" || accent;
+  const groups = groupWords(words, style, portrait);
+  const states = captionStates(groups, { fps, total: duration, highlight });
+  if (!states.length) die("no caption states (no words?)");
+  const sheet = captionSheetHtml({ groups, states, style, portrait, W, bandH, anchor: placement.anchor, accent: highlight, fps: 30, fontCss: fontCss.replace(/\.\.\/fonts/g, "fonts") });
+  const proj = join(workDir, "captions-proj");
+  sheetProject(proj, { W, H: bandH, dur: sheet.dur, css: sheet.css, body: sheet.html, js: sheet.js, brandCss, fontsFrom: join(workDir, "fonts") });
+  const framesDir = join(workDir, "captions-frames");
+  hfRender(hf, proj, ["--format", "png-sequence", "--fps", "30", "-o", framesDir]);
+  const pngs = readdirSync(framesDir).filter((f) => f.endsWith(".png")).sort();
+  if (pngs.length < states.length) die(`captions: ${states.length} states but HyperFrames wrote ${pngs.length} frames`);
+  const blank = join(workDir, "blank.png");
+  const rb = run("ffmpeg", ["-hide_banner", "-nostdin", "-v", "error", "-y", "-f", "lavfi", "-i", `color=c=black@0:s=${W}x${bandH},format=rgba`, "-frames:v", "1", blank]);
+  if (rb.status !== 0) die("blank still failed: " + rb.stderr);
+  const entries = states.map((s, k) => ({ file: join(framesDir, pngs[k]), f0: Math.round(s.from * fps), f1: Math.round(s.to * fps) }));
+  return { entries, blank, placement, stats: { style, groups: groups.length, states: states.length, band: placement.name, band_y: placement.y0, band_height: bandH, highlight } };
+}
+// frames [from, to) of the plan as an ffconcat list (times start at 0); a blank still wherever nothing shows
+function writeCaptionList(plan, from, to, fps, listPath) {
+  const lines = ["ffconcat version 1.0"];
+  const put = (file, n) => { if (n > 0) lines.push(`file '${file.replace(/'/g, "'\\''")}'`, `duration ${(n / fps).toFixed(6)}`); };
+  let t = from;
+  for (const e of plan.entries) {
+    if (e.f1 <= from || e.f0 >= to) continue;
+    const f0 = Math.max(e.f0, from, t), f1 = Math.min(e.f1, to);
+    if (f1 <= f0) continue;
+    put(plan.blank, f0 - t);
+    put(e.file, f1 - f0);
+    t = f1;
+  }
+  put(plan.blank, to - t);
+  lines.push(`file '${plan.blank}'`);
+  writeFileSync(listPath, lines.join("\n") + "\n");
+}
+
 // ---- assemble ---------------------------------------------------------------------------------------
 async function assemble(a) {
+  if (a.audio !== undefined) return assembleAudio(a);
   const need = ["video", "words", "frame", "out"].filter((k) => typeof a[k] !== "string");
   if (need.length) die(`usage: assemble --video cut.mp4 --words cut.words.json --frame frame.md --out final.mp4 (missing --${need.join(", --")})`, 64);
   const video = resolve(a.video), out = resolve(a.out);
@@ -290,43 +340,11 @@ async function assemble(a) {
   let capInputs = null, capPlacement = null, capStats = null;
   if (captionsMode !== "none") {
     const s0 = Date.now();
-    const bandH = CAP.bandH(captionsMode, portrait);
-    capPlacement = bandPlacement(a.band, portrait, H, bandH);
-    const highlight = captionsMode === "pop" || !!a.accent;
-    const groups = groupWords(words, captionsMode, portrait);
-    const states = captionStates(groups, { fps, total: duration, highlight });
-    if (!states.length) die("no caption states (no words?)");
-    const sheet = captionSheetHtml({ groups, states, style: captionsMode, portrait, W, bandH, anchor: capPlacement.anchor, accent: highlight, fps: 30, fontCss: fontCss.replace(/\.\.\/fonts/g, "fonts") });
-    const proj = join(workDir, "captions-proj");
-    sheetProject(proj, { W, H: bandH, dur: sheet.dur, css: sheet.css, body: sheet.html, js: sheet.js, brandCss, fontsFrom: join(workDir, "fonts") });
-    const framesDir = join(workDir, "captions-frames");
-    hfRender(hf, proj, ["--format", "png-sequence", "--fps", "30", "-o", framesDir]);
-    const pngs = readdirSync(framesDir).filter((f) => f.endsWith(".png")).sort();
-    if (pngs.length < states.length) die(`captions: ${states.length} states but HyperFrames wrote ${pngs.length} frames`);
-    // blank (fully transparent) still of the same size
-    const blank = join(workDir, "blank.png");
-    const rb = run("ffmpeg", ["-hide_banner", "-nostdin", "-v", "error", "-y", "-f", "lavfi", "-i", `color=c=black@0:s=${W}x${bandH},format=rgba`, "-frames:v", "1", blank]);
-    if (rb.status !== 0) die("blank still failed: " + rb.stderr);
-    // concat list on the frame grid: blank where nothing shows
-    const q = (t) => `${(Math.round(t * fps) / fps).toFixed(6)}`;
-    const q6 = (x) => Math.round(x * fps);
-    const lines = ["ffconcat version 1.0"];
-    let tFrames = 0;
-    const put = (file, n) => { if (n > 0) lines.push(`file '${file.replace(/'/g, "'\\''")}'`, `duration ${(n / fps).toFixed(6)}`); };
-    states.forEach((s, k) => {
-      const f0 = q6(s.from), f1 = q6(s.to);
-      put(blank, f0 - tFrames);
-      put(join(framesDir, pngs[k]), f1 - f0);
-      tFrames = f1;
-    });
-    const totalFrames = Math.round(duration * fps);
-    put(blank, totalFrames - tFrames);
-    lines.push(`file '${blank}'`);
-    const list = join(workDir, "captions.ffconcat");
-    writeFileSync(list, lines.join("\n") + "\n");
-    capInputs = list;
-    capStats = { style: captionsMode, groups: groups.length, states: states.length, band: capPlacement.name, band_y: capPlacement.y0, band_height: bandH, highlight };
-    stage(`captions (${states.length} stills)`, s0);
+    const plan = captionPlan({ hf, workDir, words, style: captionsMode, portrait, W, H, duration, fps, band: a.band, accent: !!a.accent, brandCss, fontCss });
+    capPlacement = plan.placement; capStats = plan.stats;
+    capInputs = join(workDir, "captions.ffconcat");
+    writeCaptionList(plan, 0, Math.round(duration * fps), fps, capInputs);
+    stage(`captions (${plan.stats.states} stills)`, s0);
   }
 
   // ---- 2. cards (one transparent render) ----
@@ -361,7 +379,7 @@ async function assemble(a) {
 
   // ---- 3. loudness measurement ----
   let s0 = Date.now();
-  const before = src.au ? measureLoudness(video, lufs, TP) : null;
+  const before = src.au ? measureLoudness(video) : null;
   const audioMade = src.au ? buildAudio(video, workDir, lufs, before) : null;
   stage(`audio: measure, gain + limiter, re-measure (${audioMade ? audioMade.tries.length : 0} pass(es))`, s0);
 
@@ -409,7 +427,7 @@ async function assemble(a) {
 
   // ---- 6. measure what was made ----
   const problems = [];
-  const after = src.au ? measureLoudness(out, lufs, TP) : null;
+  const after = src.au ? measureLoudness(out) : null;
   if (after) {
     if (Math.abs(after.i - lufs) > 1.0) problems.push(`integrated loudness ${after.i} LUFS, target ${lufs} (+-1)`);
     if (after.tp > -1.0) problems.push(`true peak ${after.tp} dBTP is above -1`);
@@ -432,6 +450,315 @@ async function assemble(a) {
   console.log(`assemble-long: ${r3(outInfo.duration)}s ${outInfo.v.width}x${outInfo.v.height} in ${report.seconds_total}s -> ${out}`);
   if (after) console.log(`  loudness ${before.i} -> ${after.i} LUFS (target ${lufs}), true peak ${before.tp} -> ${after.tp} dBTP`);
   console.log(`  frames ${inFrames} -> ${outFrames}; srt ${srtPath}${chaptersPath ? `; chapters ${chaptersPath}` : ""}`);
+  cleanup();
+  if (problems.length) { console.error("assemble-long: measured checks FAILED:\n  " + problems.join("\n  ")); process.exit(1); }
+}
+
+// ---- audio mode: a podcast without picture ---------------------------------------------------------------------------
+// Cost model (why it is fast): Chrome renders (1) one loop of the stage, (2) a handful of plate stills, (3) the scene blocks on a
+// transparent ground (only the seconds that have a block on screen), (4) caption stills. Everything that lasts the whole episode
+// (the looped background, plate highlights, the waveform bars) is ffmpeg and a few lines of Node. The episode is encoded in chunks of
+// whole loops (so every chunk starts at the loop's frame 0, no seeking), then the chunks are joined without re-encoding.
+const hexOf = (c) => "0x" + String(c).replace("#", "").slice(0, 6);
+function runAsync(cmd, args, feed) {
+  return new Promise((res) => {
+    const p = spawn(cmd, args, { stdio: [feed ? "pipe" : "ignore", "ignore", "pipe"], env: process.env });
+    let err = "";
+    p.stderr.on("data", (d) => { err = (err + d).slice(-4000); });
+    p.on("error", (e) => res({ status: 2, stderr: e.message }));
+    p.on("close", (status) => res({ status, stderr: err }));
+    if (feed) { p.stdin.on("error", () => {}); feed(p.stdin).then(() => p.stdin.end(), () => p.stdin.end()); }
+  });
+}
+const writeAll = (stream, buf) => new Promise((res) => { if (stream.write(buf)) res(); else stream.once("drain", res); });
+
+async function assembleAudio(a) {
+  const need = ["audio", "frame", "out"].filter((k) => typeof a[k] !== "string");
+  if (need.length) die(`usage: assemble --audio episode.m4a --scenes scenes.json --turns speakers.json --frame frame.md --out final.mp4 (missing --${need.join(", --")})`, 64);
+  if (a.video !== undefined) die("give --audio or --video, not both", 64);
+  const audio = resolve(a.audio), out = resolve(a.out);
+  for (const f of [audio, resolve(a.frame)]) if (!existsSync(f)) die(`no such file: ${f}`);
+  for (const k of ["scenes", "turns", "words", "podcast"]) if (typeof a[k] === "string" && !existsSync(resolve(a[k]))) die(`no such file: ${a[k]}`);
+  if (audio === out) die("--out must differ from --audio", 64);
+  if (a.aspect && !["16:9", "9:16"].includes(a.aspect)) die("--aspect must be 16:9 or 9:16", 64);
+  const fps = a.fps === undefined ? 30 : +a.fps;
+  if (![24, 25, 30].includes(fps)) die("--fps must be 24, 25 or 30", 64);
+  const loopSec = a.loop === undefined ? 8 : +a.loop;
+  if (!(loopSec >= 2) || !Number.isInteger(loopSec * fps)) die("--loop must be at least 2 s and a whole number of frames", 64);
+  const loopFrames = Math.round(loopSec * fps);
+  const chunkFrames = loopFrames * Math.max(1, Math.round((a.chunk === undefined ? 96 : +a.chunk) / loopSec));
+  const lufs = a.lufs === undefined ? -16 : +a.lufs, TP = -2;
+  if (!isFinite(lufs) || lufs > -5 || lufs < -40) die("--lufs must be a number such as -16", 64);
+  const t0 = Date.now(), stages = [];
+  const stage = (name, since) => { const s = r3((Date.now() - since) / 1000); stages.push({ stage: name, seconds: s }); console.log(`  ${name}: ${s}s`); };
+
+  const src = probe(audio);
+  if (!src.au) die(`${audio} has no audio stream`);
+  const duration = src.duration;
+  const N = Math.ceil(duration * fps - 1e-6);
+  const portrait = a.aspect === "9:16";
+  const W = portrait ? 1080 : 1920, H = portrait ? 1920 : 1080;
+
+  const podPath = findScript(a, "podcast-scenes", "podcast.mjs", ["scene", "podcast-scenes"]);
+  const buildScene = join(dirname(podPath), "build-scene.mjs"), levelsPath = join(dirname(podPath), "levels.mjs");
+  const pod = await import(pathToFileURL(podPath).href), lev = await import(pathToFileURL(levelsPath).href);
+  const frameText = readFileSync(resolve(a.frame), "utf8");
+  let podcast;
+  try {
+    const raw = typeof a.podcast === "string" ? JSON.parse(readFileSync(resolve(a.podcast), "utf8")) : pod.podcastFromFrame(frameText);
+    if (!raw) die("frame.md has no `podcast:` block and no --podcast file was given (look, background, accent_alt, hosts)", 64);
+    podcast = pod.checkPodcast(raw, { lookOverride: typeof a.look === "string" ? a.look : null });
+  } catch (e) { die(e.message, 64); }
+  const hostIds = podcast.hosts.map((h) => h.id);
+  let turnsInfo = { turns: [], merged: 0, dropped: 0 };
+  if (typeof a.turns === "string") { try { turnsInfo = pod.normalizeTurns(JSON.parse(readFileSync(resolve(a.turns), "utf8")), { hostIds }); } catch (e) { die(e.message, 64); } }
+  else console.error("assemble-long: no --turns: the speaker plates stay dim");
+  let scenes = [];
+  if (typeof a.scenes === "string") {
+    const v = pod.validateScenes(JSON.parse(readFileSync(resolve(a.scenes), "utf8")), { duration, fps, hostIds });
+    if (v.errors.length) die("scenes.json invalid:\n  " + v.errors.join("\n  "), 64);
+    scenes = v.scenes.sort((x, y) => x.f0 - y.f0);
+  }
+  const words = typeof a.words === "string" ? cleanWords(JSON.parse(readFileSync(resolve(a.words), "utf8"))) : null;
+  const captionsMode = a.captions === undefined || a.captions === true ? (words ? "clean" : "none") : String(a.captions);
+  if (!["pop", "clean", "none"].includes(captionsMode)) die("--captions must be pop, clean or none", 64);
+  if (captionsMode !== "none" && !words) die("captions need --words (a word-timed transcript); or pass --captions none", 64);
+
+  workDir = a.work ? resolve(a.work) : join(dirname(out), ".assemble-work-" + basename(out).replace(/\W+/g, "_"));
+  keepWork = !!a["keep-work"] || !!a.work;
+  rmSync(workDir, { recursive: true, force: true });
+  mkdirSync(workDir, { recursive: true });
+  mkdirSync(dirname(out), { recursive: true });
+  const hf = findHf(a);
+  const { parseFrame, toCss } = await import(pathToFileURL(findScript(a, "captions", "frame-vars.mjs", ["scene", "captions"])).href);
+  const frame = parseFrame(frameText);
+  const brandCss = toCss(frame);
+  const accent = frame.colors.accent || "#39ff14";
+  const problems = [];
+  const podFile = join(workDir, "podcast.json");
+  writeFileSync(podFile, JSON.stringify(podcast));
+  const sceneArgs = (kind, extra) => ["--kind", kind, "--aspect", portrait ? "9:16" : "16:9", "--frame", resolve(a.frame), "--podcast", podFile, ...(typeof a.parts === "string" ? ["--parts", resolve(a.parts)] : []), ...extra];
+  const build = (args) => { const r = run(process.execPath, [buildScene, ...args]); if (r.status !== 0) die("build-scene failed: " + (r.stderr || r.stdout).trim()); return r.stdout; };
+  const hfProject = (dir, { dur, mounts, bg = "transparent" }) => sheetProject(dir, { W, H, dur, css: `* { margin: 0; padding: 0; box-sizing: border-box; } html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: ${bg}; }`, body: mounts, js: "", brandCss, fontsFrom: null });
+  const mount = (cid, start, dur) => `      <div id="${cid}" data-composition-id="${cid}" data-composition-src="compositions/${cid}.html" data-start="${r3(start)}" data-duration="${r3(dur)}" data-track-index="2" data-track-kind="graphics" data-width="${W}" data-height="${H}"></div>\n`;
+  console.log(`audio mode: ${r3(duration)} s -> ${N} frames at ${fps} fps, ${W}x${H}, look ${podcast.look}, ${scenes.length} scene block(s), ${turnsInfo.turns.length} turn(s)`);
+
+  // ---- 1. levels (waveform data) ----
+  let s0 = Date.now();
+  const lv = lev.computeLevels(audio, fps);
+  const levelsFile = join(workDir, "levels.json");
+  writeFileSync(levelsFile, JSON.stringify(lv));
+  stage(`levels (${lv.frames} frames of RMS from ffmpeg)`, s0);
+
+  // ---- 2. stage loop: ONE short render of the background motion, looped by ffmpeg ----
+  s0 = Date.now();
+  const stageProj = join(workDir, "stage-proj");
+  build(sceneArgs("stage", ["--mode", "bg", "--loop", String(loopSec), "--id", "stage-bg", "--out", join(stageProj, "compositions", "stage-bg.html")]));
+  hfProject(stageProj, { dur: loopSec, mounts: mount("stage-bg", 0, loopSec), bg: "#000" });
+  const loopFile = join(workDir, "stage-loop.mp4");
+  hfRender(hf, stageProj, ["--format", "mp4", "--fps", String(fps), "-o", loopFile]);
+  const loopFramesGot = frameCount(loopFile);
+  if (loopFramesGot !== loopFrames) problems.push(`stage loop has ${loopFramesGot} frames, expected ${loopFrames}`);
+  // seam check: the step from the last frame to the first should look like any other step
+  const seam = (() => {
+    const r = run("ffmpeg", ["-hide_banner", "-nostdin", "-v", "error", "-i", loopFile, "-vf", "scale=160:90,format=gray", "-f", "rawvideo", "-"], { encoding: "buffer" });
+    const fr = 160 * 90, n = Math.floor(r.stdout.length / fr);
+    if (n < 3) return null;
+    const d = (i, j) => { let s = 0; for (let k = 0; k < fr; k++) s += Math.abs(r.stdout[i * fr + k] - r.stdout[j * fr + k]); return s / fr; };
+    let typ = 0; for (let i = 0; i + 1 < n; i++) typ += d(i, i + 1); typ /= n - 1;
+    return { frames: n, step: r3(typ), wrap: r3(d(n - 1, 0)) };
+  })();
+  if (seam && seam.wrap > seam.step * 2 + 0.05) problems.push(`stage loop seam: last-to-first step ${seam.wrap} vs ${seam.step} typical (mean grey levels)`);
+  stage(`stage loop (${loopSec} s, ${loopFramesGot} frames, rendered once)`, s0);
+
+  // ---- 3. plates: dim and lit stills per host, cropped to their box ----
+  s0 = Date.now();
+  const lay = pod.layout(portrait);
+  const plateProj = join(workDir, "plates-proj");
+  const nStates = podcast.hosts.length * 2;
+  build(sceneArgs("stage", ["--mode", "plates", "--id", "plates", "--out", join(plateProj, "compositions", "plates.html")]));
+  hfProject(plateProj, { dur: nStates / 30, mounts: mount("plates", 0, nStates / 30) });
+  const plateFrames = join(workDir, "plates-frames");
+  hfRender(hf, plateProj, ["--format", "png-sequence", "--fps", "30", "-o", plateFrames]);
+  const platePngs = readdirSync(plateFrames).filter((f) => f.endsWith(".png")).sort();
+  if (platePngs.length < nStates) die(`plates: expected ${nStates} frames, HyperFrames wrote ${platePngs.length}`);
+  const pBox = (i) => { const x = Math.max(0, lay.plate.xs[Math.min(i, lay.plate.xs.length - 1)] - 10), y = Math.max(0, lay.plate.y - 10); return { x, y, w: Math.min(W - x, lay.plate.w + 36), h: Math.min(H - y, lay.plate.h + 36) }; };
+  const plates = podcast.hosts.map((h, i) => {
+    const b = pBox(i), file = (st, k) => join(workDir, `plate-${i}-${st}.png`);
+    [["dim", 2 * i], ["lit", 2 * i + 1]].forEach(([st, k]) => {
+      const r = run("ffmpeg", ["-hide_banner", "-nostdin", "-v", "error", "-y", "-i", join(plateFrames, platePngs[k]), "-vf", `crop=${b.w}:${b.h}:${b.x}:${b.y}`, "-frames:v", "1", file(st)]);
+      if (r.status !== 0) die("plate crop failed: " + r.stderr);
+    });
+    return { id: h.id, box: b, dim: file("dim"), lit: file("lit") };
+  });
+  stage(`speaker plates (${nStates} stills, rendered once)`, s0);
+
+  // ---- 4. scene blocks: transparent WebM renders, a few blocks per render ----
+  s0 = Date.now();
+  const batches = [];
+  let cur = null;
+  for (const sc of scenes) {
+    if (!cur || cur.frames + sc.n > 90 * fps || cur.items.length >= 30) { cur = { items: [], frames: 0, k: batches.length }; batches.push(cur); }
+    sc.batch = cur; sc.off = cur.frames; cur.frames += sc.n; cur.items.push(sc);
+  }
+  for (const b of batches) {
+    const proj = join(workDir, `scenes-proj-${b.k}`);
+    let mounts = "";
+    for (const sc of b.items) {
+      const extra = ["--id", sc.id, "--duration", String(r3(sc.n / fps)), "--out", join(proj, "compositions", sc.id + ".html")];
+      if (sc.text !== undefined && sc.kind !== "waveform") extra.push("--text", String(sc.text));
+      if (sc.detail !== undefined) extra.push("--detail", String(sc.detail));
+      if (sc.speaker !== undefined) extra.push("--speaker", sc.speaker);
+      if (sc.kind === "waveform") extra.push("--levels", levelsFile, "--from", String(r3(sc.f0 / fps)));
+      build(sceneArgs(sc.kind, extra));
+      mounts += mount(sc.id, sc.off / fps, sc.n / fps);
+    }
+    hfProject(proj, { dur: b.frames / fps, mounts });
+    b.file = join(workDir, `scenes-${b.k}.webm`);
+    hfRender(hf, proj, ["--format", "webm", "--fps", String(fps), "-o", b.file]);
+    const got = frameCount(b.file);
+    if (got !== b.frames) problems.push(`scene render ${b.k}: ${got} frames, expected ${b.frames}`);
+  }
+  if (scenes.length) stage(`scene blocks (${scenes.length} in ${batches.length} transparent render(s), ${r3(batches.reduce((x, b) => x + b.frames, 0) / fps)} s of picture)`, s0);
+
+  // ---- 5. captions ----
+  let capPlan = null;
+  if (captionsMode !== "none") {
+    s0 = Date.now();
+    let fontCss = "";
+    if (typeof a.fonts === "string") {
+      mkdirSync(join(workDir, "fonts"), { recursive: true });
+      for (const pair of a.fonts.split(",")) {
+        const [fam, file] = pair.split("=");
+        if (!fam || !file || !existsSync(resolve(file))) die(`--fonts: "${pair}" must be Family=path/to/font.ttf and the file must exist`, 64);
+        copyFileSync(resolve(file), join(workDir, "fonts", basename(file)));
+        fontCss += `@font-face { font-family: "${fam}"; src: url("../fonts/${basename(file)}"); }\n`;
+      }
+    }
+    capPlan = captionPlan({ hf, workDir, words, style: captionsMode, portrait, W, H, duration, fps, band: a.band, accent: !!a.accent, brandCss, fontCss });
+    stage(`captions (${capPlan.stats.states} stills)`, s0);
+  }
+
+  // ---- 6. loudness ----
+  s0 = Date.now();
+  const before = measureLoudness(audio);
+  const audioMade = buildAudio(audio, workDir, lufs, before);
+  stage(`audio: measure, gain + limiter, re-measure (${audioMade.tries.length} pass(es))`, s0);
+
+  // ---- 7. chunks: loop + plates + waveform + captions + scenes, encoded; then joined without re-encoding ----
+  s0 = Date.now();
+  const enc = a.encoder === undefined ? "x264" : String(a.encoder);
+  if (!["x264", "videotoolbox"].includes(enc)) die("--encoder must be x264 (default, deterministic) or videotoolbox (Mac media engine, faster)", 64);
+  const encArgs = enc === "x264" ? ["-c:v", "libx264", "-preset", String(a.preset ?? "veryfast"), "-crf", String(a.crf ?? 22)] : ["-c:v", "h264_videotoolbox", "-b:v", String(a.bitrate ?? "6M"), "-profile:v", "high"];
+  const wv = lay.wave, nBars = portrait ? 30 : 40, pitch = wv.w / nBars, barW = Math.max(3, Math.round(pitch * (podcast.look === "clean" ? 0.62 : 0.4)));
+  const segs = [];
+  const turnTerms = (id, c0, c1) => podcast.hosts.length && turnsInfo.turns.filter((t) => t.speaker === id && Math.round(t.end * fps) > c0 && Math.round(t.start * fps) < c1)
+    .map((t) => `between(t,${((Math.max(Math.round(t.start * fps), c0) - c0) / fps).toFixed(4)},${((Math.min(Math.round(t.end * fps), c1) - c0) / fps - 0.0001).toFixed(4)})`);
+  for (let c0 = 0, ci = 0; c0 < N; c0 += chunkFrames, ci++) {
+    const c1 = Math.min(N, c0 + chunkFrames), n = c1 - c0;
+    const inputs = ["-stream_loop", "-1", "-i", loopFile];
+    const f = ["[0:v]setsar=1,format=yuv420p[b0]"];
+    let cur = "b0", k = 1, oc = 0;
+    const ov = (name, x, y, enable) => { const nxt = `o${++oc}`; f.push(`[${cur}][${name}]overlay=x=${x}:y=${y}:format=auto${enable ? `:enable='${enable}'` : ""}[${nxt}]`); cur = nxt; };
+    plates.forEach((p) => {
+      const terms = turnTerms(p.id, c0, c1);
+      inputs.push("-loop", "1", "-framerate", String(fps), "-i", p.dim);
+      const dn = k; k++;
+      f.push(`[${dn}:v]format=rgba[d${dn}]`);
+      if (terms.length) {
+        inputs.push("-loop", "1", "-framerate", String(fps), "-i", p.lit);
+        const ln = k; k++;
+        f.push(`[${ln}:v]format=rgba[l${ln}]`);
+        const lit = terms.join("+");
+        ov(`d${dn}`, p.box.x, p.box.y, `eq(${lit},0)`);
+        ov(`l${ln}`, p.box.x, p.box.y, `gt(${lit},0)`);
+      } else ov(`d${dn}`, p.box.x, p.box.y);
+    });
+    // waveform: raw grey frames from Node (bars from the pre-computed levels), tinted with the accent
+    inputs.push("-f", "rawvideo", "-pixel_format", "gray", "-video_size", `${wv.h}x${wv.w}`, "-framerate", String(fps), "-i", "pipe:0");
+    const wn = k; k++;
+    f.push(`[${wn}:v]transpose=0,format=gray[wm]`, `color=c=${hexOf(accent)}:s=${wv.w}x${wv.h}:r=${fps},format=rgba[wc]`, `[wc][wm]alphamerge[wa]`);
+    ov("wa", wv.x, wv.y);
+    if (capPlan) {
+      const list = join(workDir, `captions-${ci}.ffconcat`);
+      writeCaptionList(capPlan, c0, c1, fps, list);
+      inputs.push("-f", "concat", "-safe", "0", "-i", list);
+      const cn = k; k++;
+      f.push(`[${cn}:v]format=rgba[cap]`);
+      ov("cap", 0, capPlan.placement.y0);
+    }
+    for (const sc of scenes) {
+      const v0 = Math.max(sc.f0, c0), v1 = Math.min(sc.f0 + sc.n, c1);
+      if (v1 <= v0) continue;
+      inputs.push("-ss", ((sc.off + (v0 - sc.f0)) / fps).toFixed(4), "-t", ((v1 - v0) / fps).toFixed(4), "-c:v", "libvpx-vp9", "-i", sc.batch.file);
+      const sn = k; k++;
+      f.push(`[${sn}:v]setpts=PTS-STARTPTS+${((v0 - c0) / fps).toFixed(4)}/TB[s${sn}]`);
+      ov(`s${sn}`, 0, 0, `between(t,${((v0 - c0) / fps - 0.0001).toFixed(4)},${((v1 - c0) / fps - 0.0001).toFixed(4)})`);
+    }
+    f.push(`[${cur}]format=yuv420p[vout]`);
+    const script = join(workDir, `graph-${ci}.txt`);
+    writeFileSync(script, f.join(";\n"));
+    const seg = join(workDir, `seg-${String(ci).padStart(3, "0")}.mp4`);
+    const args = ["-hide_banner", "-nostdin", "-nostats", "-loglevel", "error", "-y", ...inputs, "-/filter_complex", script, "-map", "[vout]", "-an", ...encArgs, "-r", String(fps), "-g", String(fps), "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-frames:v", String(n), seg];
+    // the waveform input is the pipe: its index is wn, so it must be the only pipe input
+    const feed = async (stdin) => {
+      for (let i = 0; i < n; i++) {
+        const hs = pod.barHeights(lv.levels, c0 + i, nBars), buf = Buffer.alloc(wv.w * wv.h);
+        for (let b = 0; b < nBars; b++) {
+          const x0 = Math.round(b * pitch + (pitch - barW) / 2), half = Math.max(2, Math.round((hs[b] * wv.h) / 2)), y0 = Math.round(wv.h / 2) - half, y1 = Math.round(wv.h / 2) + half;
+          buf.fill(255, x0 * wv.h + y0, x0 * wv.h + y1);
+          for (let x = 1; x < barW; x++) buf.copyWithin((x0 + x) * wv.h + y0, x0 * wv.h + y0, x0 * wv.h + y1);
+        }
+        await writeAll(stdin, buf);
+      }
+    };
+    const r = await runAsync("ffmpeg", args, feed);
+    if (r.status !== 0) die(`ffmpeg chunk ${ci} failed:\n${r.stderr.slice(-1500)}`);
+    segs.push(seg);
+    process.stdout.write(`\r  chunk ${ci + 1}/${Math.ceil(N / chunkFrames)}`);
+  }
+  process.stdout.write("\n");
+  stage(`chunks (${segs.length} x up to ${r3(chunkFrames / fps)} s: overlays + encode)`, s0);
+
+  s0 = Date.now();
+  const listFile = join(workDir, "segments.txt");
+  writeFileSync(listFile, segs.map((p) => `file '${p.replace(/'/g, "'\\''")}'`).join("\n") + "\n");
+  const rj = run("ffmpeg", ["-hide_banner", "-nostdin", "-nostats", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", listFile, "-i", audioMade.file, "-map", "0:v", "-map", "1:a", "-c", "copy", "-movflags", "+faststart", out]);
+  if (rj.status !== 0) die("joining the chunks failed:\n" + rj.stderr.slice(-1500));
+  stage("join chunks + audio (stream copy)", s0);
+
+  // ---- 8. text outputs and measurements ----
+  const srtPath = out.replace(/\.[^.]+$/, "") + ".srt";
+  if (words) writeFileSync(srtPath, toSrt(words));
+  const outInfo = probe(out);
+  const after = measureLoudness(out);
+  if (Math.abs(after.i - lufs) > 1.0) problems.push(`integrated loudness ${after.i} LUFS, target ${lufs} (+-1)`);
+  if (after.tp > -1.0) problems.push(`true peak ${after.tp} dBTP is above -1`);
+  const outFrames = frameCount(out);
+  if (outFrames !== N) problems.push(`frame count ${outFrames}, expected ${N}`);
+  const vDur = parseFloat(outInfo.v.duration), aDur = parseFloat(outInfo.au.duration);
+  if (Math.abs(vDur - aDur) > 2 / fps) problems.push(`picture ${r3(vDur)} s and sound ${r3(aDur)} s differ by more than two frames`);
+  if (Math.abs(aDur - duration) > 0.05) problems.push(`sound lasts ${r3(aDur)} s, the input ${r3(duration)} s`);
+  const spread = stepSpread(out);
+  if (spread.hi - spread.lo > 0.0005) problems.push(`frame step is not constant (${r3(spread.lo * 1000)}..${r3(spread.hi * 1000)} ms): a chunk joint is off`);
+  const starts = scenes.map((s) => s.f0 / fps);
+  let maxGap = starts.length ? Math.max(starts[0], ...starts.slice(1).map((x, i) => x - starts[i]), duration - starts[starts.length - 1]) : duration;
+  const report = {
+    schema: 1, mode: "audio", out, srt: words ? srtPath : null, seconds_total: r3((Date.now() - t0) / 1000), stages,
+    video: { seconds: r3(outInfo.duration), width: outInfo.v.width, height: outInfo.v.height, fps, frames_expected: N, frames_out: outFrames, codec: outInfo.v.codec_name, frame_step_ms: [r3(spread.lo * 1000), r3(spread.hi * 1000)] },
+    audio: { codec: outInfo.au.codec_name, sample_rate: outInfo.au.sample_rate, before: { lufs: before.i, true_peak: before.tp }, after: { lufs: after.i, true_peak: after.tp }, target_lufs: lufs, true_peak_limit: -1, passes: audioMade.tries },
+    stage: { look: podcast.look, loop_seconds: loopSec, loop_frames: loopFramesGot, loop_seam: seam, chunks: segs.length, chunk_seconds: r3(chunkFrames / fps), encoder: enc },
+    turns: { kept: turnsInfo.turns.length, merged: turnsInfo.merged, dropped_short: turnsInfo.dropped },
+    scenes: scenes.map((s) => ({ kind: s.kind, start: r3(s.f0 / fps), seconds: r3(s.n / fps) })),
+    scene_renders: batches.map((b) => ({ blocks: b.items.length, seconds: r3(b.frames / fps) })),
+    captions: capPlan ? capPlan.stats : null,
+    longest_gap_between_scene_block_starts_s: r3(maxGap),
+    note_stillness: "the background moves and the plates change with the turns all the time; scene blocks add the content beats",
+    problems,
+  };
+  writeFileSync(out + ".assemble.json", JSON.stringify(report, null, 2) + "\n");
+  console.log(`assemble-long: ${r3(outInfo.duration)}s ${outInfo.v.width}x${outInfo.v.height} in ${report.seconds_total}s -> ${out}`);
+  console.log(`  loudness ${before.i} -> ${after.i} LUFS (target ${lufs}), true peak ${before.tp} -> ${after.tp} dBTP; frames ${outFrames} (expected ${N})${seam ? `; loop seam ${seam.wrap} vs step ${seam.step}` : ""}`);
   cleanup();
   if (problems.length) { console.error("assemble-long: measured checks FAILED:\n  " + problems.join("\n  ")); process.exit(1); }
 }

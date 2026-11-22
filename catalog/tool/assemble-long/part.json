@@ -2,11 +2,12 @@
   "schema": 2,
   "id": "assemble-long",
   "kind": "tool",
-  "title": "Fast final assembly for long talking-head videos",
-  "what_it_does": "Builds the final MP4 for a 10-30 minute talking-head video with ffmpeg instead of rendering every frame in Chrome: captions (pop or clean, in the brand's colours and fonts from frame.md) are drawn once per state as transparent stills by HyperFrames and shown by ffmpeg; cards are rendered once on a transparent ground (WebM with alpha) and overlaid at their times; audio is loudness-normalised to -16 LUFS with true peak <= -1 dBTP in the same pass. Also writes an SRT and a YouTube chapters.txt (validated against YouTube's rules), and measures what it made.",
-  "when_to_use": "When the video is longer than about two minutes, or when render time matters. Feed it the cut.mp4 and cut.words.json from silence-cut (made from a normalized copy). For short pieces with rich motion, the HyperFrames composition path of the captions and overlay-cards parts is fine. Not for footage that is not constant frame rate: run normalize first.",
+  "title": "Fast final assembly for long talking-head videos and audio-only podcasts",
+  "what_it_does": "Builds the final MP4 for a 10-30 minute talking-head video with ffmpeg instead of rendering every frame in Chrome: captions (pop or clean, in the brand's colours and fonts from frame.md) are drawn once per state as transparent stills by HyperFrames and shown by ffmpeg; cards are rendered once on a transparent ground (WebM with alpha) and overlaid at their times; audio is loudness-normalised to -16 LUFS with true peak <= -1 dBTP in the same pass. Also writes an SRT and a YouTube chapters.txt (validated against YouTube's rules), and measures what it made. Audio mode (--audio instead of --video): the podcast-scenes stage is rendered once as a short seamless loop and looped by ffmpeg; speaker plates (from the turns), the waveform (from pre-computed levels) and captions are overlays; timed scene blocks (punchline, quote, topic, reaction, lower third) are transparent WebM renders overlaid in chunks that are joined without re-encoding.",
+  "when_to_use": "When the video is longer than about two minutes, or when render time matters. Feed it the cut.mp4 and cut.words.json from silence-cut (made from a normalized copy). For short pieces with rich motion, the HyperFrames composition path of the captions and overlay-cards parts is fine. Not for footage that is not constant frame rate: run normalize first. For a podcast with no picture, use --audio with the podcast-scenes part (add podcast-scenes; it is not installed by this part).",
   "lanes": [
-    "talking-head"
+    "talking-head",
+    "podcast"
   ],
   "source": {
     "repo": "create-video-engine",
@@ -44,7 +45,7 @@
   "paid_api": null,
   "verified_with": {
     "hyperframes": "0.9.67",
-    "date": "2026-11-21"
+    "date": "2026-11-22"
   },
   "example": null,
   "requirements": [],

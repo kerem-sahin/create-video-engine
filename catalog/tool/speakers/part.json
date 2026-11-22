@@ -1,0 +1,36 @@
+{
+  "schema": 2,
+  "id": "speakers",
+  "kind": "tool",
+  "title": "Speaker labels (who speaks when) from one mono recording",
+  "what_it_does": "speakers.mjs labels who speaks when in a recording of two or more people on one track, locally and free with no account or token: sherpa-onnx offline diarization (pyannote-segmentation-3.0 + CAM++ speaker embedding). Writes {speakers:[\"A\",\"B\"], turns:[{start,end,speaker}], words?:[{w,start,end,speaker}], summary}; with a transcribe-local words file every word gets the speaker whose turn covers its midpoint.",
+  "when_to_use": "Podcasts and interviews recorded on one microphone/track, when the video should show who is talking (speaker cards, captions in two colours, per-speaker cuts). Not needed for a single speaker, and not for multi-channel recordings (use the channel). Labels are A, B... in order of first speech; the person maps them to names. Always have a human listen to a few handovers before trusting them.",
+  "lanes": ["podcast"],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    { "from": "files/speakers.mjs", "to": "parts/speakers/speakers.mjs" },
+    { "from": "files/diarize.py", "to": "parts/speakers/diarize.py" }
+  ],
+  "docs": "files/README.md",
+  "requires": [],
+  "needs": [
+    "ffmpeg",
+    "python3 (3.9+, with the venv module); `node parts/speakers/speakers.mjs --install` makes a private venv in ~/.cache/create-video-engine/speakers/ and pip-installs sherpa-onnx (Apache-2.0) and numpy there, no root",
+    "two ONNX models downloaded once from github.com/k2-fsa/sherpa-onnx releases, sha-256 checked: pyannote-segmentation-3.0 (MIT, ~7 MB) and 3D-Speaker CAM++ zh_en (Apache-2.0, ~28 MB), cached in the same folder"
+  ],
+  "paid_api": null,
+  "verified_with": { "hyperframes": "0.9.67", "date": "2026-11-22" },
+  "example": null,
+  "requirements": ["P3"],
+  "notes": "Free local default; pyannote's own gated pipeline (Hugging Face token) is deliberately not used. Install footprint about 120 MB (wheels ~30 MB + onnxruntime, models ~35 MB). Speed on an 8 GB M1: 28 min of audio in about 4 min. Same-voice-type cases (two men, one phone mic, outdoor noise) are the weak spot; it cannot label overlapping speech separately beyond what the segmentation model resolves."
+}
