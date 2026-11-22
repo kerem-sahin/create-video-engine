@@ -115,3 +115,14 @@ Bizim için kural:
 3. Ses dalgası yalnız süs; varsayılan kapalı.
 
 Altyazı notu: whisper `medium` 2 dk parçada `small`'dan biraz iyi (1 sn ızgara kayboldu) ama Türkçe sohbette hâlâ hatalı ("İnanık kişiyle mi?"). Ücretsiz yerel modelle hatasız altyazı yok; kişinin düzeltme turu ve `large-v3` (~3 GB) denenecek, ücretli servis isteğe bağlı kalır.
+
+### Kerem'in ilkesi (22 Kasım): eldeki malzeme nimettir
+
+Sesten video **genel bir çekirdek yetenek**tir (podcast, anlatım, ders, sesli not), başka birinin tarzı değil. Sistem kişinin **hâlihazırda elinde olan** her şeyden beslenir, kişinin talimatlarıyla daha da özelleşir:
+
+- **Geçmiş bölümler/kayıtlar:** hepsi yazıya dökülür ve bir **kanal hafızası** çıkar: sunucuların lakapları ve konuşma tarzı, tekrar eden konular, iç espriler ve laflar, sık geçen yerler ve kişiler (üçüncü kişiler ekrana çıkmaz), giriş/kapanış kalıpları, jingle. Görsel plan bu hafızaya bakar ("bu espri 4. bölümden beri dönüyor").
+- **Site, kapak, sosyal hesaplar, açıklamalar:** renk, yazı, çizim tarzı, kanalın kendini anlatan kelimeleri.
+- **Daha önce yayınlanmış videolar (varsa):** tempo ve dil.
+- **Kişinin talimatları:** kurulumda ve her videodan sonra; hafızanın üstüne yazılır, çelişkide kişi kazanır.
+
+Kurulum önce bunları ister ve okur, sonra yalnızca malzemenin cevaplamadığını sorar. Her yeni bölüm hafızaya eklenir; sistem bölüm bölüm kanalı daha iyi tanır.
