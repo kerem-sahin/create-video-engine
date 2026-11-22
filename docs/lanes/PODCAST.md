@@ -99,3 +99,19 @@ Yalnız site + kapakla bu kadarı iyi bulundu; yayın kalitesi değil. Sebepler 
 - **Sunucular: karakter çizimi**, kapağın mürekkep tarzında, kişinin verdiği fotoğraftan; konuşan hareketlenir.
 - **Altyazı: büyük ücretsiz model** (bir kerelik ~1,5 GB indirme, izin verildi) + kişinin kısa düzeltme turu.
 - Denemeler 1–2 dk'lık parçada.
+
+### Referans kanal incelemesi (22 Kasım; sesle anlatılan, yüzsüz bir Türkçe teknoloji kanalı, iki video kare kare)
+
+Ne yapıyor:
+- **Her cümlenin kendi görseli var, konuşulanın kendisi:** bahsedilen haber sayfasının ekranı, tweet, iki modelin çıktısı yan yana, veriden çizilmiş grafik (100 kare ızgara, büyük sayı), fikri anlatan bir benzetme grafiği (iki model = periyodik tablo kareleri H ve Ne + tarih çizgisi + "?" kutusu).
+- **Ses dalgası yok, sabit sahne yok.** Görüntü konuşmanın ritmiyle değişiyor.
+- **Sabit bir kimlik sistemi:** koyu zemin, serif büyük başlık, tek sarı vurgu, küçük mono etiketler ("bu hafta", "Neon sesi"), ince çerçeveler. Her video farklı ama hepsi aynı kanala ait.
+- **Kanalın maskotu:** kendi çizilmiş karakteri, anlatıya göre poz veriyor (laptopla oturuyor, defter tutuyor).
+- Altyazı küçük ve altta; görsel yerine geçmiyor.
+
+Bizim için kural:
+1. Görsel plan **sahne şablonu seçmek değil**, her fikir için o fikre özel bir görsel tasarlamak: gerçek malzeme (bahsedilen şeyin ekranı/fotoğrafı), benzetme grafiği, veri grafiği, çizim, karşılaştırma.
+2. Kanal kimliği (renk, yazı, etiket dili, maskot/karakterler) kurulumda öğrenilir ve **her kullanıcıya sorulur**: sunucular nasıl görünsün (çizim/lakap/fotoğraf), görseller nereden (ücretsiz çizim / ücretli servis / kendi malzemesi / web ekranları), kanalın tekrar eden ögeleri (maskot, jingle, iç espriler), asla gösterilmeyecekler. Kerem'e özel ayar değil, hattın kurulum soruları.
+3. Ses dalgası yalnız süs; varsayılan kapalı.
+
+Altyazı notu: whisper `medium` 2 dk parçada `small`'dan biraz iyi (1 sn ızgara kayboldu) ama Türkçe sohbette hâlâ hatalı ("İnanık kişiyle mi?"). Ücretsiz yerel modelle hatasız altyazı yok; kişinin düzeltme turu ve `large-v3` (~3 GB) denenecek, ücretli servis isteğe bağlı kalır.
