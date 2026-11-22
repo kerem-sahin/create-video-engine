@@ -2,11 +2,12 @@
 // Not a general XML parser: it reads <channel> fields and <item> blocks, CDATA and entities, which is what podcast
 // feeds use. Anything it cannot read is left out, never guessed.
 
+const cp = (n, raw) => { try { return String.fromCodePoint(n); } catch { return raw; } };  // a broken entity stays as written
 const ENT = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
 export const decode = (s) => String(s ?? '')
   .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
-  .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-  .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(+d))
+  .replace(/&#x([0-9a-f]+);/gi, (m, h) => cp(parseInt(h, 16), m))
+  .replace(/&#(\d+);/g, (m, d) => cp(+d, m))
   .replace(/&([a-z]+);/gi, (m, n) => ENT[n.toLowerCase()] ?? m);
 
 // HTML (episode descriptions) -> plain text with paragraph breaks
@@ -43,7 +44,7 @@ export const slug = (s, max = 48) => String(s).toLocaleLowerCase('tr')
   .replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c')
   .normalize('NFKD').replace(/[̀-ͯ]/g, '')
   .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
-  .replace(new RegExp(`^(.{1,${max}})(-|$).*`), '$1') || 'episode';  // whole words, at most max characters
+  .replace(new RegExp(`^(.{1,${max}})(-|$).*`), '$1').slice(0, max) || 'episode';  // whole words, at most max characters
 
 export function parseFeed(xml) {
   const ch = /<channel[^>]*>([\s\S]*)<\/channel>/i.exec(xml);
@@ -78,8 +79,8 @@ export function parseFeed(xml) {
       audio: attr(it, 'enclosure', 'url') ? { url: attr(it, 'enclosure', 'url'), type: attr(it, 'enclosure', 'type'), bytes: +attr(it, 'enclosure', 'length') || null } : null,
     };
   });
-  // oldest first, numbered 1..n in publishing order (feeds list newest first); trailers keep their place
-  episodes.sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''));
+  // oldest first, numbered 1..n in publishing order (feeds list newest first, so same-day episodes are reversed first)
+  episodes.reverse().sort((a, b) => (a.date ?? '').localeCompare(b.date ?? ''));
   episodes.forEach((e, i) => { e.n = i + 1; });
   return { show, episodes };
 }

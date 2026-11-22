@@ -126,14 +126,25 @@ async function readCmd(a) {
     else die(`cannot read "${src}": not a link, a folder or a file`, 64);
   } catch (e) { die(e.message); }
   const out = resolve(a.out);
-  // keep what an earlier run downloaded or the person wrote (local files, titles they gave)
+  // keep what an earlier run downloaded or the person wrote (local files, titles they gave) and, above all, each
+  // episode's number: the memory files are named by it, so a number must never move to another episode
   if (existsSync(out)) {
-    try {
-      const old = JSON.parse(readFileSync(out, 'utf8'));
+    let old = null;
+    try { old = JSON.parse(readFileSync(out, 'utf8')); } catch { notes.push('the existing show.json could not be read; it was replaced'); }
+    if (old && (r.match === 'none' || r.match === 'name-only') && (old.episodes?.length ?? 0) > r.episodes.length) {
+      die(`kept the existing ${out} (${old.episodes.length} episodes): this read found less (${r.match}). ${notes.join(' ')}`, 1);
+    }
+    if (old) {
       const key = (e) => e.guid || e.audio?.url || e.local || `${e.date}|${e.title}`;
       const prev = new Map((old.episodes ?? []).map((e) => [key(e), e]));
-      for (const e of r.episodes) { const o = prev.get(key(e)); if (o) { if (o.local && !e.local) e.local = o.local; if (!e.title && o.title) e.title = o.title; } }
-    } catch { notes.push('the existing show.json could not be read; it was replaced'); }
+      let next = Math.max(0, ...(old.episodes ?? []).map((e) => e.n || 0)) + 1;
+      for (const e of r.episodes) {
+        const o = prev.get(key(e));
+        if (o) { if (Number.isInteger(o.n)) e.n = o.n; if (o.local && !e.local) e.local = o.local; if (!e.title && o.title) e.title = o.title; }
+        else e.n = next++;
+      }
+      r.episodes.sort((x, y) => x.n - y.n);
+    }
   }
   const doc = { schema: 1, read_at: new Date().toISOString().slice(0, 10), match: r.match ?? 'direct', ...r, notes };
   mkdirSync(dirname(out), { recursive: true });
@@ -152,24 +163,31 @@ async function downloadCmd(a) {
   const doc = JSON.parse(readFileSync(showPath, 'utf8'));
   let eps = doc.episodes.filter((e) => e.audio?.url);
   if (typeof a.episodes === 'string') { const want = new Set(a.episodes.split(',').map(Number)); eps = eps.filter((e) => want.has(e.n)); }
-  if (a.latest !== undefined) eps = eps.slice(-Math.max(1, +a.latest));
+  if (a.latest !== undefined) { const k = Number(a.latest); if (!Number.isInteger(k) || k < 1) die('--latest must be a whole number of episodes', 64); eps = eps.slice(-k); }
   if (!eps.length) die('no episode with an audio link to download (see show.json)', 1);
   mkdirSync(dir, { recursive: true });
   const problems = [];
   for (const e of eps) {
     if (e.local && existsSync(e.local)) { console.log(`  ${e.n}: already here (${basename(e.local)})`); continue; }
-    const ext = (extname(new URL(e.audio.url).pathname).toLowerCase().match(/^\.[a-z0-9]{2,4}$/) || [''])[0] || (e.audio.type?.includes('mpeg') ? '.mp3' : '.m4a');
-    const file = join(dir, `${String(e.n).padStart(2, '0')}-${slug(e.title ?? 'episode')}${ext}`);
-    const part = file + '.part';
+    let file, part;
     try {
-      const r = await fetch(e.audio.url, { headers: { 'user-agent': UA }, redirect: 'follow' });
+      const ext = (extname(new URL(e.audio.url).pathname).toLowerCase().match(/^\.[a-z0-9]{2,4}$/) || [''])[0] || (e.audio.type?.includes('mpeg') ? '.mp3' : '.m4a');
+      file = join(dir, `${String(e.n).padStart(2, '0')}-${slug(e.title ?? 'episode')}${ext}`);
+      part = file + '.part';
+      // no data for 60 s (or no answer for 30 s) aborts; a slow but moving download is fine
+      const ctl = new AbortController();
+      let idle = setTimeout(() => ctl.abort(new Error('no answer in 30 s')), 30000);
+      const r = await fetch(e.audio.url, { headers: { 'user-agent': UA }, redirect: 'follow', signal: ctl.signal });
       if (!r.ok || !r.body) throw new Error(`HTTP ${r.status}`);
-      await pipeline(Readable.fromWeb(r.body), createWriteStream(part));
+      const body = Readable.fromWeb(r.body);
+      const kick = () => { clearTimeout(idle); idle = setTimeout(() => body.destroy(new Error('no data for 60 s')), 60000); };
+      kick(); body.on('data', kick);
+      try { await pipeline(body, createWriteStream(part)); } finally { clearTimeout(idle); }
       renameSync(part, file);
-    } catch (err) { rmSync(part, { force: true }); problems.push(`${e.n}: download failed (${err.message})`); continue; }
+    } catch (err) { if (part) rmSync(part, { force: true }); problems.push(`${e.n}: download failed (${err.message})`); continue; }
     const got = probeDuration(file);
-    if (got == null) { problems.push(`${e.n}: the file is not readable audio`); continue; }
-    if (e.duration_s && Math.abs(got - e.duration_s) > Math.max(5, e.duration_s * 0.03)) problems.push(`${e.n}: ${got} s, the feed says ${e.duration_s} s`);
+    const bad = got == null ? 'the file is not readable audio' : e.duration_s && Math.abs(got - e.duration_s) > Math.max(5, e.duration_s * 0.03) ? `${got} s, the feed says ${e.duration_s} s` : null;
+    if (bad) { renameSync(file, file + '.bad'); problems.push(`${e.n}: ${bad} (kept as ${basename(file)}.bad, not used)`); continue; }
     e.local = file;
     console.log(`  ${e.n}: ${basename(file)} (${Math.round(got / 60)} min)`);
     writeFileSync(showPath, JSON.stringify(doc, null, 2) + '\n');

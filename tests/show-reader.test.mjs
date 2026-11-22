@@ -49,3 +49,21 @@ test('read a saved feed file offline; a second read keeps local paths', () => {
   assert.equal(r.status, 0, r.stderr);
   assert.equal(JSON.parse(readFileSync(out, 'utf8')).episodes[0].local, '/x/01-first.mp3');
 });
+
+test('episode numbers never move: a back-dated new episode gets the next number', () => {
+  const d = mkdtempSync(join(tmpdir(), 'sr-'));
+  const cli = new URL('../catalog/tool/show-reader/files/show-reader.mjs', import.meta.url).pathname;
+  const out = join(d, 'show.json');
+  writeFileSync(join(d, 'feed.xml'), FEED);
+  assert.equal(spawnSync(process.execPath, [cli, 'read', join(d, 'feed.xml'), '--out', out]).status, 0);
+  const older = FEED.replace('</channel>', '<item><title>Old bonus</title><pubDate>Thu, 01 Jan 2026 10:00:00 GMT</pubDate><guid>g0</guid><enclosure url="https://x.test/0.mp3" type="audio/mpeg"/></item></channel>');
+  writeFileSync(join(d, 'feed.xml'), older);
+  assert.equal(spawnSync(process.execPath, [cli, 'read', join(d, 'feed.xml'), '--out', out]).status, 0);
+  const eps = JSON.parse(readFileSync(out, 'utf8')).episodes;
+  assert.deepEqual(eps.map((e) => [e.n, e.guid]), [[1, 'g1'], [2, 'g2'], [3, 'g0']]);
+});
+
+test('a broken character entity does not break the feed', () => {
+  const { show } = parseFeed(FEED.replace('Bank &amp; Mic', 'Bank &#99999999; Mic').replace('<![CDATA[Bank & Mic]]>', 'Bank &#99999999; Mic'));
+  assert.equal(show.title, 'Bank &#99999999; Mic');
+});

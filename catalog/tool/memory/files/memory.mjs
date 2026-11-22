@@ -13,7 +13,7 @@
 //   node memory.mjs status --show sources/show.json --memory brands/<slug>/memory
 //
 // Everything stays on this machine. Exit: 0 ok, 1 something failed its check, 2 cannot run, 64 usage.
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -138,12 +138,21 @@ function transcribeCmd(a) {
     writeEpisodeText(mem, e);
     console.log(`     done in ${Math.round((Date.now() - t0) / 1000)} s`);
   }
-  for (const e of eps) if (existsSync(epBase(mem, e.n) + '.words.json') && !existsSync(epBase(mem, e.n) + '.txt')) writeEpisodeText(mem, e);
+  refreshTexts(mem, eps);
   if (problems.length) { console.error('memory: FAILED:\n  ' + problems.join('\n  ')); process.exit(1); }
+}
+
+// a readable .txt for every transcript that has none or is newer than its .txt (a corrected transcript copied in)
+function refreshTexts(mem, eps) {
+  for (const e of eps) {
+    const w = epBase(mem, e.n) + '.words.json', t = epBase(mem, e.n) + '.txt';
+    if (existsSync(w) && (!existsSync(t) || statSync(w).mtimeMs > statSync(t).mtimeMs)) writeEpisodeText(mem, e);
+  }
 }
 
 function writeEpisodeText(mem, e) {
   const w = JSON.parse(readFileSync(epBase(mem, e.n) + '.words.json', 'utf8'));
+  if (!Array.isArray(w.words)) { console.error(`memory: episodes/${pad(e.n)}.words.json has no words array; skipped`); return; }
   const head = [`# ${e.n}. ${e.title ?? '(title to ask)'}`, '', `${e.date ?? ''}${e.duration_s ? ` · ${mmss(e.duration_s)}` : ''} · transcript: ${w.engine ?? 'unknown'}${w.edited ? ', edited' : ''}. Words marked (?) are unsure.`, ''];
   if (e.description) head.push('> ' + e.description.replace(/\n+/g, '\n> '), '');
   const lines = toLines(w.words.map((x) => ({ ...x, w: x.unsure ? x.w + '(?)' : x.w })));
@@ -163,6 +172,7 @@ function indexCmd(a) {
   if (typeof a.memory !== 'string') die('usage: index --memory <dir> [--show show.json]', 64);
   const mem = resolve(a.memory);
   const show = typeof a.show === 'string' ? readShow(resolve(a.show)) : null;
+  if (show) refreshTexts(mem, show.episodes);
   const eps = loadTranscripts(mem);
   const texts = show ? [show.show?.title, show.show?.description, ...show.episodes.flatMap((e) => [e.title, e.description])].filter(Boolean) : [];
   if (!eps.length && !texts.length) die('nothing to index: no transcripts in episodes/ and no --show', 1);
