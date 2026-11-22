@@ -1,0 +1,42 @@
+{
+  "schema": 2,
+  "id": "memory",
+  "kind": "tool",
+  "title": "The show's memory: past episodes transcribed and indexed",
+  "what_it_does": "Transcribes every past episode the person has (resumable, local), writes a readable transcript per episode, and indexes the whole show: phrases that come back across episodes with where each use is, capitalised names with counts, the words used in titles and descriptions. Writes a CHANNEL.md skeleton that the agent fills from the transcripts with a citation on every line (who talks and how, running jokes, subjects, places, how an episode goes, how titles are written, what never goes on screen). Visual plans, transcript fixes and chapter titles then read this memory.",
+  "when_to_use": "At setup when the person has past episodes or recordings (after show-reader), and after every new episode so the memory grows. Without audio it still indexes titles and descriptions. Not a judge of what is funny: it finds candidates, the agent reads them in context and the person confirms.",
+  "lanes": [
+    "podcast"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    { "from": "files/memory.mjs", "to": "parts/memory/memory.mjs" },
+    { "from": "files/CHANNEL.template.md", "to": "parts/memory/CHANNEL.template.md" }
+  ],
+  "docs": "files/README.md",
+  "requires": [
+    "show-reader",
+    "transcribe-local"
+  ],
+  "needs": [],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-22"
+  },
+  "example": null,
+  "requirements": [
+    "V2"
+  ],
+  "notes": "Counting only, no model calls: n-grams of 2-4 words seen in two or more episodes, filler-only phrases dropped, a shorter phrase that only lives inside a longer one folded away. Transcription runs the installed transcribe-local part (whisper, default model medium for a better Turkish transcript, about 1.5 GB on first use)."
+}

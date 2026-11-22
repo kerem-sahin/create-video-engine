@@ -5,6 +5,8 @@
   "for": "A podcaster with audio recordings who wants YouTube episodes and Shorts that look like their show.",
   "ask": "Do you make a podcast or other audio recordings you want to turn into videos and clips?",
   "parts": [
+    "show-reader",
+    "memory",
     "transcribe-local",
     "speakers",
     "silence-cut",

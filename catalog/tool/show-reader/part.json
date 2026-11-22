@@ -1,0 +1,41 @@
+{
+  "schema": 2,
+  "id": "show-reader",
+  "kind": "tool",
+  "title": "Read what a show already published: episodes, titles, descriptions, audio",
+  "what_it_does": "From a podcast RSS feed, a Spotify or Apple Podcasts link, a saved feed file or a folder of recordings, writes sources/show.json: the show's own description, cover and categories, and every episode's title, date, duration, description and audio link. A Spotify link is resolved to the show's public feed through the Apple Podcasts directory and accepted only when the feed's newest episode has the same title as on Spotify. `download` fetches the episodes' audio (only after the person agreed), names the files from the episode number and title, never from the original file name, and checks each file's duration against the feed.",
+  "when_to_use": "At setup for anyone who turns recordings into videos and already has published episodes or a folder of recordings: the titles, descriptions and past episodes are the best material for learning the show (feeds the memory part). Also after each new episode, to add it. Not for private recordings the person did not offer.",
+  "lanes": [
+    "podcast"
+  ],
+  "source": {
+    "repo": "create-video-engine",
+    "url": "https://github.com/OWNER/create-video-engine",
+    "ref": null,
+    "licence": "own",
+    "assets_licence": null,
+    "how": "own code"
+  },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    { "from": "files/show-reader.mjs", "to": "parts/show-reader/show-reader.mjs" },
+    { "from": "files/rss.mjs", "to": "parts/show-reader/rss.mjs" }
+  ],
+  "docs": "files/README.md",
+  "requires": [],
+  "needs": [
+    "ffprobe"
+  ],
+  "paid_api": null,
+  "verified_with": {
+    "hyperframes": "0.9.67",
+    "date": "2026-11-22"
+  },
+  "example": null,
+  "requirements": [
+    "V1"
+  ],
+  "notes": "Network only for the source asked for: the feed, Spotify's public embed page and the Apple Podcasts search/lookup API (no account, no key). Zero dependencies; the RSS reader is a small tested parser for podcast feeds, not a general XML parser."
+}
