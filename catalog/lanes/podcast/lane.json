@@ -1,0 +1,9 @@
+{
+  "schema": 2,
+  "id": "podcast",
+  "title": "Podcast and audio-to-video (full episodes, clips)",
+  "for": "A podcaster with audio recordings who wants YouTube episodes and Shorts that look like their show.",
+  "ask": "Do you make a podcast or other audio recordings you want to turn into videos and clips?",
+  "parts": ["transcribe-local", "silence-cut", "captions", "assemble-long"],
+  "recipe": "recipe.md"
+}
