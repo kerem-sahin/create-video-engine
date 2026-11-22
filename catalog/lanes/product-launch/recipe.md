@@ -1,6 +1,6 @@
 # Lane: product launch
 
-Launch, update, feature or "how it works" videos for an app or product, built from its real screens. Read after the core `make` steps 0–1; it adds to them and overrides nothing in `STYLE.md`.
+Launch, update, feature or "how it works" videos for an app or product, built from its real screens. Read after `make` step 0; it adds what is specific to product videos.
 
 ## Extra brief questions (fold into the one message)
 
@@ -19,23 +19,16 @@ Which real flow shows it in use (entry → key action → result)? A stranger wh
 
 ## Fill the frame with the product
 
-The real UI is the hero, so it is big: in 9:16 the phone screen is at least 80 % of the frame width, in 16:9 at least 55 % of the height. When the line talks about one part of the screen (a card, a button, a story box), push in on it or crop to it rather than showing the whole phone small. The product may run under the platform's buttons; only text and the call to action keep to safe zones. Never shrink the product to make the text fit; shorten the text. verify's `subject-scale` and `empty-area` are real defects here: fix them, do not explain them.
+The real UI is the hero, so it is big (as a rough guide, a phone screen around 80 % of a 9:16 frame's width). When the line talks about one part of the screen (a card, a button), push in on it or crop to it rather than showing the whole phone small. The product may run under the platform's buttons; only text keeps to safe zones. Shorten the text rather than shrinking the product. A small product in a big empty frame was the most common failure in our tests.
 
 ## Show it in use
 
-The product is shown **in use**, not as a slide: things appear one by one, a tap or swipe is simulated on the real screen, text is typed, a state changes (empty → filled, draft → published). A screenshot that only pans is the weakest shot; at most one per video, and something on it must still happen (a highlight on the beat, a card sliding in).
-
-Actions that satisfy "something happens on every beat that matters": the signature landing on the element the headline names, a simulated tap, a card sliding in, a push-in on the named part of the screen.
+The product is shown **in use**, not as a slide: things appear one by one, a tap or swipe is simulated on the real screen, text is typed, a state changes (empty → filled, draft → published). A screenshot that only pans is the weakest shot; use it rarely, and let something on it still happen.
 
 ## Carry across cuts
 
-Every scene change links to the next. With `parts/cve-motion/cve-motion.js` loaded, `CVE.carry(tl, fromEl, toEl, at, duration)` moves one element (a pin, a card, the phone) across the cut. It needs both elements in the one timeline that registers `window.__timelines`, and the outgoing scene must end where the incoming one starts. `parts/cve-motion/README.md` shows the two-scene pattern. Name the carried element in the SHOTS "transition out" column. The `nested_structure_needs_subcomposition` and `timeline_track_too_dense` warnings are acceptable when scenes share one root timeline for a carried element.
-
-## Spec rows to add
-
-- SHOTS: which screen and which part of it is the hero in each shot; the visible action and its beat.
-- At most one pan-only screenshot shot.
+Every scene change links to the next. With `parts/cve-motion/cve-motion.js` loaded, `CVE.carry(tl, fromEl, toEl, at, duration)` moves one element (a pin, a card, the phone) across the cut. It needs both elements in the one timeline that registers `window.__timelines`, and the outgoing scene must end where the incoming one starts. `parts/cve-motion/README.md` shows the two-scene pattern. The `nested_structure_needs_subcomposition` and `timeline_track_too_dense` warnings are acceptable when scenes share one root timeline for a carried element.
 
 ## Sound
 
-The product's own sound wins: if it plays a bell or tick, the matching cue kind is `confirm` or `end`; a stamp is `impact`. Music is composed with the edit as in the core.
+The product's own sound wins: if it plays a bell or a tick, use the closest effect at that moment, never a louder one. Music as in `make`.

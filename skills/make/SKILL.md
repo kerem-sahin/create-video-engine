@@ -1,168 +1,85 @@
 ---
 name: make
-description: Make a new video for a brand that already has a taste file — pick the lane, brief, three story options, a numeric spec, the HyperFrames build, verification and hand-over. Use when the person asks for a video, a launch video, a demo, a talking-head edit, a photo Reel/TikTok/Short or a promo for a brand in this studio.
+description: Make a video for a brand in this studio: brief, three stories, build, a fast draft the person sees, a fresh critic, the final render and hand-over. Use when the person asks for a video, a launch video, a demo, a talking-head edit, a photo Reel/TikTok/Short or a promo for a brand that already has a taste file.
 ---
 
-# Make: a video in this brand's taste, not a template's
+# Make
 
-The `hyperframes` skill (in `skills/hyperframes/`) is the authority on **how** to write a composition: its contract, timing, assets, determinism. Read its `SKILL.md` and `references/` the first time in a session. This skill decides **what** to make and keeps it inside the brand's taste. Where the two disagree on look or rhythm, `STYLE.md` wins; on the composition contract, HyperFrames wins.
+You make the whole video yourself: story, design, motion, render. The goal is one the person **would post as it is**. Passing checks is the floor, not the goal.
 
-All commands run from the studio root. `<dir>` below is `brands/<brand>/videos/<slug>`.
+The `hyperframes` skill (`skills/hyperframes/`) is the authority on **how** a composition works (its contract, timing, assets, determinism); read it once per session. This file decides **what** to make. All commands run from the studio root; `<dir>` is `brands/<brand>/videos/<slug>`.
 
-This file is the lane-agnostic core. What is specific to one kind of video (product launch, talking head, photo social) lives in the lane's recipe, `skills/make/lanes/<lane>.md`. Where this file says "the lane says", follow the recipe.
+## 0. Know the person first
 
-## 0. Preconditions
+Read `brands/<brand>/taste/STYLE.md` (brand facts: colours, fonts, voice, format), `taste/NOTEBOOK.md` (what this person liked, disliked and banned, with frames, and what you took from their reference videos), and the last three entries of `taste/ledger.json`. Look at the frames in `taste/examples/`. That is their taste so far; never re-ask it, and never repeat what they rejected. No `STYLE.md`: run `setup` first.
 
-- `brands/<brand>/taste/STYLE.md` exists. If not, run the `setup` skill first.
-- Read, in this order: `STYLE.md` (all of it), `taste/CHANGES.md` (last 10 entries), `taste/ledger.json` (last 5 videos), the `.txt` reasons in `taste/examples/rejected/` and `approved/`. These are the person's taste so far; do not re-ask what they already answered.
-- Read `studio.json` `lanes` (the kinds of video this studio was set up for). Pick the lane from the brief. If two fit or none does, ask once ("a launch video or a photo Reel?"). If the wanted kind is not in `lanes`, say so and offer `npx create-video-engine add lane:<id>` (see `catalog list`); do not improvise a lane. Then read `skills/make/lanes/<lane>.md` and follow it wherever this file says "the lane says". Parts installed under `parts/<id>/` have a `README.md`; read the ones the recipe names.
+Pick the lane from `studio.json` `lanes` and read its recipe (`skills/make/lanes/<lane>.md`): it says what the material is and what is specific to that kind of video. A kind of video the studio was not set up for: say so and offer `npx create-video-engine add lane:<id>`.
 
-## 1. Brief (one message, prefilled)
+## 1. Brief: one message, prefilled
 
-Ask in **one** message, each item with your best guess so the person can say "yes":
-
-1. **What this video is for**: a launch, one feature, an update, a how-to. One sentence.
-2. **Destination** → aspect and length. Default: `STYLE.md` `format`.
-3. **The facts it must show**: real numbers, real names, real prices. Every number on screen must come from the person or their material, never from you.
-4. **The ending**: what the viewer should do (download, star, visit, buy, subscribe) and the exact words.
-5. **Real material**: which footage, photos, screenshots or recordings to use. Never a mock-up or stock you invented.
-6. **The lane's extra brief questions** (the recipe lists them; fold them into the same message).
-
-Write the answers to `<dir>/BRIEF.md`.
-
-Use only the person's own material. No personal data, no real people's names, faces or content, nothing showing other people, unless the person gives it to you for this video. If material shows someone else's data or face, crop it out or ask for another.
+Ask once, each item with your best guess so the person can just say yes: what the video is for (one sentence); where it goes (sets aspect and length); the facts it must show (real numbers, names, prices, only from them); the ending (what the viewer should do, exact words); which real material to use; plus the recipe's own questions. Write the answers to `<dir>/BRIEF.md`.
 
 ## 2. Three stories, the person picks
 
-Before writing them, answer for yourself in `BRIEF.md`: what is it (one sentence), who is it for and what does it do for them, what sets it apart, what is the visual hook, and the one-line share caption, plus the lane's own questions (the recipe lists them). A stranger who sees the video once must know what it is, who it is for and what to do next.
+First answer for yourself in `BRIEF.md`: what is it, who is it for and what does it do for them, what sets it apart, what is the most striking or funniest true thing about it, what is the visual hook, the one-line caption.
 
-Write three different storylines, three to five lines each, in the brand's voice. They must differ in **structure**, not only in wording: e.g. problem → subject → proof; one continuous walk-through; a single bold claim proven three ways. The recipe gives example structures for its lane.
+Then write **three** storylines, three to five lines each, in the brand's voice, different in **structure** (e.g. problem → product → proof; one continuous walk-through; one bold claim proven three ways), not only in wording. Mark any that repeats the last video's structure. The person picks or merges, in words, before anything is built.
 
-Avoid the structures, transitions and accent use of the last videos in `ledger.json`. If a story repeats the previous video's structure, say so next to it.
-
-Show all three. The person picks one (or merges). Record the choice in `BRIEF.md`.
-
-## 3. Create the project
-
-Create the project **before** any lane step writes files into `<dir>` (`hyperframes init` refuses a folder that is not empty).
+## 3. Build
 
 ```
 npx hyperframes init <dir> --example blank --resolution <landscape|portrait|square> --skip-skills --non-interactive
 cp brands/<brand>/taste/STYLE.md <dir>/frame.md
 ```
 
-Copy only the assets you will use into `<dir>/assets/` (from `brands/<brand>/capture/`, the person's screenshots, the repo). Fonts the brand uses and HyperFrames doesn't bundle go to `<dir>/assets/fonts/*.woff2` with `@font-face`; check Turkish/other glyphs if the on-screen language needs them.
+Copy only the assets you use into `<dir>/assets/`. Fonts the brand uses go to `assets/fonts/` with `@font-face`; check the on-screen language's letters (ı, ş, ğ…) render.
 
-## 4. Spec before code
+### Creative laws
 
-Write `<dir>/SPEC.md` (HyperFrames' `references/spec.md` format) before any scene:
+- **The hook is everything.** The first two seconds decide whether anyone keeps watching. Design them first. Frame 0 is the thumbnail: the subject and the hook line are already on screen.
+- **Show the real thing.** The person's real screens, components, photos, footage, voice, fonts. Reuse before you rebuild; the working product doing its job beats a page describing it. Never a mock-up or stock you invented, never abstract filler.
+- **One story, told by the picture.** Every shot shows what the words say at that moment. If a shot could sit in anyone's video, it is not done yet.
+- **Specific.** It must feel made for this exact brand: its own words, claims, behaviour and signature. No generic marketing language.
+- **Alive.** Things arrive one by one, the product is used (taps, typing, scrolling), the camera moves with purpose. Nothing sits still as a slide.
+- **Design the joins.** Each beat grows out of the previous one: an element carried across the cut, a shape that becomes the next frame, a movement that continues. A hard cut is fine when it is a choice.
+- **Readable.** A line meant to be read stays fully settled about 0.3 s per word (at least 1 s), counted from when it is complete. Pace comes from motion and cuts, not from pulling text away early.
+- **Every frame postable.** Any frozen frame should be worth sharing.
 
-- **LOOK**: from `frame.md` only — hex values, families, weights. No new colours.
-- **RHYTHM**: shot lengths and cut rate inside `STYLE.md` `rhythm`. Total length inside `format.length`. The end card is exempt from `rhythm.shot_length` (2–5 s): it runs as long as its lines need to settle and be read (see the lane's recipe).
-- **MOTION**: eases and durations from `STYLE.md` `motion`, as numbers.
-- **SHOTS**: a table — start, end, what is on screen, the real asset used, the line of copy, the transition out. Shot types come from the lane's recipe.
-- **BANNED**: everything in `never`, plus the transitions and structure of the previous video from `ledger.json`.
-- **SIGNATURE**: where the brand's signature element appears.
+### Hard limits (the only rules that are not yours to judge)
 
-- **SOUND**: BPM, bars, and the cue list — beat, time, the visible action, the cue kind (from `STYLE.md` `sound`). For footage-led videos see "Sound under voice" below.
-- **TYPE**: every on-screen text ≥ `format.min_text_px` (default 48 px at 16:9). Small labels may go to 32 px only if they are decoration, not information.
+- Every number, name, price and claim on screen comes from the person or their material.
+- No personal data, no real people's names or faces, nothing showing other people, unless the person gave it for this video.
+- Only material they own or that is licensed for it (CC0/CC BY with credit; never NC/SA/ND, never MusicGen weights).
+- Text at least `format.min_text_px`; at 9:16 text and the call to action stay out of the top 270 px, the bottom 420 px and the right 130 px (the subject may run under them).
+- Audio −16 LUFS ±1, true peak ≤ −1 dBTP.
 
-- **POSTER**: frame 0 is the platform thumbnail. It is a designed still: the subject (product, face, photo) and the hook line are fully on screen at t = 0 (entrances start from their final pose or later, not from empty). verify's `poster` check measures it.
+### Defaults to avoid
 
-Also write `<dir>/shots.json` from the SHOTS table, the transitions and structure in the same words you will use in the ledger:
-
-```json
-{ "shots": [ { "start": 0, "end": 2.5, "transition_out": "hard cut" }, { "start": 2.5, "end": 6, "transition_out": "carry: map pin" }, { "start": 6, "end": 9 } ],
-  "structure": [ "hook: map on frame 0", "capture screen", "end card" ] }
-```
- verify's `variety` check compares it with the ledger, and `on-beat` checks the cuts against `cues.json`.
-
-Add the lane's spec rows (the recipe names them). Every adjective in the spec becomes a number. If a value isn't in `STYLE.md`, write `chosen:` next to it so `learn` can confirm or reject it later.
-
-## 5. Build
-
-Follow the `hyperframes` skill to build the scenes. Then loop:
-
-```
-npx hyperframes check <dir> --json
-```
-
-until there are **no errors**. Read the warnings; fix the ones that a viewer would see (overflow, unreadable text, dead stretches).
-
-**No empty frames.** The subject fills the frame; how big and how it is framed is the lane's rule. No empty band bigger than about 15 % of the frame outside the end card (verify's `empty-area` and `subject-scale` measure this; the recipe says what a legitimate pass looks like). Platform safe zones apply to **text and the call to action only**: at 9:16 keep text out of the top 14 % (270 px of 1920), the bottom 22 % (420 px) and the right 12 % (130 px, the platform's buttons); at 16:9 keep 5 % margins. Where HyperFrames' check or `vertical.md` gives other numbers, these win; the subject may run under the platform's buttons. Never shrink the subject to make the text fit; shorten the text.
-
-**Big, short headlines.** One headline per shot, at most two lines, at least 2 × `format.min_text_px` (≥ 80 px at 9:16, ≥ 96 px at 16:9), the brand's display face. One or two words of it may carry the accent colour.
-
-**Something happens on every beat that matters.** Each shot has at least one visible action on its highlight beat: the brand signature (ring, underline, stamp) landing on the element the headline names, a card sliding in, a push-in, or whatever action the lane's recipe lists. Every `highlight`/`confirm` cue in `cues.json` has a visible action at that exact time.
-
-**Make it alive.** Nothing is a static slide: the lane's recipe says what "in use" means for its subject, and what the weakest shot is (at most one per video, and something on it must still happen).
-
-**Readable.** Every line meant to be read stays fully visible and settled for at least 0.3 s per word (minimum 1 s), counted from when the whole line is on screen, not from when it starts moving in. Pace comes from motion and cuts, not from pulling text away early.
-
-**No muddy crossfades.** A crossfade between two busy layouts makes a double exposure; stagger it (old content out, then new content in on the beat) or carry one element across.
-
-**Transitions never pass through an empty frame.** The next scene's main content is on screen on its first frame (it may still be moving in); never fade one scene fully out before the next fades in. A cut is better than a gap.
-
-### Motion
-
-If `parts/cve-motion/` is installed, copy `parts/cve-motion/cve-motion.js` to `<dir>/assets/` and load it before the composition script (`<script src="assets/cve-motion.js">`; `parts/cve-motion/README.md` explains it). It gives `window.CVE`: `CVE.ease.snappy | soft | settle` (springs), `CVE.settleIn(tl, el, at)` and `CVE.carry(tl, fromEl, toEl, at, duration)`.
-
-- Use the `CVE` ease named in `STYLE.md` `motion.spring` for everything that enters. Never `linear` or `none` for entering elements; linear stays for rotation, progress and constant speed.
-- Every scene change has a continuity link: an element carried across the cut, or a colour or shape that sits in the same place on both sides. Name it in the SHOTS column "transition out". A hard cut is still allowed; say so there. How to carry (`CVE.carry`) is in the lane's recipe.
+These are what a model makes when nobody is looking. Use one only if this brand really does it:
+a small centred item in a dark void; a centred white headline on a gradient; glow, glass cards, sparkles; three feature cards in a row; the logo parked in a corner; everything entering on the same frame; a slow fade between two busy layouts (double exposure); a frame that empties before the next scene arrives. Add the person's own bans from `NOTEBOOK.md` → `Never`.
 
 ### Sound
 
-Music is not composed in code: nobody can hear whether generated music is good, and generated beds all sounded alike.
+The person's own track first (`STYLE.md` `sound.track`); otherwise `npx create-video-engine music --mood "<sound.feel>" --duration <s> --out <dir> --used brands/<brand>/music-used.json` (a recorded CC0/CC BY track, skipping ones this brand already used; on exit 1 deliver without music and say so). Cut the edit to the track's beats. Effects only with a visible cause (a tap, a stamp), a few kinds, quiet under the music. In a speech-led video the voice is the sound; music only under it, ducked. `music: none` means silent.
 
-1. **The person's own track** first (`STYLE.md` `sound.track`, or a file they give). Cut the edit to it: find its tempo, put scene changes on its beats.
-2. Otherwise a **recorded track by feel**: `npx create-video-engine music --mood "<STYLE.md sound words>" --duration <s> --out <dir> --used brands/<slug>/music-used.json`. It finds a CC0/CC BY track on Openverse, skips tracks this brand already used, and writes `assets/music/track.wav` and the credit into `CREDITS.md` (a CC BY credit goes into the hand-over and the post). On exit 1 (offline, nothing fitting) deliver without music and say so.
-3. `music: none` in `STYLE.md` means silent.
-4. Effects only with a visible cause on screen (a tap, a stamp, a confirmation), a few kinds, quiet under the music; from `skills/media-use/audio/assets/sfx/`. No trailer sounds (booms, whooshes, risers) unless `STYLE.md` names them. Never MusicGen (CC-BY-NC weights), never NC/SA/ND tracks.
-5. Mount the track once as an `<audio class="clip">` on its own lane. If you wrote `cues.json` (beat times of the edit), verify's `on-beat` checks the cuts against it; without it, `on-beat` is skipped.
+## 4. Look, then a fast draft
 
-**Sound under voice.** In a video led by speech, the voice is the sound. Music is the lane's decision: none, or a bed ducked to −20…−24 LUFS short-term under speech; cuts follow the speech.
+**Look before rendering.** `npx hyperframes snapshot <dir> --at <every shot start, every transition midpoint, the moment each line settles> -o <dir>/snapshots` takes seconds. Look at every still as a stranger would: what does it say, is anything cut off, colliding, unreadable, empty, generic? Fix and snapshot again until every still is worth posting.
 
-Look at it before rendering the whole thing:
+**Draft.** `npx hyperframes render <dir> --quality draft -o <dir>/renders/draft.mp4`, then `npx create-video-engine verify <dir> --mp4 <dir>/renders/draft.mp4`. Exit 1 is a broken video (blank, frozen, wrong length, no sound, wrong loudness, a number they never gave): fix it. Warnings are questions for your eye, not orders.
 
-```
-npx hyperframes snapshot <dir> --at <the start of every shot, the middle of every transition, and the moment each text line settles> -o <dir>/snapshots
-```
+**Fresh critic.** Follow the `verify` skill: a sub-agent that has not seen the code looks at the frames with the brief and the person's dislikes and says what a stranger would see. Fix every P0 and re-check.
 
-Compare each still with `SPEC.md` and `STYLE.md`: overflow, collisions, low contrast, double exposure mid-transition, text that is still moving when it should be read. Every frame should be worth posting as a still. Fix what doesn't match.
+**Show the draft.** Give the person the draft, three or four stills and the `MOMENTS` from verify, and ask for one note.
 
-## 6. Render and verify
+**Keep the loop short.** Check every change with `snapshot` at the moments it touches (a few seconds), not with a render. Render a draft only when you are about to show it (on an M1 a 15 s draft takes about 30 s; `--fps 15` saves a little; `--start/--end` does not save time). Footage-heavy and long videos have their own fast path in the recipe.
 
-`--quality` takes exactly these names: `draft` (fast, for checking), `looks` (the default), `delivery` (the highest; `high` is the same thing), `standard`. Use `draft` for drafts and `delivery` for the file you deliver; never any other word.
+## 5. Final and hand-over
 
-```
-npx hyperframes render <dir> --quality draft -o <dir>/renders/draft.mp4
-npx create-video-engine verify <dir> --mp4 <dir>/renders/draft.mp4
-```
+`npx hyperframes render <dir> --quality delivery -o <dir>/renders/<slug>.mp4` and verify it. Only a file that passed verify is delivered.
 
-Follow the `verify` skill completely (measurements, then fresh-eyes review). Fix, re-render, re-verify. When it exits 0:
+- `<dir>/share-copy.txt`: 1–3 sentences, postable as-is, specific, in the brand's voice and the person's language; any CC BY credit at the end.
+- Append to `taste/ledger.json` `videos`: `{ "slug", "lane", "date", "aspect", "length", "structure": [...], "transitions": [...], "music": <title and source, or null>, "verified": true, "feedback": null }`.
+- Tell the person: the file, the share copy, one line on the idea, what verify measured, the moments to watch. Ask three things: would you post it as it is; if not, the one thing to change; what did you like. Their answers go to the `learn` skill.
 
-```
-npx hyperframes render <dir> --quality delivery -o <dir>/renders/<slug>.mp4
-npx create-video-engine verify <dir> --mp4 <dir>/renders/<slug>.mp4
-```
-
-The delivered file is only the one that passed verify.
-
-## 7. Record it in the ledger
-
-Append to `brands/<brand>/taste/ledger.json` `videos`:
-
-```json
-{ "slug": "<slug>", "lane": "<lane>", "date": "YYYY-MM-DD", "aspect": "16:9", "length": 24,
-  "structure": ["hook: …", "main part", "proof", "end card"],
-  "transitions": ["hard cut", "push", "mask wipe"],
-  "accent": "#hex", "music": <the track's title and source from CREDITS.md, or null if silent>, "verified": true, "feedback": null }
-```
-
-## 8. Hand over
-
-Write `<dir>/share-copy.txt`: 1–3 sentences, postable as-is, specific to this video, in the brand's voice and the person's language (no "excited to share", no generic SaaS phrases). If any music or asset needs attribution (CC BY), the credit line goes at its end.
-
-Give the person: the file path, the share copy, one line per verify layer, the `MOMENTS` list from verify, and the five questions from the `verify` skill. Their answers are the input of the `learn` skill — start it as soon as they reply.
-
-Do not describe the video as great, cinematic or stunning. Say what it is and what was checked.
+Never call the video great, cinematic or stunning. Say what it is and what was checked.

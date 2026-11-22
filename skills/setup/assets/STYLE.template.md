@@ -18,7 +18,7 @@ typography:
 
 spacing: { safe: "8%" }
 
-# Ours. Numbers, never adjectives.
+# Ours. Starting points for the first video; the notebook and the person's notes override them.
 motion:
   ease: { enter: "power3.out", exit: "power2.in" }
   durations: { enter: [0.4, 0.7], hold_min: 1.2 }   # seconds
@@ -63,12 +63,4 @@ sound:
 
 - <concrete, checkable — the prose version of `never`, with reasons>
 
-## References
-
-| Reference | Taken (grammar) | Not taken | measured / guessed |
-|---|---|---|---|
-| <name> | <shot length, title entry…> | <its palette, logo, content> | measured |
-
-## Learned
-
-<!-- The learn skill appends here: date · video · rule · why -->
+What this person liked, disliked and banned lives in `NOTEBOOK.md` next to this file.

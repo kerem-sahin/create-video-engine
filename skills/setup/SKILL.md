@@ -74,9 +74,9 @@ For each reference video:
 npx create-video-engine refs <file-or-url> --out brands/<slug>/references/<ref-slug>
 ```
 
-Read its `GRAMMAR.md` and look at `contact-sheet.png`. Take the **grammar** only: shot lengths, cut rate, how titles enter and leave, how much is moving, palette *roles* (how much ground vs. accent). Never take its content, logo, footage, copy or exact palette. Note what the person said they love and check whether the measurements explain it.
+Read its `GRAMMAR.md` and look at `contact-sheet.png` and the frames. Then find the **mechanisms** that make it work, the way a craftsperson would name them: "the product screen carries into the next shot by growing from the button that was tapped (0:04)", "each new line pushes the previous one up instead of replacing it (0:09)". For each: the time, a saved frame (`brands/<slug>/taste/examples/refs/<ref>-<t>.png`), and whether it explains what the person said they love. "Looks nice" or "clean" is not a mechanism. Write them in `NOTEBOOK.md` → `From their reference videos`; ask the person which ones they meant and mark those `confirmed`. Never take its content, logo, footage, copy or exact palette.
 
-For the disliked video, run `refs` as well and turn what you see into concrete `never` rules ("cuts every 0.8 s", "white centered title on purple gradient") — not adjectives.
+For the disliked video, do the same and turn what you see into concrete `Never` lines in `NOTEBOOK.md` ("cuts every 0.8 s", "white centred title on a purple gradient"), not adjectives.
 
 ## 5. Write STYLE.md
 
@@ -88,11 +88,11 @@ Copy `skills/setup/assets/STYLE.template.md` to `brands/<slug>/taste/STYLE.md` a
 - **rhythm**: the median of the measured references; set `source: measured`. With no references, derive from the destination and the three words and set `source: interview`. Never present an interview guess as measured.
 - **motion**: numbers. Calm words → longer enters (0.6–0.9 s), fewer cuts. Energetic words → shorter (0.25–0.4 s). Mark the origin in the prose.
 - **motion.spring**: choose the preset from the product's own feel, as the person describes it: a snappy UI → `snappy` (300/30), a calm one → `soft` (120/20), a friendly, physical one → `settle` (180/16). Mark the origin in the prose.
-- **never**: always include the generated-design defaults unless the brand itself uses them: *Inter, Space Grotesk, Instrument Serif, Geist or JetBrains Mono as the display face; centered white headline on a dark gradient; purple-blue gradients; glassmorphism cards; generic "✨" sparkle motifs.* Add the rules from the disliked video. Every item concrete enough that someone could check it by looking at a frame.
+- **never**: always include the generated-design defaults unless the brand itself uses them: *Inter, Space Grotesk, Instrument Serif, Geist or JetBrains Mono as the display face; centered white headline on a dark gradient; purple-blue gradients; glassmorphism cards; generic "✨" sparkle motifs.* The disliked video's rules go to `NOTEBOOK.md` → `Never`. Every item concrete enough that someone could check it by looking at a frame.
 - **signature**: offer two options drawn from the brand's own world — first choice: a behaviour of the product itself from step 2 (how it marks, confirms or moves); otherwise its icon's shape or a phrase it uses. Let the person pick. The signature recurs in every video.
 - **format.min_text_px**: 48 for 16:9 social posts, 40 for 9:16, 32 for a README or website hero. A 1920-wide video in a phone feed is shown about 390 px wide; smaller text is unreadable there.
 - **sound**: ask once whether they have a track of their own (a file, or a song they own the rights to) and write it as `sound.track`. Otherwise write three `sound` feel words (from their feel words and the brand's world) that the `music` command searches with, and whether a product sound exists (a bell, a tick: write exactly what you found). `music: none` if they want no music. Music is never composed in code.
-- **Prose sections**: as in the template. In `## References`, say what you took from each and what you deliberately did not.
+- **Prose sections**: as in the template.
 
 Every value has a source or is marked `default`. Do not invent brand facts. Do not flatter the brand in the prose; describe it.
 
@@ -107,7 +107,7 @@ Do not paste the whole file. Show a compact summary:
 
 Ask what is wrong. Apply corrections. Then write the rest:
 
-- `taste/CHANGES.md` — first entry: date, "created by setup", sources used.
+- `taste/NOTEBOOK.md` from `skills/setup/assets/NOTEBOOK.template.md`: the reference mechanisms and `Never` lines from step 4, the person's words about what they love and dislike (`setup` as the video), and under `Lessons` one line "created by setup" with the sources used.
 - `taste/ledger.json` — `{ "videos": [] }`
 - `taste/examples/approved/` and `taste/examples/rejected/` (empty)
 - add the slug to `brands` in `studio.json`
@@ -121,7 +121,7 @@ npx hyperframes check brands/<slug>/style-frame --json
 npx hyperframes snapshot brands/<slug>/style-frame --at 2 -o brands/<slug>/style-frame/snapshots
 ```
 
-The style frame follows the same layout rules as a video (`make` §5 and the primary lane's recipe): the subject fills the frame (product lane, 9:16: phone screen ≥ 80 % of the width), the headline is at least the size the primary lane's recipe sets (core default 2 × `format.min_text_px`), no empty band bigger than about 15 % of the frame. A small product in a big empty frame is the most common failure; it is not a style. Fix every `check` error before the snapshot. Show the PNG from `snapshots/`. If the person approves, save it to `taste/examples/approved/style-frame.png` with a one-line `.txt` saying why. If not, ask what is off, fix `STYLE.md`, and log the change in `CHANGES.md`. Two rounds at most; then move on and let the first video teach the rest.
+The style frame follows the `make` creative laws and avoids its defaults: a small product in a big empty frame is the most common failure, not a style. Fix every `check` error before the snapshot. Show the PNG from `snapshots/`. If the person approves, save it to `taste/examples/approved/style-frame.png` with a one-line `.txt` saying why and a `Liked` line in the notebook. If not, ask what is off, fix `STYLE.md`, and note it under `Not liked`. Two rounds at most; then move on and let the first video teach the rest.
 
 ## 8. Finish
 

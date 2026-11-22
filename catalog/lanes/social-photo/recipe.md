@@ -1,6 +1,6 @@
 # Lane: social photo
 
-A small brand's own photos (products, collection, place, people who agreed) turned into Reels, TikTok and feed videos. Read after the core `make` steps 0–1.
+A small brand's own photos (products, collection, place, people who agreed) turned into Reels, TikTok and feed videos. Read after `make` step 0.
 
 ## Extra brief questions (fold into the one message)
 
@@ -25,7 +25,7 @@ A small brand's own photos (products, collection, place, people who agreed) turn
 | Feed post | 4:5 or 1:1 | 6–15 | 4–8 | 1.5–3 |
 | Story | 9:16 | 5–15 | 3–6 | 2–3 |
 
-The person's `STYLE.md` `rhythm` wins over this table when it is measured.
+The person's notebook and `STYLE.md` win over this table.
 
 ## Shot types
 
@@ -38,30 +38,17 @@ The person's `STYLE.md` `rhythm` wins over this table when it is measured.
 8. **Collage on the beat** (several small photos): 2–3 photos enter one by one on consecutive beats at slight angles (±2–4°), overlapping like prints on a table, the last one on top with the line; each keeps a drift. One collage per video at most.
 9. **Detail-to-whole** (small photo): start inside a sharp detail crop at native size, pull back to the whole photo card on the beat.
 
-6. **Price / offer card**: the last 1.5–3 s: the product photo stays, one card with the offer and the call to action in the brand's accent, with the price/offer settled ≥ 2 s and any other line ≥ 0.3 s per word (core rule). Contents only what the person gave. The end card's lines follow the same size rule as headlines (brand name ≥ 2 × `format.min_text_px`, details such as hours ≥ `format.min_text_px`); split into two lines rather than shrink.
+6. **Price / offer card**: the last 1.5–3 s: the product photo stays, one card with the offer and the call to action in the brand's accent, with the price/offer settled ≥ 2 s and any other line ≥ 0.3 s per word (core rule). Contents only what the person gave. Split end-card lines rather than shrink them.
 
-Something happens on every beat that matters: a cut, a push-in landing, the name or price arriving, the signature element. **Every photo keeps moving for its whole shot** (push, pan, drift or parallax), not only during its entrance; a photo held still for more than 1 s is a defect, and verify's `static-shots` warns when half the shots are still. Two photos stacked as fixed panels is a slideshow, not a shot.
+Photos keep moving through their shot (push, pan, drift or parallax), not only during the entrance; two photos stacked as fixed panels is a slideshow, not a shot.
 
 ## Text on photos
 
 - Text must stay readable on any photo: put a scrim under it taken **from the brand's colours** (`ground` at 55–70 % opacity, or a gradient from `ground` 80 % to 0 over the text's height), never a generic black box or drop shadow unless `STYLE.md` uses one.
 - Measure it: text-to-background contrast ≥ 4.5:1 on the darkest and lightest point under the text. If the scrim cannot do it, move the text, not the opacity above 80 %.
-- Text size: headlines ≥ 3 × `format.min_text_px` in this lane (≥ 120 px at 9:16; a feed is watched small), two to four words; prices as large as the headline. Keep text inside the platform safe zones (9:16: the top 14 % and bottom 22 % free for Reels and TikTok).
+- Text is watched small in a feed: big, two to four words a line; prices as large as the headline. Keep text inside the platform safe zones.
 - One headline per photo, at most two lines. Never text over a face.
-
-## Spec rows to add
-
-- SHOTS: per shot, the photo file, shot type (1–6), the target of a push-in or pan, and the scrim if text sits on it.
-- Every price and offer string, with where the person gave it.
-
-## What verify warnings mean here
-
-- `empty-area` and `subject-scale`: a full-bleed photo naturally passes both; a warning means a photo letterboxed or a card covering the frame. Fix it by filling the frame, not by enlarging the card.
-- `stillness`: a photo with no push, pan or on-screen change for > 3 s. Add the push-in or cut earlier.
-- `numbers`: every price, date and percentage must be in `BRIEF.md`; the warning means you wrote one the person did not give.
-- `poster`: frame 0 is the best photo with the hook line already on it.
-- `on-beat`: lookbook runs make this strict; move the cut, not the music.
 
 ## Sound
 
-Music is composed with the edit as in the core; lookbook cuts are `cut` cues, the price card landing is `confirm` or `end`. No trailer sounds.
+Music as in `make`; lookbook cuts land on the track's beats. No trailer sounds.

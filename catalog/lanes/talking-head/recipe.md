@@ -5,7 +5,7 @@ description: Lane recipe for talking-head videos (YouTube lessons, podcasts, a p
 
 # Talking-head lane: the person's footage is the video
 
-This extends `skills/make/SKILL.md` and assumes its core steps (taste first, brief, three stories, spec before code, HyperFrames contract, verify, ledger, hand-over). Where a step below says the same thing differently, this lane wins for talking footage. The parts live in `parts/` (installed by `add lane:talking-head`): `transcribe-local`, `silence-cut`, `captions`, `overlay-cards`, `shorts-from-long`. Every command below runs from the studio root; `<dir>` is `brands/<brand>/videos/<slug>`.
+This extends `skills/make/SKILL.md` and assumes its core steps (taste first, brief, three stories, build, draft, fresh critic, hand-over). Where a step below says the same thing differently, this lane wins for talking footage. The parts live in `parts/` (installed by `add lane:talking-head`): `transcribe-local`, `silence-cut`, `captions`, `overlay-cards`, `shorts-from-long`. Every command below runs from the studio root; `<dir>` is `brands/<brand>/videos/<slug>`.
 
 The footage is the hero and it is the person's. You do not invent a face, a voice or a quote; every card says something the person said or showed.
 
@@ -18,7 +18,7 @@ Ask these inside make's one brief message, each with your guess:
 3. **Fillers**: Turkish "ıı, eee" always out; "şey" stays unless the person says it is a tic. English "um, uh" out.
 4. **Captions**: on or off, `pop` (word highlight, short-form) or `clean` (sentence lines, long-form). Default: long video `clean`, shorts `pop`.
 5. **Cards**: which moments deserve one (a name at the start, a number, the takeaway). Default: a name card at the first sentence, a card only where the person says a number or a rule.
-6. **Music**: none (default for speech), or a quiet bed ducked under the voice. Never ask for a track: if wanted, `music --mood ... --duration ...` writes one.
+6. **Music**: none (default for speech), or a quiet bed ducked under the voice. If wanted: their own track, or `music --mood ... --duration ...` finds a recorded one.
 7. **Shorts**: how many and for which platform; default 3 clips of 20-40 s.
 
 Put the answers in `BRIEF.md`. The structure of a talking video is the person's own order of ideas, so the "three stories" of make step 2 become three **cut plans** for the same footage: e.g. keep everything but tighten; lead with the strongest claim then explain; trim to the three key points with cards. They differ in structure, not wording.
@@ -99,7 +99,7 @@ Then the lane's own questions, answered with a measurement or a still, never fro
 - Do cuts feel natural: no word clipped at its start or end, no 0 s gap between a sentence and the next.
 - Is the first second worth watching: a face and speech from frame 0, and frame 0 already designed as the thumbnail (the name card or the first caption on screen at t = 0, not fading in), so verify's `poster` passes.
 
-Fix, re-render, re-verify; deliver with make step 6.
+Fix, re-render, re-verify; deliver as in `make` step 5.
 
 ## 6. Shorts
 

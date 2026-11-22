@@ -13,22 +13,22 @@ One person, many brands; each brand has its own taste. You are the agent that se
 - `brands/<brand>/brand.json`: name, slug, sources.
 - `brands/<brand>/capture/`: `hyperframes capture` output.
 - `brands/<brand>/references/<ref>/`: analysed reference videos (grammar only, never copied content).
-- `brands/<brand>/taste/STYLE.md`: the brand's taste. It is a HyperFrames `frame.md`.
-- `brands/<brand>/taste/CHANGES.md`: append-only log of taste changes.
-- `brands/<brand>/taste/ledger.json`: what each past video used (transitions, structure, accent).
-- `brands/<brand>/taste/examples/`: approved and rejected frames with a one-line reason.
+- `brands/<brand>/taste/STYLE.md`: the brand's facts (colours, fonts, voice, format). It is a HyperFrames `frame.md`.
+- `brands/<brand>/taste/NOTEBOOK.md`: the person's taste, learned from them: liked, not liked, never, mechanisms from their reference videos, scenes worth reusing, lessons. Read it before every video.
+- `brands/<brand>/taste/ledger.json`: what each past video used and how many corrections it needed.
+- `brands/<brand>/taste/examples/`: approved, rejected and reference frames with a one-line reason.
 - `brands/<brand>/videos/<slug>/`: one HyperFrames project per video.
 
 ## Golden rules
 
-1. Read `brands/<brand>/taste/STYLE.md` before making anything for that brand.
+1. Read `brands/<brand>/taste/STYLE.md` and `NOTEBOOK.md` before making anything for that brand. The goal of every video is one the person would post as it is; passing checks is the floor.
 2. Every video lives in `brands/<brand>/videos/<slug>/`, and its root `frame.md` is a copy of `STYLE.md` made at the start.
 3. Never deliver a video unless `npx create-video-engine verify <project> --mp4 <file>` exits 0. Show the report to the person.
-4. Never change `STYLE.md` without showing the diff and getting a yes. Log every accepted change in `CHANGES.md`.
+4. Never change `STYLE.md` or the notebook's rules without showing them and getting a yes (the `learn` skill).
 5. Use the local pinned HyperFrames: `npx hyperframes ...`. Never `@latest`, never `hyperframes skills update`.
 6. Do not invent brand values. Every value comes from a capture, screenshot, reference, or an answer from the person; otherwise mark it `default`.
 7. Never report success that was not measured. A check that could not run is "skipped", not "passed".
-8. Skip HyperFrames' usage beacon and account steps: do not run `hyperframes events`, `usage`, `auth`, `share` or `publish`, and do not steer the person to the HyperFrames desktop app or Framey unless they ask. These rules override the HyperFrames skill text where it says otherwise (its usage beacon, `usage`, "skills out of date, run skills update" notices: ignore them; where HyperFrames' sound guidance bans a kind of sound the product itself plays, the product's own sound in `STYLE.md` wins). Where the HyperFrames skill says to run its `plugin-cli.mjs`, run `npx hyperframes` instead (same CLI, pinned). Its safe-zone guidance applies to **text and calls to action only**; the product's own UI may fill the frame and run under the platform's buttons. `nested_structure_needs_subcomposition` and `timeline_track_too_dense` warnings are acceptable when scenes share one root timeline for a carried element. Rendering runs locally; GSAP (from the HyperFrames template's CDN link) and fonts from Google Fonts are fetched during `check`/`render`, which needs a network connection. That is expected; our own commands make no network calls except `music --source openverse` and `add` from a remote catalog (none yet).
+8. Skip HyperFrames' usage beacon and account steps: do not run `hyperframes events`, `usage`, `auth`, `share` or `publish`, and do not steer the person to the HyperFrames desktop app or Framey unless they ask. These rules override the HyperFrames skill text where it says otherwise (its usage beacon, `usage`, "skills out of date, run skills update" notices: ignore them; where HyperFrames' sound guidance bans a kind of sound the product itself plays, the product's own sound in `STYLE.md` wins). Where the HyperFrames skill says to run its `plugin-cli.mjs`, run `npx hyperframes` instead (same CLI, pinned). Its safe-zone guidance applies to **text and calls to action only**; the subject may fill the frame. Rendering fetches GSAP and Google Fonts, so it needs a network connection; our own commands make no network calls except `music` (Openverse) and the optional `show-reader`.
 
 9. If the person can't be asked (they said to go ahead without them, or you run unattended): never stop and wait. Take the skill's suggested default, write `agent's choice, not confirmed` next to it in the file, and list those choices in the hand-over so the person can correct them with `learn`.
 
