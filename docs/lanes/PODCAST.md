@@ -92,3 +92,10 @@ Eksikler (sistem, sonraki tur):
 ### T1 kararı (Kerem, 22 Kasım): "güzel ama yayınlamam"
 
 Yalnız site + kapakla bu kadarı iyi bulundu; yayın kalitesi değil. Sebepler (hepsi): altyazı hataları çok; görseller hikâyeyi anlatmıyor (konuşulan şey ekranda yok); hep aynı görüntü; ucuz/amatör duruyor; "biz yokuz" (G-1/G-2 soğuk, sunucuların karakteri yok). T2'ye geçmeden önce bunlar çözülür; denemeler 10 dk yerine 1–2 dk'lık parçada yapılır.
+
+### T1 sonrası kararlar (Kerem, 22 Kasım)
+
+- **Çizimler: ikisi de, seçmeli.** Ücretsiz yol: ajan kanalın çizgi tarzında çizer (SVG). Ücretli yol (isteğe bağlı, kişinin kendi anahtarıyla): resim üreten servis. Önce aynı parçada yan yana karşılaştırılır.
+- **Sunucular: karakter çizimi**, kapağın mürekkep tarzında, kişinin verdiği fotoğraftan; konuşan hareketlenir.
+- **Altyazı: büyük ücretsiz model** (bir kerelik ~1,5 GB indirme, izin verildi) + kişinin kısa düzeltme turu.
+- Denemeler 1–2 dk'lık parçada.
