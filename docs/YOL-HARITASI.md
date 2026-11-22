@@ -66,3 +66,15 @@ Kanıtlanmış olan (korunacak): uzun video boru hattı (kayma 0 ms, normalize, 
 1. Bu teşhise katılıyor musun: kuralları azaltıp ajanı serbest bırakmak, zevki senin malzemen + defter + taze eleştirmenden almak?
 2. Müzik bestecisini varsayılandan çıkarmak (yerine senin parçan / açık lisanslı katalog) olur mu?
 3. 2. aşamanın üç görevi uygun mu, değiştirmek istediğin var mı?
+
+## 2. aşama bulguları (23 Kasım, puanlama sürüyor)
+
+Kerem, podcast kesiti (yeni çekirdek): "hiç konuşmadığımız bir ajan çıkardıysa gerçekten bir ilerleme var". Eksikler:
+- Görseller sesle tam senkron değil; sebep ölçülecek (kelime zamanları mı, sahne yerleşimi mi).
+- Renkler siteden fazla birebir alınmış. Site rengi bir kaynak, birebir kopya değil: kurulum iki palet önermeli (birebir ve yorumlanmış), kişi seçmeli.
+
+Ajanların ortak skill sorunları (düzeltilecek):
+- `shots.json` ve `cues.json` biçimi yazılı değil; verify'ın üç kontrolü hep atlanıyor.
+- 9:16 güvenli alan sayıları make, vertical.md ve verify arasında çelişiyor.
+- Podcast hattı yok; captions "?" düşürüyor; yazıya dökme düzeltme akışının komutu yok; verify ses ölçümü ajanın kendi ölçümüyle tutmadı.
+- Kişiye sorulamadığında "taslağı göster" adımının karşılığı yazılı değil; yeni stüdyoda hat listesi boş başlıyor.
