@@ -80,3 +80,11 @@ Eksikler (sistem, sonraki tur):
 - whisper small ikinci yarıda zamanları 1,0 sn ızgaraya yapıştırdı → altyazı kayması; yanlış duyulan kelimeler ekranda. `medium` modeli (büyük indirme) için izin/akış tarifte yok.
 - Konuşmacı ayrımı iki erkek sesinde güvenilmez (perde aynı); kişinin kulakla kontrolü şart.
 - Sahne blokları yavaş (388 sn görüntü için 1407 sn); 60 dk bölüm için P8 riskli.
+
+### T1 sonrası düzeltilenler (22 Kasım, Kerem izlerken)
+
+- "1 kare fazla" bir süre yuvarlamasıydı (88,3667 → 88,367 sn, HyperFrames yukarı yuvarlıyor): proje süresi yarım kare kısa verilir, kare sayısı tam çıkar. Ölçümle doğrulandı (1296/1296).
+- Araç T1'de de çıkış 1 vermişti; ajan çıktıyı kısaltırken görmedi. Tarife "çıkış kodunu oku, `problems`'a bak" kuralı eklendi.
+- Ses modunda `--chapters` → `chapters.txt`.
+- `slice` komutu: bölümden kesit; kelime bölünmez, cümle başına/sonuna yaslanır, ses + metin + konuşmacı + sahne kesitin saatine taşınır, sessiz kesit hata verir. Tarifin 8. adımı buna bağlandı.
+- `add`'in yanlış "hyperframes bulunamadı" uyarısı: kartta araç adının yanındaki açıklama ad sanılıyordu; düzeltildi.

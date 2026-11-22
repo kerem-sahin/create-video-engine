@@ -49,7 +49,9 @@ const inStudioBin = (studio, n) => {
   try { const p = join(studio, 'node_modules', '.bin', n); return statSync(p).isFile(); } catch { return false; }
 };
 /** Tools a part needs that are on neither PATH nor <studio>/node_modules/.bin. */
-export const missingNeeds = (card, studio = null) => (card.needs ?? []).filter((n) => !which(n) && !inStudioBin(studio, n)).map((n) => ({ tool: n, hint: INSTALL_HINT[n] ?? `install ${n} and put it on PATH` }));
+/** A `needs` entry is a tool name, optionally followed by a note: "hyperframes (the studio's pinned binary)". */
+export const needTool = (n) => String(n).trim().split(/[\s(]/)[0];
+export const missingNeeds = (card, studio = null) => (card.needs ?? []).map(needTool).filter((n) => n && !which(n) && !inStudioBin(studio, n)).map((n) => ({ tool: n, hint: INSTALL_HINT[n] ?? `install ${n} and put it on PATH` }));
 
 export const sourceLabel = (card) => {
   const s = card.source;

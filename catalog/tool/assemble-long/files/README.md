@@ -55,3 +55,14 @@ How it stays fast (60 minutes must fit on an 8 GB Mac):
 6. **Chunks**: the episode is encoded in chunks of whole loops (default 96 s), each starting at the loop's first frame, then joined with stream copy together with the -16 LUFS audio.
 
 Measured and reported, exit 1 on failure: frame count equals `ceil(duration x fps)`, constant frame step (a chunk joint would show), sound and picture end within two frames, sound as long as the input, loudness within 1 LU and true peak under -1 dBTP, loop frame count and seam, WebM frame counts. `<out>.assemble.json` has the time of every stage.
+
+`--chapters chapters.json` works in audio mode too (checked before rendering, `chapters.txt` next to the MP4).
+
+## Slice (a clip out of the cut episode)
+
+```
+node parts/assemble-long/assemble-long.mjs slice --audio cut.m4a --from 412.3 --to 455 --out-dir brands/<show>/videos/<clip>/assets \
+     [--words words.json] [--turns speakers.json] [--scenes scenes.json] [--snap 4]
+```
+
+Writes `clip.m4a` (cut on the sample inside the filter graph, 20/30 ms fades), and `words.json`, `speakers.json`, `scenes.json` moved to the clip's clock. The edges never split a word; with a punctuated transcript they move to the nearest sentence start and full stop within `--snap` seconds (0 = off), plus a little breathing room that never reaches the next word. Turns and blocks are clipped to the window; a block with under 1 s left is dropped. `slice.json` lists what moved. Measured, exit 1 on failure: the clip's length, words inside it, and that it is not silent. Scene blocks from a 16:9 episode plan are rarely right for a 9:16 clip: write the clip's own plan.

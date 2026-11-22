@@ -19,7 +19,7 @@
 //        [--aspect 16:9|9:16] [--lufs -16] [--crf 18] [--preset veryfast] [--encoder x264|videotoolbox [--bitrate 14M]] [--fonts "Family=file.ttf,..."]
 //        [--hf <hyperframes binary>] [--parts <dir with captions/ and overlay-cards/>] [--work <dir>] [--keep-work]
 //   node assemble-long.mjs assemble --audio episode.m4a --scenes scenes.json --turns speakers.json --frame frame.md --out final.mp4
-//        [--words episode.words.json] [--captions pop|clean|none] [--podcast podcast.json] [--look ink-sketch|clean] [--aspect 16:9|9:16]
+//        [--words episode.words.json] [--chapters chapters.json] [--captions pop|clean|none] [--podcast podcast.json] [--look ink-sketch|clean] [--aspect 16:9|9:16]
 //        [--fps 30] [--loop 8] [--chunk 96] [--encoder ...] [--parts <dir>] [--work <dir>] [--keep-work]
 //      AUDIO MODE (podcasts, no picture): the stage (show background with slow motion) is rendered ONCE as a short seamless loop and looped by ffmpeg;
 //      the speaker plates (lit when that host talks, from the turns), the waveform (from pre-computed levels) and the captions are overlays;
@@ -27,6 +27,9 @@
 //      See the podcast-scenes part (build-scene.mjs, levels.mjs). scenes.json: [{ "start": 12.5, "end": 15, "kind": "punchline", "text": "...", "speaker": "A" }]
 //   node assemble-long.mjs chapters --chapters chapters.json (--duration <s> | --video final.mp4) [--out chapters.txt]
 //   node assemble-long.mjs srt --words cut.words.json --out final.srt
+//   node assemble-long.mjs slice --audio cut.m4a --from <s> --to <s> --out-dir <clip>/assets [--words words.json] [--turns speakers.json] [--scenes scenes.json]
+//      one clip out of the cut episode: clip.m4a (sample-accurate, short fades) plus words/speakers/scenes moved to the clip's clock;
+//      boundaries never split a word and move to the nearest sentence edge within --snap s (0 = off); slice.json records what moved. Then assemble the clip with --audio <dir>/clip.m4a --aspect 9:16.
 //
 // cards.json: [{ "kind": "lower-third|takeaway|stat|quote|keyword", "text": "...", "detail": "...", "start": 12.5, "duration": 4,
 //                "side": "left|right", "face-x": 0.5, "pos": "lower|upper", "bottom": 320, "top": 150, "signature": true, "glass": true }]
@@ -519,6 +522,14 @@ async function assembleAudio(a) {
     if (v.errors.length) die("scenes.json invalid:\n  " + v.errors.join("\n  "), 64);
     scenes = v.scenes.sort((x, y) => x.f0 - y.f0);
   }
+  // chapters first: refuse before any rendering
+  let chapters = null;
+  if (typeof a.chapters === "string") {
+    if (!existsSync(resolve(a.chapters))) die(`no such file: ${a.chapters}`);
+    chapters = JSON.parse(readFileSync(resolve(a.chapters), "utf8"));
+    const errs = validateChapters(chapters, duration);
+    if (errs.length) die("chapters invalid:\n  " + errs.join("\n  "), 1);
+  }
   const words = typeof a.words === "string" ? cleanWords(JSON.parse(readFileSync(resolve(a.words), "utf8"))) : null;
   const captionsMode = a.captions === undefined || a.captions === true ? (words ? "clean" : "none") : String(a.captions);
   if (!["pop", "clean", "none"].includes(captionsMode)) die("--captions must be pop, clean or none", 64);
@@ -539,7 +550,9 @@ async function assembleAudio(a) {
   writeFileSync(podFile, JSON.stringify(podcast));
   const sceneArgs = (kind, extra) => ["--kind", kind, "--aspect", portrait ? "9:16" : "16:9", "--frame", resolve(a.frame), "--podcast", podFile, ...(typeof a.parts === "string" ? ["--parts", resolve(a.parts)] : []), ...extra];
   const build = (args) => { const r = run(process.execPath, [buildScene, ...args]); if (r.status !== 0) die("build-scene failed: " + (r.stderr || r.stdout).trim()); return r.stdout; };
-  const hfProject = (dir, { dur, mounts, bg = "transparent" }) => sheetProject(dir, { W, H, dur, css: `* { margin: 0; padding: 0; box-sizing: border-box; } html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: ${bg}; }`, body: mounts, js: "", brandCss, fontsFrom: null });
+  // HyperFrames renders ceil(duration * fps) frames; a duration rounded to ms (88.3667 -> 88.367) can gain a frame, so the
+  // root duration is set half a frame short of the wanted count, which ceil() maps back to exactly that count.
+  const hfProject = (dir, { dur, mounts, bg = "transparent", rate = fps }) => sheetProject(dir, { W, H, dur: (Math.round(dur * rate) - 0.5) / rate, css: `* { margin: 0; padding: 0; box-sizing: border-box; } html, body { width: ${W}px; height: ${H}px; overflow: hidden; background: ${bg}; }`, body: mounts, js: "", brandCss, fontsFrom: null });
   const mount = (cid, start, dur) => `      <div id="${cid}" data-composition-id="${cid}" data-composition-src="compositions/${cid}.html" data-start="${r3(start)}" data-duration="${r3(dur)}" data-track-index="2" data-track-kind="graphics" data-width="${W}" data-height="${H}"></div>\n`;
   console.log(`audio mode: ${r3(duration)} s -> ${N} frames at ${fps} fps, ${W}x${H}, look ${podcast.look}, ${scenes.length} scene block(s), ${turnsInfo.turns.length} turn(s)`);
 
@@ -577,7 +590,7 @@ async function assembleAudio(a) {
   const plateProj = join(workDir, "plates-proj");
   const nStates = podcast.hosts.length * 2;
   build(sceneArgs("stage", ["--mode", "plates", "--id", "plates", "--out", join(plateProj, "compositions", "plates.html")]));
-  hfProject(plateProj, { dur: nStates / 30, mounts: mount("plates", 0, nStates / 30) });
+  hfProject(plateProj, { dur: nStates / 30, rate: 30, mounts: mount("plates", 0, nStates / 30) });
   const plateFrames = join(workDir, "plates-frames");
   hfRender(hf, plateProj, ["--format", "png-sequence", "--fps", "30", "-o", plateFrames]);
   const platePngs = readdirSync(plateFrames).filter((f) => f.endsWith(".png")).sort();
@@ -731,6 +744,8 @@ async function assembleAudio(a) {
   const srtPath = out.replace(/\.[^.]+$/, "") + ".srt";
   if (words) writeFileSync(srtPath, toSrt(words));
   const outInfo = probe(out);
+  let chaptersPath = null;
+  if (chapters) { chaptersPath = join(dirname(out), "chapters.txt"); writeFileSync(chaptersPath, chaptersText(chapters, outInfo.duration)); }
   const after = measureLoudness(out);
   if (Math.abs(after.i - lufs) > 1.0) problems.push(`integrated loudness ${after.i} LUFS, target ${lufs} (+-1)`);
   if (after.tp > -1.0) problems.push(`true peak ${after.tp} dBTP is above -1`);
@@ -744,7 +759,7 @@ async function assembleAudio(a) {
   const starts = scenes.map((s) => s.f0 / fps);
   let maxGap = starts.length ? Math.max(starts[0], ...starts.slice(1).map((x, i) => x - starts[i]), duration - starts[starts.length - 1]) : duration;
   const report = {
-    schema: 1, mode: "audio", out, srt: words ? srtPath : null, seconds_total: r3((Date.now() - t0) / 1000), stages,
+    schema: 1, mode: "audio", out, srt: words ? srtPath : null, chapters: chaptersPath, seconds_total: r3((Date.now() - t0) / 1000), stages,
     video: { seconds: r3(outInfo.duration), width: outInfo.v.width, height: outInfo.v.height, fps, frames_expected: N, frames_out: outFrames, codec: outInfo.v.codec_name, frame_step_ms: [r3(spread.lo * 1000), r3(spread.hi * 1000)] },
     audio: { codec: outInfo.au.codec_name, sample_rate: outInfo.au.sample_rate, before: { lufs: before.i, true_peak: before.tp }, after: { lufs: after.i, true_peak: after.tp }, target_lufs: lufs, true_peak_limit: -1, passes: audioMade.tries },
     stage: { look: podcast.look, loop_seconds: loopSec, loop_frames: loopFramesGot, loop_seam: seam, chunks: segs.length, chunk_seconds: r3(chunkFrames / fps), encoder: enc },
@@ -758,9 +773,96 @@ async function assembleAudio(a) {
   };
   writeFileSync(out + ".assemble.json", JSON.stringify(report, null, 2) + "\n");
   console.log(`assemble-long: ${r3(outInfo.duration)}s ${outInfo.v.width}x${outInfo.v.height} in ${report.seconds_total}s -> ${out}`);
-  console.log(`  loudness ${before.i} -> ${after.i} LUFS (target ${lufs}), true peak ${before.tp} -> ${after.tp} dBTP; frames ${outFrames} (expected ${N})${seam ? `; loop seam ${seam.wrap} vs step ${seam.step}` : ""}`);
+  console.log(`  loudness ${before.i} -> ${after.i} LUFS (target ${lufs}), true peak ${before.tp} -> ${after.tp} dBTP; frames ${outFrames} (expected ${N})${seam ? `; loop seam ${seam.wrap} vs step ${seam.step}` : ""}${chaptersPath ? `; chapters ${chaptersPath}` : ""}`);
   cleanup();
   if (problems.length) { console.error("assemble-long: measured checks FAILED:\n  " + problems.join("\n  ")); process.exit(1); }
+}
+
+// ---- slice: one clip out of a cut episode, every timed file moved to the clip's clock ----
+// Pure part (tested): boundaries never split a word; words wholly inside are kept, turns and scene blocks are clipped
+// to the window and dropped when less than `minScene` s is left.
+export function sliceData({ from, to, words, turns, scenes, pad = { before: 0.08, after: 0.2 }, minScene = 1.0, duration = Infinity, snap = 4 }) {
+  const notes = [];
+  let a = from, b = to;
+  const ws = words ? words.words : [];
+  const inside = (t) => ws.find((w) => w.start < t && t < w.end);
+  const wa = inside(a); if (wa) { notes.push(`start ${r3(a)} was inside "${wa.w}": moved to ${r3(wa.start)}`); a = wa.start; }
+  const wb = inside(b); if (wb) { notes.push(`end ${r3(b)} was inside "${wb.w}": moved to ${r3(wb.end)}`); b = wb.end; }
+  // sentence edges (the punctuated words.json): a clip starts on a sentence and ends on its full stop when one is near
+  const ends = (w) => /[.?!…]["'”»)]*$/.test(w.w);
+  if (snap > 0 && ws.some(ends)) {
+    const i0 = ws.findIndex((w) => w.start >= a - 1e-6);
+    let j = i0; while (j > 0 && !ends(ws[j - 1]) && a - ws[j - 1].start <= snap) j--;
+    if (i0 >= 0 && j !== i0 && (j === 0 || ends(ws[j - 1]))) { notes.push(`start moved back to the sentence start "${ws[j].w}" at ${r3(ws[j].start)}`); a = ws[j].start; }
+    let k = ws.findLastIndex((w) => w.end <= b + 1e-6);
+    let m = k; while (m >= 0 && m < ws.length - 1 && !ends(ws[m]) && ws[m + 1].end - b <= snap) m++;
+    if (k >= 0 && m !== k && ends(ws[m])) { notes.push(`end moved to the full stop after "${ws[m].w}" at ${r3(ws[m].end)}`); b = ws[m].end; }
+  }
+  // breathing room, but never into the neighbouring word
+  const prev = ws.filter((w) => w.end <= a).pop(), next = ws.find((w) => w.start >= b);
+  a = Math.max(0, a - pad.before, prev ? prev.end : 0);
+  b = Math.min(duration, b + pad.after, next ? next.start : Infinity);
+  const shift = (t) => r3(t - a), len = r3(b - a);
+  const out = { from: r3(a), to: r3(b), seconds: len, notes };
+  if (words) {
+    const kept = ws.filter((w) => w.start >= a - 1e-6 && w.end <= b + 1e-6).map((w) => ({ ...w, start: shift(w.start), end: shift(w.end) }));
+    out.words = { ...words, duration: len, sliced_from: { from: r3(a), to: r3(b) }, words: kept };
+  }
+  if (turns) {
+    const kept = turns.turns.filter((t) => t.end > a && t.start < b).map((t) => ({ ...t, start: shift(Math.max(t.start, a)), end: shift(Math.min(t.end, b)) })).filter((t) => t.end - t.start > 0.05);
+    out.turns = { ...turns, sliced_from: { from: r3(a), to: r3(b) }, turns: kept };
+  }
+  if (scenes) {
+    let dropped = 0;
+    out.scenes = scenes.filter((sc) => sc.end > a && sc.start < b).map((sc) => ({ ...sc, start: shift(Math.max(sc.start, a)), end: shift(Math.min(sc.end, b)) }))
+      .filter((sc) => { const ok = sc.end - sc.start >= minScene; if (!ok) dropped++; return ok; });
+    if (dropped) notes.push(`${dropped} scene block(s) had less than ${minScene} s inside the clip and were dropped`);
+  }
+  return out;
+}
+
+function sliceCmd(a) {
+  const need = ["audio", "from", "to", "out-dir"].filter((k) => a[k] === undefined || a[k] === true);
+  if (need.length) die(`usage: slice --audio cut.m4a --from <s> --to <s> --out-dir <dir> [--words words.json] [--turns speakers.json] [--scenes scenes.json] [--snap 4] (missing --${need.join(", --")})`, 64);
+  const from = +a.from, to = +a.to;
+  if (!isFinite(from) || !isFinite(to) || from < 0 || to - from < 3) die("--from/--to must be seconds with at least 3 s between them", 64);
+  const audio = resolve(a.audio), dir = resolve(a["out-dir"]);
+  if (!existsSync(audio)) die(`no such file: ${audio}`);
+  const src = probe(audio);
+  if (!src.au) die(`${audio} has no audio stream`);
+  if (to > src.duration + 0.01) die(`--to ${to} is past the end of the audio (${r3(src.duration)} s)`, 64);
+  const read = (k) => { if (typeof a[k] !== "string") return null; const f = resolve(a[k]); if (!existsSync(f)) die(`no such file: ${f}`); return JSON.parse(readFileSync(f, "utf8")); };
+  const words = read("words"), turns = read("turns"), scenes = read("scenes");
+  if (words && !Array.isArray(words.words)) die("--words must be a transcript JSON with a words array", 64);
+  if (turns && !Array.isArray(turns.turns)) die("--turns must be a speakers JSON with a turns array", 64);
+  if (scenes && !Array.isArray(scenes)) die("--scenes must be a JSON array", 64);
+  const sl = sliceData({ from, to, words, turns, scenes, duration: src.duration, snap: a.snap === undefined ? 4 : +a.snap });
+  mkdirSync(dir, { recursive: true });
+  const clip = join(dir, "clip.m4a");
+  if (clip === audio) die("--out-dir must not hold the input audio", 64);
+  // cut on the sample inside the filter graph (atrim, then the clock restarts at 0), so the fades run on the clip's own clock
+  // and the cut never clicks. (An output -ss would trim AFTER the filters: the fade-out would silence everything.)
+  const fadeOut = Math.max(0, sl.seconds - 0.03).toFixed(3);
+  const r = run("ffmpeg", ["-hide_banner", "-nostdin", "-v", "error", "-y", "-i", audio, "-vn",
+    "-af", `atrim=start=${sl.from.toFixed(3)}:end=${sl.to.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=0.02,afade=t=out:st=${fadeOut}:d=0.03`,
+    "-c:a", "aac", "-b:a", "192k", "-ar", String(src.au.sample_rate || 48000), clip]);
+  if (r.status !== 0) die("ffmpeg could not cut the audio:\n" + (r.stderr || "").slice(-800));
+  const got = probe(clip).duration;
+  const problems = [];
+  if (Math.abs(got - sl.seconds) > 0.03) problems.push(`clip lasts ${r3(got)} s, expected ${sl.seconds} s`);
+  const vd = run("ffmpeg", ["-hide_banner", "-nostdin", "-i", clip, "-af", "volumedetect", "-f", "null", "-"]);
+  const mean = parseFloat((/mean_volume:\s*(-?[\d.]+|-inf)/.exec(vd.stderr || "") || [])[1]);
+  if (!(mean > -50)) problems.push(`clip is silent or nearly so (mean ${isFinite(mean) ? mean : "-inf"} dB): the cut missed the talk`);
+  const files = { audio: clip };
+  if (sl.words) { files.words = join(dir, "words.json"); writeFileSync(files.words, JSON.stringify(sl.words, null, 1) + "\n"); if (!sl.words.words.length) problems.push("no words inside the clip"); }
+  if (sl.turns) { files.turns = join(dir, "speakers.json"); writeFileSync(files.turns, JSON.stringify(sl.turns, null, 1) + "\n"); }
+  if (sl.scenes) { files.scenes = join(dir, "scenes.json"); writeFileSync(files.scenes, JSON.stringify(sl.scenes, null, 1) + "\n"); }
+  const report = { schema: 1, source: audio, from: sl.from, to: sl.to, seconds: r3(got), files, words: sl.words ? sl.words.words.length : null, turns: sl.turns ? sl.turns.turns.length : null, scenes: sl.scenes ? sl.scenes.length : null, notes: sl.notes, problems };
+  writeFileSync(join(dir, "slice.json"), JSON.stringify(report, null, 2) + "\n");
+  console.log(`slice: ${sl.from}-${sl.to} s (${r3(got)} s) -> ${dir}`);
+  for (const n of sl.notes) console.log("  " + n);
+  if (sl.scenes && !sl.scenes.length) console.log("  no scene blocks fall inside the clip: write the clip's own scenes.json (portrait blocks, punchline in the first 2 s)");
+  if (problems.length) { console.error("slice: measured checks FAILED:\n  " + problems.join("\n  ")); process.exit(1); }
 }
 
 function chaptersCmd(a) {
@@ -786,5 +888,6 @@ if (realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(proces
   if (cmd === "assemble") await assemble(a);
   else if (cmd === "chapters") chaptersCmd(a);
   else if (cmd === "srt") srtCmd(a);
-  else { console.error("usage: assemble-long.mjs assemble|chapters|srt ... (see the header of this file or README.md)"); process.exit(64); }
+  else if (cmd === "slice") sliceCmd(a);
+  else { console.error("usage: assemble-long.mjs assemble|slice|chapters|srt ... (see the header of this file or README.md)"); process.exit(64); }
 }
