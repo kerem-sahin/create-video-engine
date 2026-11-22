@@ -66,3 +66,17 @@ Kerem bölümü ve kesitleri **kendi kanalında olduğu gibi yayınlar**. Kesitl
 1–4 cevaplandı (yukarıda). 5: görsel his kanaldan çıkarılır (P14).
 - ❓ Bir bölümün ses dosyası (tercihen düzenlenmemiş kayıt) ve kanal kapağı nerede?
 - ❓ Konuşmacılar videoda isimle mi görünsün, takma adla mı, hiç mi? (İkinci sunucunun rızası Kerem'in işi.)
+
+## T1 sonucu (22 Kasım, temiz ajan, 10 dk parça)
+
+Çalıştı: kurulum podcast hattını seçti; görünüm kanalın kapağından ve sitesinden çıktı (mürekkep çizimi, siyah, neon yeşil, Bricolage Grotesque); 600→578,7 sn temizlik (yalnız ölü boşluklar), 5 bölüm başlığı, SRT, 2 dikey kesit; verify üçünde de geçti. Toplam ~2 saat, bölüm render'ı 29,5 dk.
+
+Eksikler (sistem, sonraki tur):
+- **Görsel plan zayıf:** bölüm videosunda çoğu an ortada büyük ses dalgası; espri vurgusu/alıntı/konu blokları seyrek. Ses dalgası ana içerik değil, süs olmalı; plan her 4–8 sn'de anlamlı blok istemeli (kesitlerde punchline'lar iyi çalıştı: "KİME PORSCHE? KENDİME.").
+- **"[isim]" ekranda görünüyor:** üçüncü kişi adları maskelenince altyazıda çirkin duruyor; adı cümleden zarifçe çıkarmalı ya da o satırı altyazısız bırakmalı.
+- Altyazı ve konuşmacı etiketleri küçük (etiket ~40 px < 48 px); dikey kesitte alt %35 boş.
+- **assemble-long'un kendi ölçümü başarısız olduğu hâlde çıkış 0** (sahne render'ında 1 kare fazla): "ölçülmemiş başarı yok" ilkesine aykırı — düzeltilmeli.
+- Ses modunda chapters.txt yazılmıyor; kesitler için kelime/konuşmacı/sahne dilimleme aracı yok; 9:16 kesit komutu tarifte yok.
+- whisper small ikinci yarıda zamanları 1,0 sn ızgaraya yapıştırdı → altyazı kayması; yanlış duyulan kelimeler ekranda. `medium` modeli (büyük indirme) için izin/akış tarifte yok.
+- Konuşmacı ayrımı iki erkek sesinde güvenilmez (perde aynı); kişinin kulakla kontrolü şart.
+- Sahne blokları yavaş (388 sn görüntü için 1407 sn); 60 dk bölüm için P8 riskli.
