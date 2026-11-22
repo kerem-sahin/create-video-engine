@@ -6,7 +6,7 @@
   "what_it_does": "Transcribes every past episode the person has (resumable, local), writes a readable transcript per episode, and indexes the whole show: phrases that come back across episodes with where each use is, capitalised names with counts, the words used in titles and descriptions. Writes a CHANNEL.md skeleton that the agent fills from the transcripts with a citation on every line (who talks and how, running jokes, subjects, places, how an episode goes, how titles are written, what never goes on screen). Visual plans, transcript fixes and chapter titles then read this memory.",
   "when_to_use": "At setup when the person has past episodes or recordings (after show-reader), and after every new episode so the memory grows. Without audio it still indexes titles and descriptions. Not a judge of what is funny: it finds candidates, the agent reads them in context and the person confirms.",
   "lanes": [
-    "podcast"
+    "talking-head"
   ],
   "source": {
     "repo": "create-video-engine",
@@ -20,8 +20,14 @@
   "builtin": false,
   "registry": null,
   "files": [
-    { "from": "files/memory.mjs", "to": "parts/memory/memory.mjs" },
-    { "from": "files/CHANNEL.template.md", "to": "parts/memory/CHANNEL.template.md" }
+    {
+      "from": "files/memory.mjs",
+      "to": "parts/memory/memory.mjs"
+    },
+    {
+      "from": "files/CHANNEL.template.md",
+      "to": "parts/memory/CHANNEL.template.md"
+    }
   ],
   "docs": "files/README.md",
   "requires": [

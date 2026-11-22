@@ -53,6 +53,14 @@ Kanıtlanmış olan (korunacak): uzun video boru hattı (kayma 0 ms, normalize, 
 | 5 | **Büyüme ve dış kullanıcı:** aynı kişide 3–5 video, düzeltme sayısı düşüyor mu; bir dış kullanıcı sıfırdan kurar | İkinci-üçüncü videoda düzeltme azalır; dış kullanıcı yardımsız video çıkarır |
 | 6 | **Duyuru** | Kerem "artık işe yarıyor" der |
 
+## Korunan kararlar (silinen belgelerden)
+
+- **Eldeki malzeme nimettir** (Kerem, 22 Kasım): sistem önce kişinin zaten sahip olduğundan öğrenir (geçmiş bölümler, başlıklar, açıklamalar, site, kapak, eski videolar), sonra yalnız malzemenin cevaplamadığını sorar; kişinin talimatı her şeyin üstündedir. Parçalar hazır: `show-reader` (link/RSS/klasör → bölüm listesi, onaylı indirme), `memory` (toplu yazıya dökme, tekrar eden laf/isim dizini, kaynaklı CHANNEL.md).
+- **Kimseye benzemez, kendine benzer:** beğenilen başka bir kanal yalnız ilke kaynağıdır; rengi, maskotu, düzeni kopyalanmaz.
+- **Podcast için (3. aşama):** görseller hem ücretsiz (ajan kanalın tarzında çizer) hem isteğe bağlı ücretli (resim servisi) yoldan; sunucular kişinin istediği şekilde (Kerem: kapak tarzında karakter çizimi); altyazı büyük yerel model + hafızadan sözlük + kişinin kısa düzeltme turu; üçüncü kişi adları ekrana çıkmaz; konuşmacı etiketi yalnız kişi doğrularsa.
+- **T1 dersi:** sabit sahne + ses dalgası + kutu blokları "yayınlanmaz" bulundu; o kod (podcast-scenes, assemble-long ses modu) silindi. `slice` ve uzun video birleştirme kaldı.
+- **Türkçe sentetik ses adayı (4. aşama):** `alexturkey/voxcpm2-turkce-ses-tasarimi` (Apache-2.0, yerel, kelime zamanlarını kendisi verir; 8 GB Mac'te önce ölçülecek).
+
 ## Kerem'e sorular
 
 1. Bu teşhise katılıyor musun: kuralları azaltıp ajanı serbest bırakmak, zevki senin malzemen + defter + taze eleştirmenden almak?

@@ -50,7 +50,7 @@ catalog/lanes/<id>/recipe.md           the lane-specific part of the make skill
 - `requires`: part ids installed first, no cycles, all in the catalog. `needs`: system tools; `add` warns when one is missing.
 - `paid_api`: `null` or `{ service, env, free_fallback, sends }`; the fallback must exist and be free. A paid part installs only with `--paid` or a studio with `paid: true`, together with its fallback.
 - `example`: path inside the card folder to a working example, or `null`. It is not installed.
-- `requirements`: IDs from `docs/REQUIREMENTS.md` the part serves.
+- `requirements`: short IDs of the needs the part serves (e.g. `"G1"`); kept for history, may be empty.
 
 Schema-1 cards (`files` as a list of strings, no `schema` field) are rejected with "migrate to schema 2".
 
@@ -77,4 +77,4 @@ npx create-video-engine remove <part-id>|lane:<id> [--studio <dir>] [--json]
 
 1. Put the files under `catalog/<kind>/<id>/files/` (with the upstream `LICENSE`) and write the card.
 2. Run `catalog check` until it passes.
-3. Record the idea's origin and status in `docs/HARVEST.md`.
+3. If code was copied, add it to `THIRD_PARTY_NOTICES.md` with its licence.

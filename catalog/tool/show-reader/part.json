@@ -6,7 +6,7 @@
   "what_it_does": "From a podcast RSS feed, a Spotify or Apple Podcasts link, a saved feed file or a folder of recordings, writes sources/show.json: the show's own description, cover and categories, and every episode's title, date, duration, description and audio link. A Spotify link is resolved to the show's public feed through the Apple Podcasts directory and accepted only when the feed's newest episode has the same title as on Spotify. `download` fetches the episodes' audio (only after the person agreed), names the files from the episode number and title, never from the original file name, and checks each file's duration against the feed.",
   "when_to_use": "At setup for anyone who turns recordings into videos and already has published episodes or a folder of recordings: the titles, descriptions and past episodes are the best material for learning the show (feeds the memory part). Also after each new episode, to add it. Not for private recordings the person did not offer.",
   "lanes": [
-    "podcast"
+    "talking-head"
   ],
   "source": {
     "repo": "create-video-engine",
@@ -20,8 +20,14 @@
   "builtin": false,
   "registry": null,
   "files": [
-    { "from": "files/show-reader.mjs", "to": "parts/show-reader/show-reader.mjs" },
-    { "from": "files/rss.mjs", "to": "parts/show-reader/rss.mjs" }
+    {
+      "from": "files/show-reader.mjs",
+      "to": "parts/show-reader/show-reader.mjs"
+    },
+    {
+      "from": "files/rss.mjs",
+      "to": "parts/show-reader/rss.mjs"
+    }
   ],
   "docs": "files/README.md",
   "requires": [],

@@ -4,6 +4,11 @@
   "title": "Product launch and update videos",
   "for": "Kerem: an app developer who shows a product, an update or how it works.",
   "ask": "Do you make videos that show off an app or product (launches, updates, how it works)?",
-  "parts": ["screenshot-crop", "cve-motion", "music-scorer", "mp4-checks"],
+  "parts": [
+    "screenshot-crop",
+    "cve-motion",
+    "openverse-source",
+    "mp4-checks"
+  ],
   "recipe": "recipe.md"
 }

@@ -29,7 +29,7 @@ Each rule change names the exact place in `STYLE.md` and the old → new value. 
 | "text flies in too much" | `motion.ease.enter` to a softer curve, a `never` line naming the effect seen |
 | "doesn't look like us" | find the frame; compare with `colors`/`typography`; usually a `never` (the off-brand element) plus a `Do` |
 | "no sound" / "something is missing" (with sound off) | the `sound` block: effects per visible action, or a music source they provide |
-| "the music is too happy / too sad / boring" | `sound.mode`, `sound.energy` (±0.15), `sound.bpm`, or `sound.palette` — propose two options |
+| "the music is too happy / too sad / boring" | `sound.feel` words, or ask for their own track (`sound.track`); the used track stays in `music-used.json` so it is not picked again |
 | "this sound doesn't fit" / "irrelevant sound effect" | find the cue in the verify `SOUND` list at that time; check what the product itself plays there (code); replace or remove it, and add a `never` line naming the file or kind of sound |
 | "this looks like other AI videos" | find the exact effect in the frames; check whether the product itself does it (code, screens). If not: a `never` line naming it, and propose the product's own behaviour instead |
 | "love the moment at 0:12" | a `Do` line describing it concretely, and the frame saved as an approved example |

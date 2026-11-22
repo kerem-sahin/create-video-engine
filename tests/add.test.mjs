@@ -296,7 +296,7 @@ test('the shipped catalog installs into a fresh studio: cve-motion lands in part
   assert.ok(existsSync(join(s, 'parts/cve-motion/cve-motion.js')));
   assert.ok(existsSync(join(s, 'parts/cve-motion/README.md')));
   assert.deepEqual(rec(s).lanes, ['product-launch']);
-  assert.equal(cli(['add', 'onetake-continuity', '--studio', s]).status, 1);
+  assert.equal(cli(['add', 'no-such-part', '--studio', s]).status, 1);
   assert.equal(cli(['remove', 'lane:product-launch', '--studio', s]).status, 0);
   assert.equal(existsSync(join(s, 'parts/cve-motion')), false);
 });

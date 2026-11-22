@@ -41,17 +41,10 @@ never:
 signature: "<the one recurring element, from the brand's own world — ideally something the product itself does>"
 
 sound:
-  music: scored          # scored = composed with the edit (default); none = silent by choice
-  bpm: [76, 92]          # tempo range; calm brands slower
-  key: "G"               # tonal centre
-  mode: major            # major | minor
-  palette: nylon         # nylon | felt-piano | marimba | kalimba | soft-synth — the brand's instrument
-  styles: [acoustic-strum, piano-ballad, ambient]   # 2–4 arrangements that suit the brand, rotated across videos: acoustic-strum | lofi | ambient | pop-pluck | piano-ballad | minimal-pulse | warm-groove | classic
-  energy: 0.35           # 0 = pad only … 1 = driving
-  cues:                  # which moments get a musical cue (cut, highlight, impact, confirm, type, tick, end)
-    scene_change: cut
-    understood: highlight
-    end: end
+  track: null            # the person's own track (a file they own the rights to); used first
+  feel: [warm, calm, acoustic]   # words the `music` command searches Openverse with when there is no track
+  music: found           # found = a CC0/CC BY track by feel; none = silent by choice
+  product_sound: null    # the product's own sound if it has one ("a soft bell on save"), exactly as found
 ---
 
 ## What this brand is

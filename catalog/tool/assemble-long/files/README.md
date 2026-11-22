@@ -36,28 +36,6 @@ Not used: it needs libass and the ffmpeg built by Homebrew on this Mac has none 
 
 Needs: ffmpeg with libvpx (decodes the card WebM) and libx264, the studio's `hyperframes`, and the `captions` and `overlay-cards` parts (their `frame-vars.mjs` and `build-card.mjs` are called; `--parts <dir>` says where they are).
 
-## Audio mode (podcasts with no picture)
-
-```
-node parts/assemble-long/assemble-long.mjs assemble --audio episode.m4a --scenes scenes.json --turns speakers.json \
-     --frame brands/<brand>/taste/STYLE.md --out final.mp4 [--words episode.words.json] [--captions pop|clean|none] [--aspect 16:9|9:16]
-```
-
-Needs the `podcast-scenes` part (`add podcast-scenes`) and a `podcast:` block in `frame.md` (look, background, accent_alt, hosts). Captions need `--words` (default `clean` when given). `--turns` is the `speakers` part's `{ speakers, turns: [{start, end, speaker}] }` (a hand-written file works); without it the plates stay dim. `scenes.json` is `[{ start, end, kind, text, speaker, detail }]` in the audio's clock, kinds `punchline quote topic reaction lower-third waveform` (rules in podcast-scenes' README; a bad plan exits 64 before anything renders).
-
-How it stays fast (60 minutes must fit on an 8 GB Mac):
-
-1. **Stage loop**: the background motion is ONE HyperFrames render of `--loop` seconds (default 8, every motion is periodic so the end meets the start); ffmpeg loops it. The report records the loop's frame count and the measured seam (last-to-first step against a normal step).
-2. **Plates**: dim and lit stills per host, rendered once, cropped; ffmpeg shows the lit one in each host's turns (turns under 0.6 s dropped, near turns merged).
-3. **Waveform**: levels (RMS per frame, from ffmpeg) -> bars drawn by Node into raw frames piped to ffmpeg; no Chrome, no Web Audio.
-4. **Scene blocks**: transparent WebM renders (VP9 alpha), up to 30 blocks / 90 s of picture per render so Chrome never holds the episode; only the seconds with a block on screen are rendered.
-5. **Captions**: the existing caption stills.
-6. **Chunks**: the episode is encoded in chunks of whole loops (default 96 s), each starting at the loop's first frame, then joined with stream copy together with the -16 LUFS audio.
-
-Measured and reported, exit 1 on failure: frame count equals `ceil(duration x fps)`, constant frame step (a chunk joint would show), sound and picture end within two frames, sound as long as the input, loudness within 1 LU and true peak under -1 dBTP, loop frame count and seam, WebM frame counts. `<out>.assemble.json` has the time of every stage.
-
-`--chapters chapters.json` works in audio mode too (checked before rendering, `chapters.txt` next to the MP4).
-
 ## Slice (a clip out of the cut episode)
 
 ```
@@ -65,4 +43,4 @@ node parts/assemble-long/assemble-long.mjs slice --audio cut.m4a --from 412.3 --
      [--words words.json] [--turns speakers.json] [--scenes scenes.json] [--snap 4]
 ```
 
-Writes `clip.m4a` (cut on the sample inside the filter graph, 20/30 ms fades), and `words.json`, `speakers.json`, `scenes.json` moved to the clip's clock. The edges never split a word; with a punctuated transcript they move to the nearest sentence start and full stop within `--snap` seconds (0 = off), plus a little breathing room that never reaches the next word. Turns and blocks are clipped to the window; a block with under 1 s left is dropped. `slice.json` lists what moved. Measured, exit 1 on failure: the clip's length, words inside it, and that it is not silent. Scene blocks from a 16:9 episode plan are rarely right for a 9:16 clip: write the clip's own plan.
+Writes `clip.m4a` (cut on the sample inside the filter graph, 20/30 ms fades), and `words.json`, `speakers.json`, `scenes.json` moved to the clip's clock. The edges never split a word; with a punctuated transcript they move to the nearest sentence start and full stop within `--snap` seconds (0 = off), plus a little breathing room that never reaches the next word. Turns and blocks are clipped to the window; a block with under 1 s left is dropped. `slice.json` lists what moved. Measured, exit 1 on failure: the clip's length, words inside it, and that it is not silent.

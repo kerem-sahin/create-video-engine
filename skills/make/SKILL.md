@@ -110,29 +110,17 @@ If `parts/cve-motion/` is installed, copy `parts/cve-motion/cve-motion.js` to `<
 - Use the `CVE` ease named in `STYLE.md` `motion.spring` for everything that enters. Never `linear` or `none` for entering elements; linear stays for rotation, progress and constant speed.
 - Every scene change has a continuity link: an element carried across the cut, or a colour or shape that sits in the same place on both sides. Name it in the SHOTS column "transition out". A hard cut is still allowed; say so there. How to carry (`CVE.carry`) is in the lane's recipe.
 
-### Sound: composed with the edit
+### Sound
 
-The music is written **with** the video, not laid under it afterwards. A track found elsewhere can't follow the cuts; that is why it sounds pasted on.
+Music is not composed in code: nobody can hear whether generated music is good, and generated beds all sounded alike.
 
-1. **Tempo first.** Pick a BPM inside `STYLE.md` `sound.bpm`. One beat = 60/BPM s. Choose the length as a whole number of bars (e.g. 84 BPM × 28 beats = 20.0 s) inside `format.length`, and set the root `data-duration` to it.
-2. **Every scene change lands on a beat**, ideally on the first beat of a bar; every highlight, stamp or confirmation lands on a beat or half-beat. Write the beat number of each into `SPEC.md` next to its time. Timings in the composition are those beat times, exactly.
-3. **Write `<dir>/cues.json`** from the SPEC: `duration`, `bpm`, `beats_per_bar`, `key`, `mode`, `palette`, `energy` from `STYLE.md` `sound`, a `style` from `sound.styles` that is **not** the one of the previous video in `ledger.json` (rotate; a brand's music should not be the same song every time), a `seed` that is new for this video (e.g. the sum of the slug's character codes), and one cue per moment (`cut`, `highlight`, `impact`, `confirm`, `type` with `beats`, `tick`, `end`) at its beat:
-   ```json
-   { "duration": 20, "bpm": 84, "beats_per_bar": 4, "key": "C", "mode": "major", "palette": "felt-piano", "style": "piano-ballad", "seed": 731, "energy": 0.3,
-     "cues": [ { "kind": "cut", "beat": 4 }, { "kind": "highlight", "beat": 6 }, { "kind": "type", "beat": 8, "beats": 2 }, { "kind": "confirm", "beat": 20.5 }, { "kind": "end", "beat": 26 } ] }
-   ```
-   Beats count from 0 at the first frame; half-beats (20.5) are allowed. Cue kinds come from `STYLE.md` `sound.cues`; a moment the brand's product has its own sound for gets the closest kind (a bell → `confirm` or `end`, a stamp → `impact`).
-4. Compose:
-   ```
-   npx create-video-engine music --score <dir>/cues.json --out <dir>
-   ```
-   It writes `assets/music/track.wav` (music and cue sounds together, in key, one room) and `assets/music/score.json` with every cue's time in seconds.
-5. Mount it once: `<audio id="music" class="clip" src="assets/music/track.wav" data-start="0" data-duration="<length>" data-volume="1" data-track-index="<own lane>">`. No separate effect files are needed; use a bundled effect from `skills/media-use/audio/assets/sfx/` only for a non-musical real sound the score can't make, and keep it quiet.
-6. Check that the cue times in `score.json` match the moments on screen (snapshot a few cue times).
+1. **The person's own track** first (`STYLE.md` `sound.track`, or a file they give). Cut the edit to it: find its tempo, put scene changes on its beats.
+2. Otherwise a **recorded track by feel**: `npx create-video-engine music --mood "<STYLE.md sound words>" --duration <s> --out <dir> --used brands/<slug>/music-used.json`. It finds a CC0/CC BY track on Openverse, skips tracks this brand already used, and writes `assets/music/track.wav` and the credit into `CREDITS.md` (a CC BY credit goes into the hand-over and the post). On exit 1 (offline, nothing fitting) deliver without music and say so.
+3. `music: none` in `STYLE.md` means silent.
+4. Effects only with a visible cause on screen (a tap, a stamp, a confirmation), a few kinds, quiet under the music; from `skills/media-use/audio/assets/sfx/`. No trailer sounds (booms, whooshes, risers) unless `STYLE.md` names them. Never MusicGen (CC-BY-NC weights), never NC/SA/ND tracks.
+5. Mount the track once as an `<audio class="clip">` on its own lane. If you wrote `cues.json` (beat times of the edit), verify's `on-beat` checks the cuts against it; without it, `on-beat` is skipped.
 
-**Sound under voice.** In a video led by speech, the voice is the sound. Music is the lane's decision: none, or a bed ducked to −20…−24 LUFS short-term under speech and raised only in speech-free stretches; either way cue sounds stay out of the way of words. Cuts then follow the speech, not the beat; `on-beat` applies only to the beats you wrote in `cues.json`. If there is no `cues.json`, verify skips `on-beat`.
-
-Never ask the person for music. `music: none` in `STYLE.md` means silent. `--source openverse` exists but is not the default, for the reason above; if used, its CC BY attribution must go into the hand-over and the post. Never MusicGen (CC-BY-NC weights), never NC/SA/ND tracks. No trailer sounds (booms, whooshes, risers, glitches) unless `STYLE.md` names them.
+**Sound under voice.** In a video led by speech, the voice is the sound. Music is the lane's decision: none, or a bed ducked to −20…−24 LUFS short-term under speech; cuts follow the speech.
 
 Look at it before rendering the whole thing:
 
@@ -168,7 +156,7 @@ Append to `brands/<brand>/taste/ledger.json` `videos`:
 { "slug": "<slug>", "lane": "<lane>", "date": "YYYY-MM-DD", "aspect": "16:9", "length": 24,
   "structure": ["hook: …", "main part", "proof", "end card"],
   "transitions": ["hard cut", "push", "mask wipe"],
-  "accent": "#hex", "music": <the "music" object from assets/music/score.json, or null if silent>, "verified": true, "feedback": null }
+  "accent": "#hex", "music": <the track's title and source from CREDITS.md, or null if silent>, "verified": true, "feedback": null }
 ```
 
 ## 8. Hand over

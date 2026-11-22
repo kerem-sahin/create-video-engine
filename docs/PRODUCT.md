@@ -1,6 +1,6 @@
 # create-video-engine — Ürün tanımı
 
-*19 Kasım 2026, Kerem onayladı. Bu sayfa her şeyin üstündedir: `REQUIREMENTS.md`, `PLAN.md` ve her aşama buna göre kontrol edilir. Bir iş buradaki üç kişiden birine yaramıyorsa yapılmaz. Değişiklik yalnız Kerem'in onayıyla.*
+*19 Kasım 2026, Kerem onayladı. Bu sayfa her şeyin üstündedir; yol haritası (`YOL-HARITASI.md`) ve her aşama buna göre kontrol edilir. Bir iş buradaki üç kişiden birine yaramıyorsa yapılmaz. Değişiklik yalnız Kerem'in onayıyla.*
 
 ## Nedir
 

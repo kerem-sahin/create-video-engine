@@ -46,8 +46,8 @@ A check that could not run is reported as *skipped*, never as passed. Then a rev
 
 | Lane | For | Parts it installs |
 |---|---|---|
-| `product-launch` | app, site or product launches and updates from real screens | screenshot crop, spring motion and shared-element carry, music scored to the edit |
-| `social-photo` | a small brand's photos into Reels/TikTok/feed videos | photo shots that keep moving, offer cards, scored music |
+| `product-launch` | app, site or product launches and updates from real screens | screenshot crop, spring motion and shared-element carry, a recorded track found by feel |
+| `social-photo` | a small brand's photos into Reels/TikTok/feed videos | photo shots that keep moving, offer cards, a recorded track found by feel |
 | `talking-head` *(beta)* | YouTube talks/lessons and Shorts cut from them | local transcription, silence and filler cut (approved before it's applied), branded word-by-word captions, overlay cards, shorts with 9:16 reframe |
 
 `npx create-video-engine catalog list` shows lanes and parts. Every part has a card with its source repository, licence and the HyperFrames version it was checked with; non-commercial sources are link-only and never copied.
@@ -77,7 +77,7 @@ remove <part>|lane:<id>         remove it (refuses if you changed its files)
 upgrade                         update skills, recipes and parts; never touches your brands or edited files
 catalog list|check              list lanes and parts / validate cards
 verify <project> --mp4 <file>   measure a render (exit 0 ok, 1 problems, 2 could not check)
-music --score <cues.json>       compose music and cue sounds on the edit's beat grid
+music --mood "<words>" ...      find a recorded CC0/CC BY track by feel (your own track comes first)
 refs <video> --out <dir>        measure a reference video's grammar (cuts, rhythm, palette)
 crop <image> --auto             cut a store screenshot down to the real app screen
 ```
@@ -88,7 +88,7 @@ No telemetry. No runtime dependencies. HyperFrames' own usage beacon is skipped.
 
 Honest list, from our own tests:
 
-- **Music sounds alike across videos.** It is composed with the edit (tempo first, cuts on beats, cues in key) and has seven arrangement styles, but every sound comes from a few simple synthesisers, so the timbre repeats. Real instrument samples are next.
+- **Music comes from your own track or an open-licence catalog.** We stopped composing it in code (it all sounded alike). Without your track and without network, the video is delivered silent.
 - **Layouts look alike across brands.** Colours, fonts and signatures differ; the composition (big headline top-left, one large subject below) is still too similar. Brand-specific layouts are next.
 - **Talking-head lane is beta.** Proven end to end on a synthetic recording; not yet on real footage.
 - **Only tested with Claude Code on macOS.** The studio has an `AGENTS.md`, so Codex, Cursor or Antigravity should be able to follow it, but we haven't verified that. Linux should work; Windows is untested.
@@ -97,7 +97,7 @@ Honest list, from our own tests:
 
 ## Credits
 
-[HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) does the rendering. Ideas were studied from many open repos, recorded with licence and status in [docs/HARVEST.md](docs/HARVEST.md); copied code is listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+[HyperFrames](https://github.com/heygen-com/hyperframes) (Apache-2.0) does the rendering. Ideas were studied from many open repos; copied code is listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 MIT licence.
 
@@ -120,4 +120,4 @@ Klasörü Claude Code'da aç ve **"stüdyomu kur"** de. Sonra: **"bir tanıtım 
 
 **Maliyet:** ilk kurulum + bir video yaklaşık 150–225 bin token (Sonnet), 12–16 dakika. Ücretli servis gerekmez.
 
-**Bilinen eksikler:** müziklerin tınısı birbirine benziyor; markaların görüntü düzeni benzeşiyor; konuşma videosu hattı henüz gerçek çekimle denenmedi; yalnız Claude Code + macOS'ta denendi. Ayrıntılar yukarıda, "Known limits" bölümünde.
+**Bilinen eksikler:** müzik ya senin parçan ya açık lisanslı bir katalogdan gelir (kodla besteleme kaldırıldı); markaların görüntü düzeni benzeşiyor; konuşma videosu hattı henüz gerçek çekimle denenmedi; yalnız Claude Code + macOS'ta denendi. Ayrıntılar yukarıda, "Known limits" bölümünde.

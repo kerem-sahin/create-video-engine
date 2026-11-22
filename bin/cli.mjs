@@ -13,10 +13,8 @@ Commands:
   verify <project> [--mp4 <file>] [--json] [--no-hf-check]
                                                     verify a video before delivery
   refs <video-file> --out <dir> [--json]            analyse a reference video
-  music --score <cues.json> --out <video-project-dir> [--json]
-                                                    compose music + cue sounds on the edit's beat grid
-  music --mood "<words>" --duration <s> --out <dir> [--bpm <n>] [--source openverse] [--json]
-                                                    score without cues, or find a CC0/CC BY track
+  music --mood "<words>" --duration <s> --out <dir> [--used <file>] [--json]
+                                                    find a recorded CC0/CC BY track by feel
   crop <image> --out <file.png> [--auto] [--rect x,y,w,h] [--status-bar] [--json]
                                                     crop a store screenshot to the real app screen
   catalog check [--dir <catalog-dir>] [--json]      validate the parts catalog

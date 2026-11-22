@@ -2,9 +2,9 @@
   "schema": 2,
   "id": "openverse-source",
   "kind": "sound",
-  "title": "Openverse stock track search",
-  "what_it_does": "Searches Openverse for a CC0 or CC BY track that fits a mood and length, downloads it and writes the attribution line the video needs.",
-  "when_to_use": "Only when the person asks for a real recorded track. It cannot follow the cuts, so the scorer stays the default; a CC BY track always needs its credit shown.",
+  "title": "Find a recorded track (CC0 / CC BY) by feel and length",
+  "what_it_does": "Searches Openverse for a CC0 or CC BY track that fits a mood and length, downloads it, records it as used so the next video gets a different one, and writes the attribution line the video needs.",
+  "when_to_use": "When the person has no track of their own for a video that needs music. The person's own track always comes first; with no network or no fitting result the video is delivered without music and that is said. A CC BY track always needs its credit in the share copy.",
   "lanes": [
     "product-launch",
     "social-photo"
@@ -22,9 +22,7 @@
   "registry": null,
   "files": [],
   "docs": null,
-  "requires": [
-    "music-scorer"
-  ],
+  "requires": [],
   "needs": [],
   "paid_api": null,
   "verified_with": {
