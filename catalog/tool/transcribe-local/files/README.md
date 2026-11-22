@@ -12,6 +12,10 @@ A phone writes variable-frame-rate video (timestamps jitter, frames are skipped,
 
 It measures its own result and exits 1 if it is not steady: constant frame step, no rotation flag left, picture and sound within one frame, frame count = duration x fps. The numbers (including the source's own frame-step jitter, so "it was VFR" is a measurement) go to `work.mp4.normalize.json` and the screen. HDR (HLG/PQ) sources are converted to 8-bit BT.709 without tone mapping (no zscale in this ffmpeg): colours come out a little flat, the report says `hdr: true`, look at one frame. Speed: decoding on the Mac's media engine, x264 `superfast`; a 64 s HEVC phone clip took 24 s on an 8 GB M1 (a 30 minute clip: roughly 10 minutes).
 
+### audio-only input (a podcast m4a)
+
+No video stream: `normalize` does not invent a picture. It writes an audio working file: `--out work.m4a` (AAC 192k, the default), `--out work.wav` (16-bit PCM), or `--out work.mp4`/`.mov` (audio-only MP4, no video track; it says "no picture"). 48 kHz, channels kept (mono stays mono), first sample at 0 (a late-starting track is padded with silence). `work.m4a.normalize.json` has `mode: "audio"` and the measured duration, sample rate, channels, start time, integrated loudness (LUFS) and peak; `problems` lists anything that missed (duration within 50 ms of the source, start at 0, 48 kHz, same channel count, no video track), and the exit code is then 1. Loudness is only measured, never changed here. Then `transcribe.mjs work.m4a`, `silence-cut` (cuts on the sample grid, out `.m4a`/`.wav`/`.mp4`) and `assemble-long assemble --audio cut.m4a` take that file as it is.
+
 ## transcribe
 
 ```

@@ -22,6 +22,7 @@
 //   --extra-fillers a,b more filler words to cut
 // apply options
 //   --crf 18  --preset superfast  --fps <n> (default: the source's)
+//   audio-only input (no video stream): cut on the sample grid, out .m4a (AAC 192k) / .mp4 audio-only / .wav (PCM)
 //
 // Exit: 0 ok, 1 refused (bad EDL), 2 cannot run (missing ffmpeg/input), 64 usage.
 import { spawnSync } from "node:child_process";
@@ -62,7 +63,7 @@ function probe(file) {
   const rFps = frac(v?.r_frame_rate), avgFps = frac(v?.avg_frame_rate);
   const fps = rFps || avgFps || 30;
   const vfr = !!(rFps && avgFps && Math.abs(rFps - avgFps) / rFps > 0.005);
-  return { duration: parseFloat(j.format.duration), fps, fpsText: rFps ? v.r_frame_rate : avgFps ? v.avg_frame_rate : "30/1", vfr, hasVideo: !!v, hasAudio: !!au, width: v?.width, height: v?.height };
+  return { duration: parseFloat(j.format.duration), fps, fpsText: rFps ? v.r_frame_rate : avgFps ? v.avg_frame_rate : "30/1", vfr, hasVideo: !!v, hasAudio: !!au, sampleRate: au ? Number(au.sample_rate) : null, width: v?.width, height: v?.height };
 }
 function vfrWarning(info, video) {
   if (info.vfr) console.error(`silence-cut: warning: ${video} has a variable frame rate (nominal ${info.fpsText}, real average differs). Cuts by time will drift against the sound by up to a few frames. Run parts/transcribe-local/normalize.mjs on the recording first, then transcribe and cut the normalized copy.`);
@@ -198,7 +199,7 @@ function plan(a) {
     note: "Review the cuts. Set \"approved\": false on any cut you want to keep, then run apply. Times are seconds in the source file.",
     source: video,
     source_duration: r3(info.duration),
-    fps: r3(info.fps),
+    fps: info.hasVideo ? r3(info.fps) : null,
     params: { mode, min_pause: minPause, keep_pause: keepPause, pad, noise, fillers: a.fillers === undefined || a.fillers === true ? "auto" : String(a.fillers), sey: !!a.sey, language, engine },
     cuts: merged,
     dropped_words: dropped,
@@ -243,7 +244,8 @@ function apply(a) {
   const info = probe(video);
   vfrWarning(info, video);
   if (Math.abs(info.duration - edl.source_duration) > 0.25) die(`video is ${info.duration}s but the EDL was made for ${edl.source_duration}s; plan again`, 1);
-  const fps = +(a.fps || info.fps);
+  // audio-only input: cut on the sample grid (48 kHz or the file's own rate), not a frame grid
+  const fps = info.hasVideo ? +(a.fps || info.fps) : (info.sampleRate || 48000);
   const snap = (t) => Math.round(t * fps) / fps;
   let keep = keepFromCuts(edl).map(([s, e]) => [snap(s), snap(e)]).filter(([s, e]) => e - s >= 1 / fps - 1e-6);
   if (!keep.length) die("the EDL keeps nothing", 1);
@@ -260,8 +262,10 @@ function apply(a) {
   f.push(`${inputs}concat=n=${keep.length}:v=${info.hasVideo ? 1 : 0}:a=${info.hasAudio ? 1 : 0}${info.hasVideo ? "[v]" : ""}${info.hasAudio ? "[a]" : ""}`);
   const args = ["-hide_banner", "-nostats", "-loglevel", "error", "-y", "-i", video, "-filter_complex", f.join(";")];
   if (info.hasVideo) args.push("-map", "[v]", "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", String(a.crf ?? 18), "-preset", String(a.preset ?? "superfast"), "-r", a.fps ? String(a.fps) : info.fpsText, "-g", String(Math.round(fps)));
-  if (info.hasAudio) args.push("-map", "[a]", "-c:a", "aac", "-b:a", "192k", "-ar", "48000");
-  args.push("-movflags", "+faststart", resolve(a.out));
+  const wavOut = /\.wav$/i.test(String(a.out));
+  if (info.hasAudio) args.push("-map", "[a]", ...(wavOut ? ["-c:a", "pcm_s16le"] : ["-c:a", "aac", "-b:a", "192k"]), "-ar", "48000");
+  if (!wavOut) args.push("-movflags", "+faststart");
+  args.push(resolve(a.out));
   const r = run("ffmpeg", args);
   if (r.status !== 0) die("ffmpeg failed:\n" + r.stderr.slice(-1500));
   const outInfo = probe(resolve(a.out));
@@ -298,7 +302,9 @@ function apply(a) {
   writeFileSync(wp, JSON.stringify({ schema: 1, language: edl.params?.language ?? null, engine: edl.params?.engine ?? null, edited: true, duration: r3(outInfo.duration), words: out }, null, 2) + "\n");
   console.log(`  retimed words: ${out.length} of ${srcWords?.length ?? 0} kept\n  words-out: ${wp}`);
   console.log(`cut: ${edl.source_duration}s -> ${r3(outInfo.duration)}s (expected ${r3(total)}s), ${keep.length} segments -> ${resolve(a.out)}`);
-  if (Math.abs(outInfo.duration - total) > DURATION_TOLERANCE_FRAMES / fps) die(`output duration ${r3(outInfo.duration)}s differs from expected ${r3(total)}s by more than ${DURATION_TOLERANCE_FRAMES} frames (${r3(DURATION_TOLERANCE_FRAMES / fps)}s)`, 1);
+  // audio-only: AAC adds ~21 ms of encoder padding, so its tolerance is 30 ms; WAV is exact to 2 samples
+  const tol = info.hasVideo ? DURATION_TOLERANCE_FRAMES / fps : /\.wav$/i.test(String(a.out)) ? DURATION_TOLERANCE_FRAMES / fps : 0.03;
+  if (Math.abs(outInfo.duration - total) > tol) die(`output duration ${r3(outInfo.duration)}s differs from expected ${r3(total)}s by more than ${r3(tol)}s`, 1);
 }
 
 const [cmd, ...rest] = process.argv.slice(2);

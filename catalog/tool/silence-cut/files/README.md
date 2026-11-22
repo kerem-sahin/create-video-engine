@@ -18,3 +18,5 @@ node parts/silence-cut/silence-cut.mjs apply --edl edl.json --out cut.mp4 [--wor
 - Dead air that is not digital silence (room noise louder than the threshold) is not cut unless `--noise` is raised or `--word-gaps` is on.
 - An EDL belongs to one video: `apply` refuses a video whose length differs from the plan.
 - `apply` uses the words embedded in the EDL. Edited the words file after `plan` (a corrected word)? Pass `--words <file>`: that file is retimed instead, and a warning says if it differs from the embedded copy. Without `--words`, apply says that edits made after plan are ignored. Words marked `"unsure": true` keep the mark.
+
+- Audio-only input (a podcast m4a/wav, no video stream) works: `apply` cuts on the sample grid instead of the frame grid, writes `--out cut.m4a` (AAC 192k), `cut.wav` (PCM) or an audio-only `.mp4`, and retimes the words the same way. The EDL has `fps: null`. The length check allows 30 ms for AAC encoder padding (2 samples for WAV).

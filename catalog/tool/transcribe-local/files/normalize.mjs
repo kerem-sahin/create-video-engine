@@ -19,10 +19,14 @@
 // It then MEASURES the result and refuses (exit 1) if it is not what it claims: constant timestamp step, no rotation
 // flag, audio and picture the same length (within one frame), frame count = duration x fps. The numbers go to
 // <out>.normalize.json and the screen, including the source's own jitter, so the claim "it was VFR" is a measurement.
+// Audio-only input (a podcast m4a): no picture is invented. The working file is audio: `.m4a` (AAC 192k, default),
+// `.wav` (16-bit PCM) when --out says so, or an audio-only `.mp4`/`.mov` (AAC, no video track) when --out says that.
+// 48 kHz, channels kept (mono stays mono), first sample at 0 (a late start is padded with silence). Measured and
+// reported: duration, sample rate, channels, start time, integrated loudness (LUFS), true peak; `problems` lists any miss.
 // Exit: 0 ok, 1 result failed its own check, 2 cannot run, 64 usage.
 import { spawnSync } from "node:child_process";
 import { existsSync, writeFileSync, mkdirSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { dirname, extname, resolve } from "node:path";
 
 const r3 = (x) => Math.round(x * 1000) / 1000;
 function parseArgs(argv) {
@@ -62,6 +66,60 @@ function timestampStats(file) {
   return { n: t.length, minStep: sorted[0], maxStep: sorted[sorted.length - 1], median: sorted[Math.floor(sorted.length / 2)], first: t[0], last: t[t.length - 1] };
 }
 
+function measureLoudness(file) {
+  const r = run("ffmpeg", ["-hide_banner", "-nostdin", "-nostats", "-i", file, "-vn", "-af", "ebur128=peak=true:framelog=quiet", "-f", "null", "-"]);
+  const sum = r.stderr.slice(Math.max(0, r.stderr.lastIndexOf("Integrated loudness:")));
+  const num = (re) => { const m = sum.match(re); return m ? (m[1] === "-inf" ? -120 : +m[1]) : NaN; };
+  const i = num(/\bI:\s+(-?[\d.]+|-inf) LUFS/), tp = num(/Peak:\s+(-?[\d.]+|-inf) dBFS/);
+  return { lufs: isFinite(i) ? i : null, true_peak_db: isFinite(tp) ? tp : null };
+}
+
+function normalizeAudio(a, p, src, out) {
+  const ext = extname(out).toLowerCase();
+  if (![".m4a", ".wav", ".mp4", ".mov"].includes(ext)) die(`audio-only input: --out must end in .m4a, .wav, .mp4 or .mov (got "${ext}")`, 64);
+  const wav = ext === ".wav", asVideoContainer = ext === ".mp4" || ext === ".mov";
+  const channels = Number(p.au.channels) || 0;
+  if (!(channels >= 1)) die("cannot read the channel count");
+  const sstart = parseFloat(p.au.start_time) || 0;
+  const sdur = parseFloat(p.au.duration) || (parseFloat(p.format.duration) - sstart);
+  if (!(sdur > 0)) die("cannot read the audio duration");
+  const expected = sstart + sdur;   // a late start is padded, so the file keeps the source's end time
+  const args = ["-hide_banner", "-nostdin", "-nostats", "-loglevel", "error", "-y", "-i", src, "-map", "0:a:0", "-vn", "-map_metadata", "-1",
+    "-af", (sstart > 0.001 ? `adelay=${Math.round(sstart * 1000)}:all=1,` : "") + "aresample=48000:first_pts=0", "-ar", "48000", "-ac", String(channels)];
+  if (wav) args.push("-c:a", "pcm_s16le"); else args.push("-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart");
+  args.push(out);
+  mkdirSync(dirname(out), { recursive: true });
+  const t0 = Date.now();
+  const r = run("ffmpeg", args);
+  if (r.status !== 0) die("ffmpeg failed:\n" + r.stderr.slice(-1500));
+  const secs = (Date.now() - t0) / 1000;
+
+  const q = probe(out);
+  const problems = [];
+  if (!q.au) problems.push("output has no audio stream");
+  if (q.v) problems.push("output has a video stream");
+  const od = q.au ? (parseFloat(q.au.duration) || parseFloat(q.format.duration)) : NaN;
+  const ostart = q.au ? parseFloat(q.au.start_time || 0) : NaN;
+  const loud = q.au ? measureLoudness(out) : { lufs: null, true_peak_db: null };
+  if (q.au) {
+    if (!isFinite(od) || Math.abs(od - expected) > 0.05) problems.push(`duration ${r3(od)} s, expected ${r3(expected)} s`);
+    if (Math.abs(ostart) > 0.02) problems.push(`audio starts at ${r3(ostart)} s`);
+    if (Number(q.au.sample_rate) !== 48000) problems.push(`sample rate ${q.au.sample_rate}`);
+    if (Number(q.au.channels) !== channels) problems.push(`${q.au.channels} channels, source has ${channels}`);
+    if (loud.lufs === null) problems.push("loudness could not be measured");
+  }
+  const report = {
+    schema: 1, mode: "audio", source: src, out, container: wav ? "wav" : asVideoContainer ? "audio-only " + ext.slice(1) : "m4a", seconds_to_make: r3(secs),
+    source_info: { codec: p.au.codec_name, sample_rate: Number(p.au.sample_rate), channels, start_time: r3(sstart), duration: r3(sdur) },
+    result: { codec: q.au?.codec_name ?? null, sample_rate: q.au ? Number(q.au.sample_rate) : null, channels: q.au ? Number(q.au.channels) : null, start_time: isFinite(ostart) ? r3(ostart) : null, duration: isFinite(od) ? r3(od) : null, lufs: loud.lufs, true_peak_db: loud.true_peak_db, video_streams: q.v ? 1 : 0 },
+    problems,
+  };
+  writeFileSync(out + ".normalize.json", JSON.stringify(report, null, 2) + "\n");
+  console.log(`normalize: audio-only source (${p.au.codec_name}, ${p.au.sample_rate} Hz, ${channels} ch, starts at ${report.source_info.start_time} s)`);
+  console.log(`  -> ${report.container}${asVideoContainer ? " (no picture)" : ""}, ${report.result.sample_rate} Hz, ${report.result.channels} ch, ${report.result.duration} s, start ${report.result.start_time} s, ${report.result.lufs} LUFS (peak ${report.result.true_peak_db} dBFS), ${r3(secs)}s to make -> ${out}`);
+  if (problems.length) { console.error("normalize: the result failed its own check:\n  " + problems.join("\n  ")); process.exit(1); }
+}
+
 function main() {
   const a = parseArgs(process.argv.slice(2));
   const input = a._[0];
@@ -76,7 +134,10 @@ function main() {
   if (!isFinite(maxSide) || maxSide < 0) die("--max-side must be a number", 64);
 
   const p = probe(src);
-  if (!p.v) die("the file has no video stream");
+  if (!p.v) {
+    if (!p.au) die("the file has neither a video nor an audio stream");
+    return normalizeAudio(a, p, src, out);
+  }
   const vdur = parseFloat(p.v.duration) || parseFloat(p.format.duration);
   if (!(vdur > 0)) die("cannot read the video duration");
   const srcJitter = timestampStats(src);
