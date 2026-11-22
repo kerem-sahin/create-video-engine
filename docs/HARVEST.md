@@ -45,3 +45,9 @@ Rule for all rows: from MIT/Apache repos we take ideas and write our own code un
 ## Real part harvest (19 November, requirement G7)
 
 22 repos + the HyperFrames registry (210 blocks, 238 components) inspected; licences read from LICENSE files. 106 draft cards in `catalog-drafts/` (talking-head 38, explainer 48, launch 20), each with a decision; summaries in each folder's `SUMMARY.md`. Decisions: install 59, idea 23, link-only 6, skip 18. Key sources: herk-edit-kit (MIT, the only talking-head kit built on HyperFrames; its AIS brand assets are excluded), ffmpeg-skill (MIT, local transcription and silence cut), HyperFrames registry (Apache-2.0), hyperframes-launches (Apache-2.0, logos/media excluded by NOTICE), Barty-Bart sound effects (CC0). Drafts are not yet in `catalog/`: each install card still needs a test on 0.9.67 before it becomes a part.
+
+## Aday: yerel Türkçe sentetik ses (22 Kasım, Kerem'in önerisi)
+
+`alexturkey/voxcpm2-turkce-ses-tasarimi`, Apache-2.0, ~490 yıldız, aktif. VoxCPM2 + yamalı audio.cpp. Tariften ses tasarlar, metni o sesle okur (30 dil). Türkçe telaffuz sözlüğü var. **Kelime zamanlarını kendisi verir** (`kelimeler.json`, CTC'ye göre %90), aynı seed aynı sesi üretir. Klonlama yalnız izinle. Mac'te Metal ile çalışır: 2,8 GB model, ~5,3 GB RAM, M4'te 1 sn ses için ~2 sn işlem. 8 GB M1'de resmi olarak denenmemiş, yalnız bir kullanıcı raporu var.
+
+Bizdeki yeri: "sentetik ses" için ücretsiz ve yerel parça (`voice-design`), ücretli seslendirmenin ücretsiz yedeği. Üç kullanım: ürün ve fotoğraf videolarına anlatıcı; kaydı olmayan biri için metinden sesli video; altyazı zamanı whisper'sız ve hatasız (metin zaten biliniyor). Kendi kurulumu var (Python + cmake + model). Kart `how: "installer"` olur, kodu kopyalanmaz. Sesten video çekirdeği bitince ele alınacak. 8 GB Mac'te önce ölçülecek.
