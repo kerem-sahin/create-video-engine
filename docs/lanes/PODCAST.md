@@ -88,3 +88,7 @@ Eksikler (sistem, sonraki tur):
 - Ses modunda `--chapters` → `chapters.txt`.
 - `slice` komutu: bölümden kesit; kelime bölünmez, cümle başına/sonuna yaslanır, ses + metin + konuşmacı + sahne kesitin saatine taşınır, sessiz kesit hata verir. Tarifin 8. adımı buna bağlandı.
 - `add`'in yanlış "hyperframes bulunamadı" uyarısı: kartta araç adının yanındaki açıklama ad sanılıyordu; düzeltildi.
+
+### T1 kararı (Kerem, 22 Kasım): "güzel ama yayınlamam"
+
+Yalnız site + kapakla bu kadarı iyi bulundu; yayın kalitesi değil. Sebepler (hepsi): altyazı hataları çok; görseller hikâyeyi anlatmıyor (konuşulan şey ekranda yok); hep aynı görüntü; ucuz/amatör duruyor; "biz yokuz" (G-1/G-2 soğuk, sunucuların karakteri yok). T2'ye geçmeden önce bunlar çözülür; denemeler 10 dk yerine 1–2 dk'lık parçada yapılır.
