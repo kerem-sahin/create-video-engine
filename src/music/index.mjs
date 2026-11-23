@@ -40,25 +40,36 @@ function parseArgs(argv) {
 }
 
 const readJson = (p, fallback) => { try { return JSON.parse(readFileSync(p, 'utf8')); } catch { return fallback; } };
+// a used list that exists but cannot be read must not be silently replaced (the brand's history would be lost)
+function readUsed(p) {
+  if (!existsSync(p)) return { tracks: [] };
+  const j = readJson(p, null);
+  if (!j || !Array.isArray(j.tracks ?? [])) throw new Error(`${p} exists but is not a used-tracks list; fix or move it`);
+  return { ...j, tracks: j.tracks ?? [] };
+}
 const creditLine = (c) => `- "${c.title}" by ${c.creator} | licence: ${c.licence} | source: ${c.source} | ${c.attribution.replace(/\s+/g, ' ')}\n`;
+// one music credit per video: a new pick replaces the old music line instead of piling up
 function appendCredit(dir, credit) {
   const f = join(dir, 'CREDITS.md');
-  if (!existsSync(f)) writeFileSync(f, '# Credits\n\n');
-  appendFileSync(f, creditLine(credit));
+  const line = creditLine(credit);
+  let text = existsSync(f) ? readFileSync(f, 'utf8') : '# Credits\n\n';
+  text = text.split('\n').filter((l) => !l.startsWith('- [music] ')).join('\n');
+  if (!text.endsWith('\n')) text += '\n';
+  writeFileSync(f, text + '- [music] ' + line.slice(2));
 }
 const say = (args, obj, text) => process.stdout.write(args.json ? `${JSON.stringify(obj, null, 2)}\n` : text);
 
 async function findCmd(args, fetchFn, dir) {
   const candDir = join(dir, 'assets', 'music', 'candidates');
-  const used = args.used ? readJson(resolve(args.used), { tracks: [] }) : { tracks: [] };
+  const used = args.used ? readUsed(resolve(args.used)) : { tracks: [] };
   const usedIds = new Set((used.tracks ?? []).map((t) => t.id));
+  rmSync(candDir, { recursive: true, force: true });  // never leave an older search's candidates to be picked
   let found;
   try { found = await findCandidates(fetchFn, args.mood, args.duration); } catch (e) { process.stderr.write(`music: Openverse could not be reached (${e?.message ?? e}). Deliver without music or ask the person for a track.\n`); return 1; }
   const fresh = found.ranked.filter((r) => !usedIds.has(r.id ?? r.url));
   const tmp = mkdtempSync(join(tmpdir(), 'cve-music-'));
   const list = [];
   try {
-    rmSync(candDir, { recursive: true, force: true });
     mkdirSync(candDir, { recursive: true });
     for (const r of fresh) {
       if (list.length >= args.candidates) break;
@@ -70,8 +81,10 @@ async function findCmd(args, fetchFn, dir) {
         const wav = join(candDir, `${n}.wav`);
         if (await finalize(raw, wav, args.duration)) continue;
         const preview = join(candDir, `${n}-preview.mp3`);
-        await run('ffmpeg', ['-hide_banner', '-nostdin', '-v', 'error', '-y', '-i', wav, '-t', String(Math.min(10, args.duration)), '-af', 'afade=t=out:st=9:d=1', '-c:a', 'libmp3lame', '-q:a', '4', preview], { timeout: 60000 });
-        list.push({ n, id: r.id ?? r.url, file: wav, preview: existsSync(preview) ? preview : null, credit: creditFor(r) });
+        const pr = await run('ffmpeg', ['-hide_banner', '-nostdin', '-v', 'error', '-y', '-i', wav, '-t', String(Math.min(10, args.duration)), '-af', 'afade=t=out:st=9:d=1', '-c:a', 'libmp3lame', '-q:a', '4', preview], { timeout: 60000 });
+        const previewOk = pr.code === 0 && existsSync(preview);
+        if (!previewOk) { rmSync(preview, { force: true }); process.stderr.write(`music: no preview for candidate ${n} (ffmpeg: ${(pr.stderr || '').trim().split('\n').pop() || 'failed'}); let the person listen to ${wav}\n`); }
+        list.push({ n, id: r.id ?? r.url, file: wav, preview: previewOk ? preview : null, credit: creditFor(r) });
       } catch { /* next */ }
     }
   } finally { rmSync(tmp, { recursive: true, force: true }); }
@@ -95,7 +108,7 @@ function pickCmd(args, dir) {
   copyFileSync(c.file, dest);
   appendCredit(dir, c.credit);
   if (args.used) {
-    const p = resolve(args.used); const used = readJson(p, { tracks: [] });
+    const p = resolve(args.used); const used = readUsed(p);
     used.tracks = [...(used.tracks ?? []), { id: c.id, title: c.credit.title, date: new Date().toISOString().slice(0, 10), video: dir }];
     mkdirSync(dirname(p), { recursive: true });
     writeFileSync(p, `${JSON.stringify(used, null, 2)}\n`);

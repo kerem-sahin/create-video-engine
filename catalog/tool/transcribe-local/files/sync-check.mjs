@@ -29,6 +29,7 @@ export function matchWords(a, b) {
 }
 
 export function syncStats(expected, heard, offset = 0) {
+  heard = heard.filter((x) => x && typeof x.w === "string" && Number.isFinite(x.start));
   const pairs = matchWords(expected, heard).filter(([i]) => norm(expected[i].w).length >= 3);
   const d = pairs.map(([i, j]) => ({ w: expected[i].w, at: expected[i].start, shift: heard[j].start - offset - expected[i].start }));
   const abs = d.map((x) => Math.abs(x.shift)).sort((x, y) => x - y);
@@ -47,26 +48,31 @@ export function syncStats(expected, heard, offset = 0) {
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
   const argv = process.argv.slice(2), a = { _: [] };
-  for (let i = 0; i < argv.length; i++) { const t = argv[i]; if (t.startsWith("--")) { const v = argv[i + 1]; if (v === undefined || v.startsWith("--")) a[t.slice(2)] = true; else { a[t.slice(2)] = v; i++; } } else a._.push(t); }
-  const die = (m, c = 2) => { console.error("sync-check: " + m); process.exit(c); };
+  for (let i = 0; i < argv.length; i++) { const t = argv[i]; if (t === "--json") a.json = true; else if (t.startsWith("--")) { const v = argv[i + 1]; if (v === undefined || v.startsWith("--")) a[t.slice(2)] = true; else { a[t.slice(2)] = v; i++; } } else a._.push(t); }
+  let tmp = null;
+  const die = (m, c = 2) => { console.error("sync-check: " + m); if (tmp) rmSync(tmp, { recursive: true, force: true }); process.exit(c); };
+  if (a.offset !== undefined && !Number.isFinite(Number(a.offset))) die("--offset must be a number of seconds", 64);
   if (!a._[0] || typeof a.words !== "string" || typeof a.language !== "string") die("usage: sync-check.mjs <audio-or-video> --words words.json --language <code> [--model medium] [--offset 0] [--json]", 64);
   const media = resolve(a._[0]), wordsPath = resolve(a.words);
   for (const f of [media, wordsPath]) if (!existsSync(f)) die(`no such file: ${f}`);
-  const expected = (JSON.parse(readFileSync(wordsPath, "utf8")).words ?? []).filter((x) => x && typeof x.w === "string" && Number.isFinite(x.start));
+  let expected;
+  try { expected = (JSON.parse(readFileSync(wordsPath, "utf8")).words ?? []).filter((x) => x && typeof x.w === "string" && Number.isFinite(x.start)); } catch (e) { die(`cannot read ${wordsPath}: ${e.message}`); }
   if (!expected.length) die("words.json has no words", 64);
-  const tmp = mkdtempSync(join(tmpdir(), "sync-check-"));
+  tmp = mkdtempSync(join(tmpdir(), "sync-check-"));
   try {
     const out = join(tmp, "heard.json");
     const model = typeof a.model === "string" ? a.model : "medium";
     const r = spawnSync(process.execPath, [join(dirname(fileURLToPath(import.meta.url)), "transcribe.mjs"), media, "--language", a.language, "--model", model, "--out", out, ...(typeof a.hf === "string" ? ["--hf", a.hf] : [])], { encoding: "utf8" });
     if (r.status !== 0 || !existsSync(out)) die("could not transcribe the file again: " + (r.stderr || r.stdout || "").trim().split("\n").slice(-2).join(" | "));
-    const heard = JSON.parse(readFileSync(out, "utf8")).words;
+    let heard;
+    try { heard = JSON.parse(readFileSync(out, "utf8")).words; } catch (e) { die(`the new transcript is unreadable: ${e.message}`); }
+    if (!Array.isArray(heard) || !heard.length) die("the new transcript has no words (silent file?)");
     const s = syncStats(expected, heard, Number(a.offset ?? 0) || 0);
     if (a.json) console.log(JSON.stringify(s, null, 2));
     else {
       console.log(`sync-check: ${s.matched} of ${s.counted} words matched; median shift ${s.median_shift} s, 90% within ${s.p90_abs_shift} s (heard again with ${model})`);
       for (const w of s.worst) console.log(`  "${w.w}" at ${w.at} s: heard ${w.shift > 0 ? "+" : ""}${w.shift} s`);
     }
-    if (s.problems.length) { console.error("sync-check: OUT OF STEP:\n  " + s.problems.join("\n  ") + "\n  Transcribe the clip itself with --model medium (or larger) and rebuild captions and picture timings from that file."); process.exit(1); }
+    if (s.problems.length) { console.error("sync-check: OUT OF STEP:\n  " + s.problems.join("\n  ") + "\n  Transcribe the clip itself with --model medium (or larger) and rebuild captions and picture timings from that file."); process.exitCode = 1; }
   } finally { rmSync(tmp, { recursive: true, force: true }); }
 }
