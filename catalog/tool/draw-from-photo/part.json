@@ -1,0 +1,25 @@
+{
+  "schema": 2,
+  "id": "draw-from-photo",
+  "kind": "tool",
+  "title": "Draw a real thing in the brand's ink, from a real photo",
+  "what_it_does": "find: searches Wikimedia Commons for photos of a named thing that may be reused (CC0, public domain or CC BY; never ShareAlike, non-commercial or no-derivatives), downloads a few previews and writes each one's credit. ink: cuts the main subject out of a photo (the person's own or a picked one) with Apple Vision and draws it as ink lines on the brand's paper colour, as a transparent PNG at the size it will be shown; keeps it in the brand's drawing library and writes the credit line.",
+  "when_to_use": "When a video names a specific real thing (a car model, a building, an instrument, a product) and a hand-drawn generic one would not be recognised. Draw it once, keep it in brands/<brand>/library/, reuse it. Not for people or faces, not for logos or trademarks shown as the brand's own, not when the person has their own photo of it (use theirs).",
+  "lanes": ["podcast"],
+  "source": { "repo": "create-video-engine", "url": "https://github.com/OWNER/create-video-engine", "ref": null, "licence": "own", "assets_licence": null, "how": "own code" },
+  "attribution": null,
+  "builtin": false,
+  "registry": null,
+  "files": [
+    { "from": "files/draw-from-photo.mjs", "to": "parts/draw-from-photo/draw-from-photo.mjs" },
+    { "from": "files/ink.swift", "to": "parts/draw-from-photo/ink.swift" }
+  ],
+  "docs": "files/README.md",
+  "requires": [],
+  "needs": ["swiftc"],
+  "paid_api": null,
+  "verified_with": { "hyperframes": "0.9.67", "date": "2026-11-23" },
+  "example": null,
+  "requirements": ["V1"],
+  "notes": "ink runs on macOS 14+ only (Vision + Core Image, local, free; compiled once with swiftc from the Xcode command line tools). Elsewhere it says so and the agent draws by hand from the photo. find uses the public Commons API without an account and waits when asked to slow down (HTTP 429)."
+}

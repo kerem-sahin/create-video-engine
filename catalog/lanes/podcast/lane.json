@@ -10,6 +10,7 @@
     "transcribe-local",
     "speakers",
     "moments",
+    "draw-from-photo",
     "assemble-long"
   ],
   "recipe": "recipe.md"

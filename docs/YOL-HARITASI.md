@@ -78,3 +78,19 @@ Ajanların ortak skill sorunları (düzeltilecek):
 - 9:16 güvenli alan sayıları make, vertical.md ve verify arasında çelişiyor.
 - Podcast hattı yok; captions "?" düşürüyor; yazıya dökme düzeltme akışının komutu yok; verify ses ölçümü ajanın kendi ölçümüyle tutmadı.
 - Kişiye sorulamadığında "taslağı göster" adımının karşılığı yazılı değil; yeni stüdyoda hat listesi boş başlıyor.
+
+## Sıradaki iş (23 Kasım, Kerem: "nasıl ilerlememiz lazımsa ayarla")
+
+Çizim tek darboğaz değil; vizyonun her ayağı sırayla ilerler. Sıra:
+
+1. **Podcast kesiti "yayınlarım"a kadar** (2. ve 3. aşama): fotoğraftan mürekkep çizim + kanalın çizim kütüphanesi (çizilen her şey saklanır, onaylanır, tekrar kullanılır), tek el kuralı (karakterler ve nesneler aynı çizgi ve detayda), güçlü kanca (ilk 2 saniye). Sonra aynı bölümden ikinci bir kesit: kütüphane gerçekten işe yarıyor mu.
+2. **Tanıtım videosu yeniden** (2. ve 4. aşama): yeni müzik akışıyla; Kerem adaylardan seçer. brag'i geçmeden duyuru yok.
+3. **Reels gerçek malzemeyle** (2. aşama): Kerem'den gerçek bir yerin/ürünün fotoğrafları istenir; anlamsız malzemeyle test yapılmaz.
+4. **Uzun video** (seviye maddesi): podcast bölümünün tamamı; kesit akışının uzun hâli, hızlı taslak yolu.
+5. **Üç farklı kişi** (seviye maddesi): üç farklı marka/kanal kurulur, videolar yan yana konur; birbirine benziyorsa sistem kurulumda yeterince öğrenmiyor demektir.
+6. **Büyüme** (5. aşama): aynı kanalda 3–5 video, defter ve kütüphaneyle düzeltme sayısı düşüyor mu (ledger sayar).
+7. **Dış kullanıcı** (5. aşama): biri sıfırdan, yardımsız kurar.
+8. **Türkçe sentetik ses** (4. aşama, isteğe bağlı): VoxCPM2 8 GB'ta ölçülür.
+9. **Duyuru** (6. aşama): yalnız Kerem "gerçekten işe yarıyor" deyince; repo tasarımı ve npm güncellemesi o zaman.
+
+Her adım hangi ayağı ya da seviye maddesini ilerlettiğini söyler; söyleyemiyorsa yapılmaz.

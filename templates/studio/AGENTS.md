@@ -17,6 +17,7 @@ One person, many brands; each brand has its own taste. You are the agent that se
 - `brands/<brand>/taste/NOTEBOOK.md`: the person's taste, learned from them: liked, not liked, never, mechanisms from their reference videos, scenes worth reusing, lessons. Read it before every video.
 - `brands/<brand>/taste/ledger.json`: what each past video used and how many corrections it needed.
 - `brands/<brand>/taste/examples/`: approved, rejected and reference frames with a one-line reason.
+- `brands/<brand>/library/`: the brand's own drawings (characters, recurring things), each in `library.json` with its source and whether the person approved it. Reuse before you draw again.
 - `brands/<brand>/videos/<slug>/`: one HyperFrames project per video.
 
 ## Golden rules

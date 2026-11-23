@@ -3,3 +3,4 @@ node_modules/
 .DS_Store
 brands/*/videos/*/out/*.mp4
 renders/
+.bin/

@@ -15,6 +15,7 @@ Sort each piece:
 - **Liked** → `NOTEBOOK.md` → `Liked`, with the frame. A music track they picked or praised goes there too (title, source, what they said), so the next video can start from it. Approval is a lesson: if they posted it or said "this is us", write down exactly what "this" was.
 - **Not liked** → `Not liked`, with the frame; if it is a thing they never want again, propose a `Never` line.
 - **A rule for the brand** (pace, colour use, type, motion, voice, sound) → a change to `STYLE.md` or a `Never` line.
+- **A drawing** (a character, a car, a building): approved when they post the video or say it is right → `approved: true` in `brands/<brand>/library/library.json`; disliked → note why in the entry and in `Not liked`, and draw it again next time. An approved drawing is reused as it is.
 - **A fix for this video only** (typo, wrong screenshot) → fix the video; no rule.
 - **A missing capability** ("I want captions too") → `npx create-video-engine add <part>` or `add lane:<id>` after their yes (`catalog list` first).
 

@@ -37,13 +37,14 @@ Copy only the assets you use into `<dir>/assets/`. Fonts the brand uses go to `a
 ### Creative laws
 
 - **The hook is everything.** The first two seconds decide whether anyone keeps watching. Design them first. Frame 0 is the thumbnail: the subject and the hook line are already on screen.
-- **Show the real thing.** The person's real screens, components, photos, footage, voice, fonts. Reuse before you rebuild; the working product doing its job beats a page describing it. Never a mock-up or stock you invented, never abstract filler.
+- **Show the real thing.** The person's real screens, components, photos, footage, voice, fonts. Reuse before you rebuild; the working product doing its job beats a page describing it. Never a mock-up or stock you invented, never abstract filler. A named real thing (a car model, a building, an instrument) must be recognisable as that thing: take it from `brands/<brand>/library/` (approved drawings first), else draw it from a real photo (`draw-from-photo`, or the person's own photo), never from memory in a few strokes.
 - **One story, told by the picture.** Every shot shows what the words say at that moment. If a shot could sit in anyone's video, it is not done yet.
 - **Specific.** It must feel made for this exact brand: its own words, claims, behaviour and signature. No generic marketing language.
 - **Alive.** Things arrive one by one, the product is used (taps, typing, scrolling), the camera moves with purpose. Nothing sits still as a slide.
 - **Design the joins.** Each beat grows out of the previous one: an element carried across the cut, a shape that becomes the next frame, a movement that continues. A hard cut is fine when it is a choice.
 - **Readable.** A line meant to be read stays fully settled about 0.3 s per word (at least 1 s), counted from when it is complete. Pace comes from motion and cuts, not from pulling text away early.
 - **Every frame postable.** Any frozen frame should be worth sharing.
+- **One hand.** Everything drawn in a video looks drawn by the same hand: the same line weight, the same amount of detail. A traced, detailed object next to stick figures is two videos glued together; raise the simple ones or simplify the detailed one.
 
 ### Hard limits (the only rules that are not yours to judge)
 
@@ -90,7 +91,7 @@ Write them as you build; they let verify check what the eye might miss:
 `npx hyperframes render <dir> --quality delivery -o <dir>/renders/<slug>.mp4` and verify it. Only a file that passed verify is delivered.
 
 - `<dir>/share-copy.txt`: 1–3 sentences, postable as-is, specific, in the brand's voice and the person's language; any CC BY credit at the end.
-- Append to `taste/ledger.json` `videos`: `{ "slug", "lane", "date", "aspect", "length", "structure": [...], "transitions": [...], "music": <title and source, or null>, "verified": true, "feedback": null }`.
+- Append to `taste/ledger.json` `videos`: `{ "slug", "lane", "date", "aspect", "length", "structure": [...], "transitions": [...], "music": <title and source, or null>, "drawings": [<library names used>], "verified": true, "feedback": null }`. Add this video's slug to each used drawing's `used_in` in `library.json`. Copy each used drawing's `credit` line from `library.json` into `<dir>/CREDITS.md`; a CC BY credit also goes at the end of `share-copy.txt`.
 - Tell the person: the file, the share copy, one line on the idea, what verify measured, the moments to watch. Ask three things: would you post it as it is; if not, the one thing to change; what did you like. Their answers go to the `learn` skill.
 
 Never call the video great, cinematic or stunning. Say what it is and what was checked.
