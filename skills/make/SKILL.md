@@ -50,8 +50,8 @@ Copy only the assets you use into `<dir>/assets/`. Fonts the brand uses go to `a
 - Every number, name, price and claim on screen comes from the person or their material.
 - No personal data, no real people's names or faces, nothing showing other people, unless the person gave it for this video.
 - Only material they own or that is licensed for it (CC0/CC BY with credit; never NC/SA/ND, never MusicGen weights).
-- Text at least `format.min_text_px`; at 9:16 text and the call to action stay out of the top 270 px, the bottom 420 px and the right 130 px (the subject may run under them).
-- Audio −16 LUFS ±1, true peak ≤ −1 dBTP.
+- Text at least `format.min_text_px`; at 9:16 text and the call to action stay out of the top 270 px, the bottom 420 px and the right 130 px (the subject may run under them). These numbers win over HyperFrames' `vertical.md` band.
+- Audio −16 LUFS ±1, true peak ≤ −1 dBTP, measured by verify on the rendered file (HyperFrames' mix changes the level, so measuring the source file is not enough).
 
 ### Defaults to avoid
 
@@ -67,6 +67,12 @@ You cannot hear; the person can. So the person picks the music.
 3. Nobody to ask, no network, or nothing fitting: deliver **without music** and say so. Never put an unheard track under a video. `music --score <cues.json>` (music composed in code) only if the person asks for it.
 4. Cut the edit to the track's beats. Effects only with a visible cause (a tap, a stamp), a few kinds, quiet under the music. In a speech-led video the voice is the sound; music only under it, ducked. `music: none` means silent.
 
+### Two small files for verify
+
+Write them as you build; they let verify check what the eye might miss:
+- `<dir>/shots.json`: `{ "shots": [ { "start": 0, "end": 2.5, "transition_out": "carry: map pin" }, { "start": 2.5, "end": 6 } ], "structure": [ "hook: map on frame 0", "walk-through", "end card" ] }`. verify compares cuts with it and with the last video in the ledger (the same transitions or structure again is a warning).
+- `<dir>/cues.json`, only when the edit is cut to a track's beat: `{ "bpm": 96 }` (beat 0 = the first frame). verify then checks the cuts against that grid.
+
 ## 4. Look, then a fast draft
 
 **Look before rendering.** `npx hyperframes snapshot <dir> --at <every shot start, every transition midpoint, the moment each line settles> -o <dir>/snapshots` takes seconds. Look at every still as a stranger would: what does it say, is anything cut off, colliding, unreadable, empty, generic? Fix and snapshot again until every still is worth posting.
@@ -75,7 +81,7 @@ You cannot hear; the person can. So the person picks the music.
 
 **Fresh critic.** Follow the `verify` skill: a sub-agent that has not seen the code looks at the frames with the brief and the person's dislikes and says what a stranger would see. Fix every P0 and re-check.
 
-**Show the draft.** Give the person the draft, three or four stills and the `MOMENTS` from verify, and ask for one note.
+**Show the draft.** Give the person the draft, three or four stills, the music candidates and the `MOMENTS` from verify, and ask for one note. If nobody can be asked (AGENTS rule 9), go on without music, render the final, and say in the hand-over that no one saw the draft.
 
 **Keep the loop short.** Check every change with `snapshot` at the moments it touches (a few seconds), not with a render. Render a draft only when you are about to show it (on an M1 a 15 s draft takes about 30 s; `--fps 15` saves a little; `--start/--end` does not save time). Footage-heavy and long videos have their own fast path in the recipe.
 
