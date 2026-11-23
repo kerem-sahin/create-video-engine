@@ -46,7 +46,7 @@ One person, many brands; each brand has its own taste. You are the agent that se
 - `npx create-video-engine verify <project> --mp4 <file>`: verify a render.
 - `npx create-video-engine refs <video> --out <dir>`: analyse a reference video.
 - `npx create-video-engine crop <image> --auto --out <file>`: cut a store screenshot down to the real app screen.
-- `npx create-video-engine music --mood "<words>" --duration <s> --out <dir> --used brands/<slug>/music-used.json`: find a recorded CC0/CC BY track by feel, skipping tracks the brand already used (the person's own track comes first).
+- `npx create-video-engine music --mood "<words>" --duration <s> --out <dir> --used brands/<slug>/music-used.json`: up to three recorded CC0/CC BY candidates with 10 s previews for the person to pick; `music --pick <n> --out <dir>` makes the choice the track. The person's own track comes first; with nobody to pick, no music.
 - `npx create-video-engine add <part-id>|lane:<id>`: install a part or a whole lane (recipe included); `remove` undoes it; `catalog list [--lane <id>] [--json]`: what can be added.
 - `npx create-video-engine upgrade [--dry-run]`: take the new version's skills, recipes and parts; files you edited are backed up as `<file>.bak-<date>` (skills, recipes) or kept (parts) and listed.
 - `npx hyperframes <command>`: the render engine (pinned version in `studio.json`).

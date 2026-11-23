@@ -13,8 +13,10 @@ Commands:
   verify <project> [--mp4 <file>] [--json] [--no-hf-check]
                                                     verify a video before delivery
   refs <video-file> --out <dir> [--json]            analyse a reference video
-  music --mood "<words>" --duration <s> --out <dir> [--used <file>] [--json]
-                                                    find a recorded CC0/CC BY track by feel
+  music --mood "<words>" --duration <s> --out <dir> [--candidates 3] [--used <file>] [--json]
+                                                    up to three CC0/CC BY tracks with previews to pick from
+  music --pick <n> --out <dir> [--used <file>]      make candidate n the video's track
+  music --score <cues.json> --out <dir>             compose a bed in code (only if asked)
   crop <image> --out <file.png> [--auto] [--rect x,y,w,h] [--status-bar] [--json]
                                                     crop a store screenshot to the real app screen
   catalog check [--dir <catalog-dir>] [--json]      validate the parts catalog

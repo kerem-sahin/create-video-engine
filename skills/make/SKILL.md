@@ -60,7 +60,12 @@ a small centred item in a dark void; a centred white headline on a gradient; glo
 
 ### Sound
 
-The person's own track first (`STYLE.md` `sound.track`); otherwise `npx create-video-engine music --mood "<sound.feel>" --duration <s> --out <dir> --used brands/<brand>/music-used.json` (a recorded CC0/CC BY track, skipping ones this brand already used; on exit 1 deliver without music and say so). Cut the edit to the track's beats. Effects only with a visible cause (a tap, a stamp), a few kinds, quiet under the music. In a speech-led video the voice is the sound; music only under it, ducked. `music: none` means silent.
+You cannot hear; the person can. So the person picks the music.
+
+1. **Their own track** first (`STYLE.md` `sound.track`), or a track they liked before (`NOTEBOOK.md` → `Liked`).
+2. Otherwise find candidates: `npx create-video-engine music --mood "<sound.feel>" --duration <s> --out <dir> --used brands/<brand>/music-used.json`. It writes up to three recorded CC0/CC BY tracks fitted to the length, each with a 10 s preview (`assets/music/candidates/<n>-preview.mp3`), skipping tracks this brand already used. Give the person the previews with the draft; they pick: `music --pick <n> --out <dir> --used brands/<brand>/music-used.json` (writes `assets/music/track.wav` and the credit). Their pick and what they said about it go to the notebook.
+3. Nobody to ask, no network, or nothing fitting: deliver **without music** and say so. Never put an unheard track under a video. `music --score <cues.json>` (music composed in code) only if the person asks for it.
+4. Cut the edit to the track's beats. Effects only with a visible cause (a tap, a stamp), a few kinds, quiet under the music. In a speech-led video the voice is the sound; music only under it, ducked. `music: none` means silent.
 
 ## 4. Look, then a fast draft
 
