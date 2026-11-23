@@ -27,6 +27,10 @@
     {
       "from": "files/transcribe.mjs",
       "to": "parts/transcribe-local/transcribe.mjs"
+    },
+    {
+      "from": "files/sync-check.mjs",
+      "to": "parts/transcribe-local/sync-check.mjs"
     }
   ],
   "docs": "files/README.md",

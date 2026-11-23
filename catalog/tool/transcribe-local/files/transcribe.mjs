@@ -10,7 +10,7 @@
 //   node transcribe.mjs <audio-or-video> --language tr --out talk.words.json
 //        [--model small|medium|large-v3|small.en|...]  [--hf <path to the hyperframes binary>] [--unsure-below 0.5]
 //
-// --model is passed to whisper (default small; small.en for English). Words that may be wrong are marked "unsure": true
+// --model is passed to whisper (default medium; small.en for English: small skipped whole sentences in Turkish talk). Words that may be wrong are marked "unsure": true
 // in the output and listed on screen, so the agent asks the person what was said. A word is unsure when the engine gives
 // a probability below --unsure-below (0.5), or, because hyperframes' transcript file may carry no probabilities, when it
 // looks suspect: digits mixed with letters, 3+ letters with no vowel, a letter repeated 3 times, or a capitalised word in
@@ -120,7 +120,7 @@ function markUnsure(words, reasons, below) {
 const a = parseArgs(process.argv.slice(2));
 const input = a._[0];
 if (!input || !a.out || typeof a.language !== "string") {
-  die("usage: transcribe.mjs <audio-or-video> --language <code, e.g. tr|en> --out <words.json> [--model small]", 64);
+  die("usage: transcribe.mjs <audio-or-video> --language <code, e.g. tr|en> --out <words.json> [--model medium]", 64);
 }
 const src = resolve(input);
 if (!existsSync(src)) die(`no such file: ${src}`);
@@ -156,7 +156,7 @@ const hf = findHf();
 if (!hf) die("hyperframes is not installed here. Run this from inside the studio (npm install), or pass --hf <path>.");
 
 const lang = a.language.toLowerCase();
-const model = typeof a.model === "string" ? a.model : lang === "en" ? "small.en" : "small";
+const model = typeof a.model === "string" ? a.model : lang === "en" ? "small.en" : "medium";  // small skipped whole sentences in Turkish chat (captions 1-2.5 s early)
 const env = { ...process.env, HYPERFRAMES_TELEMETRY: "0", DO_NOT_TRACK: "1" };
 
 const tmp = mkdtempSync(join(tmpdir(), "transcribe-"));

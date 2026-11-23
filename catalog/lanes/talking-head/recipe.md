@@ -81,7 +81,7 @@ node parts/assemble-long/assemble-long.mjs assemble --video <dir>/assets/cut.mp4
 - `chapters.json`: `[{"start": 0, "title": "…"}, …]`, first at 0, at least 3, ≥ 10 s apart, titles in the person's words; it writes YouTube's `chapters.txt` next to the MP4 and a sentence-level `.srt`. Put both in the hand-over (the chapter list goes into the YouTube description, the SRT can be uploaded as subtitles).
 - Captions here are clean sentence lines shown on the words' timing (no per-word pop animation on this path).
 
-Verify it with `npx create-video-engine verify <dir> --mp4 <file> --no-composition --expect-duration <cut length> --expect-audio`.
+Verify it with `npx create-video-engine verify <dir> --mp4 <file> --no-composition --expect-duration <cut length> --expect-audio`. Then `node parts/transcribe-local/sync-check.mjs <file> --words <the words file the captions came from> --language <code>`: exit 1 means captions and cards are early or late; fix the timings before anyone sees it.
 
 ## 5. Verify
 

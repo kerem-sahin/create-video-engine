@@ -32,3 +32,9 @@ Output: `{ "schema":1, "language":"tr", "engine":"whisper:small", "aligned":true
 - Words that may be wrong are marked `"unsure": true` in the output and printed as a list (time, word, why, the words around it). The engine's probability is used when `hyperframes transcribe` passes one on (`--unsure-below`, default 0.5); otherwise a heuristic marks digits mixed with letters, 3+ letters with no vowel, a letter repeated 3 times, and a capitalised word in mid-sentence (names, which whisper often misspells). It is a heuristic, not a guarantee. The agent asks the person about every marked word; `silence-cut` keeps the mark through the cut.
 - No paid API. If the person later wants a paid engine, it would be a separate part with this one as its free fallback.
 - Not installed here: whisper-cli (brew install whisper-cpp). Not needed; HyperFrames brings its own build.
+
+## Default model and sync check
+
+The default model is `medium` for every language but English (`small.en`). On Turkish chat, `small` skipped a whole sentence and put every later caption and picture 1–2.5 s early; `medium` is a one-time ~1.5 GB download.
+
+`node parts/transcribe-local/sync-check.mjs <final.mp4 or clip audio> --words words.json --language tr` transcribes the file again and measures where each word on screen is actually heard. Exit 1 when the words are on average more than 0.25 s off, when over 10 % are off by more than 0.5 s, or when under 60 % are heard again. Run it on every speech-led video before showing it: nobody in the build can hear. `--offset` when the speech starts later in the file than at 0.

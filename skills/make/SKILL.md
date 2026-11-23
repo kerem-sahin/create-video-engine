@@ -66,7 +66,7 @@ The person's own track first (`STYLE.md` `sound.track`); otherwise `npx create-v
 
 **Look before rendering.** `npx hyperframes snapshot <dir> --at <every shot start, every transition midpoint, the moment each line settles> -o <dir>/snapshots` takes seconds. Look at every still as a stranger would: what does it say, is anything cut off, colliding, unreadable, empty, generic? Fix and snapshot again until every still is worth posting.
 
-**Draft.** `npx hyperframes render <dir> --quality draft -o <dir>/renders/draft.mp4`, then `npx create-video-engine verify <dir> --mp4 <dir>/renders/draft.mp4`. Exit 1 is a broken video (blank, frozen, wrong length, no sound, wrong loudness, a number they never gave): fix it. Warnings are questions for your eye, not orders.
+**Draft.** `npx hyperframes render <dir> --quality draft -o <dir>/renders/draft.mp4`, then `npx create-video-engine verify <dir> --mp4 <dir>/renders/draft.mp4`. Exit 1 is a broken video (blank, frozen, wrong length, no sound, wrong loudness, a number they never gave): fix it. Warnings are questions for your eye, not orders. A speech-led video also runs `node parts/transcribe-local/sync-check.mjs <draft.mp4> --words <words.json> --language <code>`: you cannot hear, so this is the only proof that captions and pictures land on the words.
 
 **Fresh critic.** Follow the `verify` skill: a sub-agent that has not seen the code looks at the frames with the brief and the person's dislikes and says what a stranger would see. Fix every P0 and re-check.
 
