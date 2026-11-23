@@ -49,7 +49,7 @@ test('pop captions: word gap is an explicit margin, not whitespace; scale never 
   assert.doesNotMatch(html, /<\/span> <span class="cap-w"/);
   assert.match(html, /\.cap-w \{[^}]*display: inline-block; margin-right: 0\.\d+em/);
   assert.match(html, /\.cap-w:last-child \{ margin-right: 0/);
-  const grow = (n) => +html.match(new RegExp(`#captions-g0-w${n}", \\{ color: "var\\(--c-ink, #fff\\)", scale: 1 \\}, \\{ color: "var\\(--c-accent, #ffd84d\\)", scale: ([\\d.]+)`))[1];
+  const grow = (n) => +html.match(new RegExp(`#captions-g0-w${n}", \\{ color: "var\\(--c-ink, #fff\\)", scale: 1 \\}, \\{ color: "var\\(--c-accent-text, var\\(--c-accent, #ffd84d\\)\\)", scale: ([\\d.]+)`))[1];
   assert.ok(grow(0) <= 1.12 && grow(1) < grow(0) && grow(1) > 1, 'longer word grows less');
   assert.ok((grow(1) - 1) * 'videoları'.length * 0.7 / 2 <= 0.13);
 });
