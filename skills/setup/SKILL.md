@@ -82,7 +82,7 @@ For the disliked video, do the same and turn what you see into concrete `Never` 
 
 Copy `skills/setup/assets/STYLE.template.md` to `brands/<slug>/taste/STYLE.md` and fill it.
 
-- **colors / typography**: only real brand values from step 2. Use the role names (`ground`, `ink`, `accent`, …). If a font isn't bundled with HyperFrames, note that it needs `@font-face` and a `.woff2` in the video's `assets/fonts/`.
+- **colors / typography**: only real brand values from step 2. Use the role names (`ground`, `ink`, `accent`, …). A website's or app's colours are made for reading a screen, not for a video; copied one to one they can look like a screenshot of the site. Offer **two palettes** at the confirm step: *exact* (the brand's values as they are) and *for video* (the same family interpreted: e.g. the neon accent kept for one element only, a deeper ground, the cover's paper tone as a second ground). Every value in the second still comes from the brand's material; you change roles and amounts, not invent colours. The person picks; record the choice and why in `NOTEBOOK.md` → `Lessons`. If a font isn't bundled with HyperFrames, note that it needs `@font-face` and a `.woff2` in the video's `assets/fonts/`.
 - **System or licensed fonts**: if the brand uses Apple system fonts (SF Pro, New York, SF Mono), Windows/Android system fonts or a paid font you have no file for, you cannot ship them in a video. Pick the closest freely licensed family — first HyperFrames' bundled fonts (see `skills/hyperframes/references/format.md`), otherwise an OFL family from Google Fonts downloaded as `.woff2` — say which one replaces which, and mark it `substitute for <font>` in `typography`.
 - **Language check**: if on-screen text includes Turkish, German, Polish or any non-ASCII Latin script, confirm every chosen font has those glyphs (ğ ş ı İ ç ö ü Ğ Ş Ç Ö Ü for Turkish): put that line in the style frame in each font and look at the snapshot; a box, a different-looking letter or a fallback face means the glyph is missing. Many bundled fonts are Latin-only; from Google Fonts take the `latin-ext` subset. If a font fails, pick the closest family that passes and say so.
 - **rhythm**: the median of the measured references; set `source: measured`. With no references, derive from the destination and the three words and set `source: interview`. Never present an interview guess as measured.
@@ -100,7 +100,7 @@ Every value has a source or is marked `default`. Do not invent brand facts. Do n
 
 Do not paste the whole file. Show a compact summary:
 
-- palette as hex with roles, fonts with weights
+- the two palettes (exact / for video) as hex with roles, on one still each if you can; fonts with weights
 - format (aspect, length) and rhythm numbers with their source
 - the `never` list
 - the two signature options
