@@ -6,7 +6,8 @@
   "what_it_does": "From the audio and the word transcript (and speakers.json when it exists) proposes the best 15-45 s clip candidates for Shorts/Reels and chapter boundaries. Each clip carries a transparent score from measured signals (laughter-like bursts in the audio plus laugh words in the transcript, loudness, quick speaker turns, reaction lines and a standalone opening sentence) minus penalties (needs earlier context, starts mid-sentence, long silence, unsure words in the first 3 s). Writes moments.json and moments.md (top 8 clips with the transcript excerpt and reasons, chapter list) for the person to choose from.",
   "when_to_use": "After transcribe-local on a long conversational recording (about 10 minutes and more, two or more voices), when the person wants Shorts/Reels or YouTube chapters and has not named the moments. Not for a single-speaker lesson with no reactions (the text and laughter signals have little to find) and never a substitute for the person listening: it cannot hear whether a joke is funny.",
   "lanes": [
-    "talking-head"
+    "talking-head",
+    "podcast"
   ],
   "source": {
     "repo": "create-video-engine",

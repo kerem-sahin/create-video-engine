@@ -6,7 +6,8 @@
   "what_it_does": "normalize.mjs turns a phone/camera recording (variable frame rate, rotation flag) into a constant 30 fps, upright, 48 kHz working copy and measures that it is steady; transcribe.mjs turns that copy into a word-timed JSON ({words:[{w,start,end}], language, engine}) on this machine with HyperFrames' own whisper.cpp engine; free, no account, Turkish and English tested. It moves words that whisper timed inside a pause back to where the sound is.",
   "when_to_use": "First step for any recording of a person talking: normalize, then transcribe the normalized copy, then silence-cut that same copy, so every later time is on one clock (needed for anything over a minute or two). Not for speech over loud music (use --model medium) and not when the person asked for a paid, more accurate engine.",
   "lanes": [
-    "talking-head"
+    "talking-head",
+    "podcast"
   ],
   "source": {
     "repo": "create-video-engine",

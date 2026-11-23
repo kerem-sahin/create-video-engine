@@ -1,0 +1,16 @@
+{
+  "schema": 2,
+  "id": "podcast",
+  "title": "Podcast and voice recordings to clips",
+  "for": "Someone with audio recordings (a podcast, a talk, a voice note) who wants vertical clips that show what is said, in the show's own look.",
+  "ask": "Do you have a podcast or other voice recordings you want to turn into clips?",
+  "parts": [
+    "show-reader",
+    "memory",
+    "transcribe-local",
+    "speakers",
+    "moments",
+    "assemble-long"
+  ],
+  "recipe": "recipe.md"
+}

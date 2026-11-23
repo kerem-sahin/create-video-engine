@@ -6,7 +6,8 @@
   "what_it_does": "speakers.mjs labels who speaks when in a recording of two or more people on one track, locally and free with no account or token: sherpa-onnx offline diarization (pyannote-segmentation-3.0 + CAM++ speaker embedding). Writes {speakers:[\"A\",\"B\"], turns:[{start,end,speaker}], words?:[{w,start,end,speaker}], summary}; with a transcribe-local words file every word gets the speaker whose turn covers its midpoint.",
   "when_to_use": "Podcasts and interviews recorded on one microphone/track, when the video should show who is talking (speaker cards, captions in two colours, per-speaker cuts). Not needed for a single speaker, and not for multi-channel recordings (use the channel). Labels are A, B... in order of first speech; the person maps them to names. Always have a human listen to a few handovers before trusting them.",
   "lanes": [
-    "talking-head"
+    "talking-head",
+    "podcast"
   ],
   "source": {
     "repo": "create-video-engine",

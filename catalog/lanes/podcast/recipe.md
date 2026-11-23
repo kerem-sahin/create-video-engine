@@ -1,0 +1,27 @@
+# Lane: podcast (voice to clips)
+
+A show's audio turned into vertical clips whose picture **tells what is said**, in the show's own look. Read after `make` step 0. Full-episode videos are not in this lane yet: say so if asked.
+
+## Setup extras: the show already taught everything
+
+Ask for whatever exists (the show's link or RSS feed, a folder of past recordings, the website, the cover) and read it before any question:
+
+1. `node parts/show-reader/show-reader.mjs read <link|feed|folder> --out brands/<show>/sources/show.json`. Exit 1: say what is missing (usually the RSS link, which every hosting dashboard shows). A folder gives no titles: ask for them, never use file names.
+2. Ask before downloading past episodes (how many, how many minutes): `download --show … --dir brands/<show>/sources/episodes`.
+3. `node parts/memory/memory.mjs transcribe --show … --memory brands/<show>/memory`, then `index`. Fill `memory/CHANNEL.md` from the transcript lines around each candidate, every line with a citation. Show the person a short "this is how I understood your show" and correct it with their words.
+4. The look comes from the show's own material (cover drawing style, site, title wording), never from another show. Offer the two palettes (`setup`). Ask once how the people who talk appear: drawn characters in the cover's style (from photos they give, or described), their nicknames and a simple sign, or not at all. Names on screen only as the person says; a third person's name never.
+
+## A clip
+
+1. **Pick the moment** with the person (`node parts/moments/moments.mjs` proposes; they choose), 20–45 s, starting on a sentence.
+2. **Cut it**: `node parts/assemble-long/assemble-long.mjs slice --audio <episode audio> --from <s> --to <s> --out-dir <dir>/assets` (never splits a word, snaps to sentences).
+3. **Transcribe the clip itself**: `node parts/transcribe-local/transcribe.mjs <dir>/assets/clip.m4a --language <code> --out <dir>/assets/words.json` (default model `medium`). Never reuse a weaker episode transcript for timings: one skipped sentence put a whole clip 3 s early. Fix mishearings you are sure of from `CHANNEL.md` (names, places, running words) by editing the word text only, never the times; list every fix and every unsure word for the person; an unsure word never goes on screen.
+4. **Plan the picture**: for each sentence, what is drawn: the thing said (a car, a wheel, a showroom), the punchline as big type when it lands, the speaker's character reacting. Something changes every 2–4 s and always on the word it shows. The show's characters and drawing style are reused from clip to clip (save them under `brands/<show>/library/`).
+5. **Build** in HyperFrames: the clip audio as a root `<audio>` at 0, the drawings in the show's line style, captions from `words.json`. The end card: the show's name and where to listen.
+6. **Check timing**: `node parts/transcribe-local/sync-check.mjs <draft.mp4> --words <dir>/assets/words.json --language <code>`. Exit 1: the picture and captions are early or late; fix before anyone sees it. Then verify and the fresh critic as in `make` (give the critic the words spoken at each frame).
+
+## Do not
+
+- Do not show third persons' names or private details said in passing.
+- Do not invent: every word on screen was said; every drawn thing was mentioned.
+- Do not cut laughter or the hosts' running jokes out of a clip; they are the show.

@@ -49,6 +49,7 @@ A check that could not run is reported as *skipped*, never as passed. Then a rev
 | `product-launch` | app, site or product launches and updates from real screens | screenshot crop, spring motion and shared-element carry, a recorded track found by feel |
 | `social-photo` | a small brand's photos into Reels/TikTok/feed videos | photo shots that keep moving, offer cards, a recorded track found by feel |
 | `talking-head` *(beta)* | YouTube talks/lessons and Shorts cut from them | local transcription, silence and filler cut (approved before it's applied), branded word-by-word captions, overlay cards, shorts with 9:16 reframe |
+| `podcast` *(beta)* | a podcast or voice recordings into vertical clips that draw what is said | reads the show's feed and past episodes into a memory, clip cutting, medium-model transcription with a sync check |
 
 `npx create-video-engine catalog list` shows lanes and parts. Every part has a card with its source repository, licence and the HyperFrames version it was checked with; non-commercial sources are link-only and never copied.
 
