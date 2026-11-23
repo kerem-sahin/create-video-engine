@@ -36,9 +36,26 @@ export function parseFrame(text) {
   return { colors, type, safe };
 }
 
+// WCAG contrast ratio of two #rrggbb colours (null if either is not a 6-digit hex)
+export function contrast(a, b) {
+  const lum = (h) => {
+    const m = /^#?([0-9a-f]{6})$/i.exec(String(h).trim()); if (!m) return null;
+    const c = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  };
+  const x = lum(a), y = lum(b);
+  if (x === null || y === null) return null;
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+
 export function toCss({ colors, type, safe }) {
   const out = [":root {"];
   for (const [k, v] of Object.entries(colors)) out.push(`  --c-${k}: ${v};`);
+  // text drawn in the accent colour must stay readable on the ground: a neon accent on paper is not
+  if (colors.accent && colors.ground) {
+    const r = contrast(colors.accent, colors.ground);
+    out.push(`  --c-accent-text: ${r !== null && r < 3 && colors.ink ? colors.ink : colors.accent};${r !== null && r < 3 ? ` /* accent ${colors.accent} is ${r.toFixed(1)}:1 on the ground: text uses ink */` : ""}`);
+  }
   for (const [k, t] of Object.entries(type)) {
     if (t.family) out.push(`  --f-${k}: "${t.family}", sans-serif;`);
     if (t.weight) out.push(`  --w-${k}: ${t.weight};`);
@@ -49,7 +66,7 @@ export function toCss({ colors, type, safe }) {
   return out.join("\n") + "\n";
 }
 
-if (realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
+if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(resolve(process.argv[1]))) {
   const [file, flag, out] = process.argv.slice(2);
   if (!file) { console.error("usage: frame-vars.mjs <frame.md> [--out assets/brand.css]"); process.exit(64); }
   const css = toCss(parseFrame(readFileSync(resolve(file), "utf8")));

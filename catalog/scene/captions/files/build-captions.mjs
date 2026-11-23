@@ -113,14 +113,14 @@ gs.forEach(({ g, start, end }, gi) => {
   if (style === "clean" && a.accent) {
     g.forEach((w, wi) => {
       const ws = r2(Math.max(start + 0.02, w.start)), we = r2(Math.max(ws + 0.12, Math.min(w.end, end - 0.05)));
-      js += `    tl.fromTo("#${gid}-w${wi}", { color: "var(--c-ink, #fff)" }, { color: "var(--c-accent, #ffd84d)", duration: 0.09, ease: "power2.out", immediateRender: false }, ${ws});\n`;
+      js += `    tl.fromTo("#${gid}-w${wi}", { color: "var(--c-ink, #fff)" }, { color: "var(--c-accent-text, var(--c-accent, #ffd84d))", duration: 0.09, ease: "power2.out", immediateRender: false }, ${ws});\n`;
       js += `    tl.to("#${gid}-w${wi}", { color: "var(--c-ink, #fff)", duration: 0.1, ease: "power2.in" }, ${r2(we)});\n`;
     });
   }
   if (style === "pop") {
     g.forEach((w, wi) => {
       const ws = r2(Math.max(start + 0.02, w.start)), we = r2(Math.max(ws + 0.12, Math.min(w.end, end - 0.05)));
-      js += `    tl.fromTo("#${gid}-w${wi}", { color: "var(--c-ink, #fff)", scale: 1 }, { color: "var(--c-accent, #ffd84d)", scale: ${popScale(strip(w.w))}, duration: 0.09, ease: "power2.out", immediateRender: false }, ${ws});\n`;
+      js += `    tl.fromTo("#${gid}-w${wi}", { color: "var(--c-ink, #fff)", scale: 1 }, { color: "var(--c-accent-text, var(--c-accent, #ffd84d))", scale: ${popScale(strip(w.w))}, duration: 0.09, ease: "power2.out", immediateRender: false }, ${ws});\n`;
       js += `    tl.to("#${gid}-w${wi}", { color: "var(--c-ink, #fff)", scale: 1, duration: 0.1, ease: "power2.in" }, ${r2(we)});\n`;
     });
   }

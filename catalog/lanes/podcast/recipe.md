@@ -13,12 +13,13 @@ Ask for whatever exists (the show's link or RSS feed, a folder of past recording
 
 ## A clip
 
+0. **Create the project first** (`make` step 3: `hyperframes init` refuses a folder that already has files), then cut into its `assets/`.
 1. **Pick the moment** with the person (`node parts/moments/moments.mjs` proposes; they choose), 20–45 s, starting on a sentence.
 2. **Cut it**: `node parts/assemble-long/assemble-long.mjs slice --audio <episode audio> --from <s> --to <s> --out-dir <dir>/assets` (never splits a word, snaps to sentences).
-3. **Transcribe the clip itself**: `node parts/transcribe-local/transcribe.mjs <dir>/assets/clip.m4a --language <code> --out <dir>/assets/words.json` (default model `medium`). Never reuse a weaker episode transcript for timings: one skipped sentence put a whole clip 3 s early. Fix mishearings you are sure of from `CHANNEL.md` (names, places, running words) by editing the word text only, never the times; list every fix and every unsure word for the person; an unsure word never goes on screen.
+3. **Transcribe the clip itself**: `node parts/transcribe-local/transcribe.mjs <dir>/assets/clip.m4a --language <code> --out <dir>/assets/words.json` (default model `medium`). Never reuse a weaker episode transcript for timings: one skipped sentence put a whole clip 3 s early. Check every name, brand and place in the clip against `CHANNEL.md` and fix its spelling (a car brand heard as "kupra" is written "Cupra"), and fix other mishearings you are sure of, by editing the word text only, never the times; list every fix and every unsure word for the person; an unsure word never goes on screen.
 4. **Plan the picture**: for each sentence, what is drawn: the thing said (a car, a wheel, a showroom), the punchline as big type when it lands, the speaker's character reacting. Something changes every 2–4 s and always on the word it shows. The show's characters and drawing style are reused from clip to clip (save them under `brands/<show>/library/`).
-5. **Build** in HyperFrames: the clip audio as a root `<audio>` at 0, the drawings in the show's line style, captions from `words.json`. The end card: the show's name and where to listen.
-6. **Check timing**: `node parts/transcribe-local/sync-check.mjs <draft.mp4> --words <dir>/assets/words.json --language <code>`. Exit 1: the picture and captions are early or late; fix before anyone sees it. Then verify and the fresh critic as in `make` (give the critic the words spoken at each frame).
+5. **Build** in HyperFrames: the clip audio as a root `<audio>` at 0, the drawings in the show's line style, captions from `words.json`. The end card: the show's name and where to listen. HyperFrames' mix makes speech about 3 dB louder than the source file: set the `<audio>` `data-volume` from verify's loudness on the first draft (−16 LUFS ±1), not from measuring the clip.
+6. **Check timing**: `node parts/transcribe-local/sync-check.mjs <draft.mp4> --words <dir>/assets/words.json --language <code>`. Exit 1: the picture and captions are early or late; fix before anyone sees it. A few single words 0.5–0.9 s off on the compressed render while the median is near 0 are the transcriber's jitter, not a shift; run it on the clip audio too if unsure. Then verify and the fresh critic as in `make` (give the critic the words spoken at each frame).
 
 ## Do not
 
