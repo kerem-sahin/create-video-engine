@@ -84,6 +84,8 @@ Ajanların ortak skill sorunları (düzeltilecek):
 Çizim tek darboğaz değil; vizyonun her ayağı sırayla ilerler. Sıra:
 
 1. **Podcast kesiti "yayınlarım"a kadar** (2. ve 3. aşama): fotoğraftan mürekkep çizim + kanalın çizim kütüphanesi (çizilen her şey saklanır, onaylanır, tekrar kullanılır), tek el kuralı (karakterler ve nesneler aynı çizgi ve detayda), güçlü kanca (ilk 2 saniye). Sonra aynı bölümden ikinci bir kesit: kütüphane gerçekten işe yarıyor mu.
+   - **24 Kasım:** ilk kesit tamam. Kerem kendi stüdyosunda (testler/kerem-podcast) kendisi kullandı: "baya iyi ya. paylaşırım bunu." 12 mesaj, 1 gerçek düzeltme. Çıkan dersler sisteme işlendi (e3726e8). **Sıradaki:** aynı stüdyoda ikinci kesit; ölçülecek: düzeltme sayısı 1'den 0'a iniyor mu, kütüphane tekrar kullanılıyor mu, anı sistem seçebiliyor mu, yeni kurallar tutuyor mu.
+   - **24 Kasım, ikinci kesit ("antikor"):** 0 düzeltme, 3 mesaj, 24 dakika; anı sistem seçti, Kerem değiştirmeden kabul etti ve paylaşır. Çizimler tek elden. Zayıf: ortası durağan (aynı iki çizim ~30 sn, değişimler küçük); kütüphane ve kalem kontrolü bu konuda hiç devreye girmedi (araba yoktu), yani henüz denenmedi; ara mesajlar yer yer İngilizce (kural eklendi). Adım 1 tamam sayılır; sıradaki adım 2.
 2. **Tanıtım videosu yeniden** (2. ve 4. aşama): yeni müzik akışıyla; Kerem adaylardan seçer. brag'i geçmeden duyuru yok.
 3. **Reels gerçek malzemeyle** (2. aşama): Kerem'den gerçek bir yerin/ürünün fotoğrafları istenir; anlamsız malzemeyle test yapılmaz.
 4. **Uzun video** (seviye maddesi): podcast bölümünün tamamı; kesit akışının uzun hâli, hızlı taslak yolu.
