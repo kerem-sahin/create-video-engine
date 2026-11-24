@@ -1,9 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { reusable, stripHtml, creditLine, pickReusable, politeFetch, readLibrary, addToLibrary, parseArgs, main, isWholeImage } from '../catalog/tool/draw-from-photo/files/draw-from-photo.mjs';
+import { reusable, stripHtml, creditLine, pickReusable, politeFetch, readLibrary, addToLibrary, parseArgs, main, isWholeImage, parseMeasure, penCheck, sizeCheck } from '../catalog/tool/draw-from-photo/files/draw-from-photo.mjs';
 
 test('only CC0, public domain and CC BY photos may be reused', () => {
   for (const ok of ['CC0', 'Public domain', 'PDM', 'CC BY 2.0', 'CC BY 3.0', 'CC BY 4.0', 'CC-BY-4.0', 'PD-self', 'CC BY 3.0 de', 'CC BY 2.5 ca', 'CC BY 4.0 International']) assert.ok(reusable(ok), ok);
@@ -93,6 +94,24 @@ test('library keeps one entry per name, never approved on its own, and keeps whe
   assert.throws(() => readLibrary(join(d, 'bad.json')), /not a library list/);
 });
 
+test('one hand: a drawing far from the approved pen says what to change, one thing at a time', () => {
+  assert.deepEqual(parseMeasure('827x300 pen=12.36 ink=0.450 src=558\n'), { size: '827x300', width: 827, pen: 12.36, ink: 0.45, src: 558 });
+  assert.equal(parseMeasure('1925x669 pen=4.33 ink=0.241').src, null);
+  assert.equal(parseMeasure('oops'), null);
+  const approved = [{ pen: 4.33, ink: 0.24 }];
+  // the real case: Porsche drawn thin from a big photo, Cupra from a 558 px screenshot
+  const small = penCheck({ pen: 12.36, ink: 0.45, src: 558 }, approved, 1000);
+  assert.match(small, /bigger photo/);
+  assert.match(sizeCheck({ src: 558 }, 1000), /only 558 px wide/);
+  // a big photo drawn too small: draw it bigger
+  assert.match(penCheck({ pen: 8.26, ink: 0.34, src: 2436 }, approved, 1000), /--width 1900 and place it at the same width on screen/);
+  // same pen, much darker: fewer lines
+  assert.match(penCheck({ pen: 4.5, ink: 0.45, src: 2436 }, approved, 2000), /--detail low/);
+  assert.equal(penCheck({ pen: 4.18, ink: 0.23, src: 2436 }, approved, 2000), null);
+  assert.equal(penCheck({ pen: 12, ink: 0.5 }, [], 1000), null);
+  assert.equal(sizeCheck({ src: 2436 }, 2000), null);
+});
+
 test('ink draws a photo on macOS', { skip: process.platform !== 'darwin' && 'macOS only' }, async () => {
   // a plain grey box on white is enough for Vision to find a subject; if it finds none the tool says so with exit 1
   const d = mkdtempSync(join(tmpdir(), 'dfp-'));
@@ -102,5 +121,26 @@ test('ink draws a photo on macOS', { skip: process.platform !== 'darwin' && 'mac
   if (mk.status !== 0) return;
   const code = await main(['ink', photo, '--out', join(d, 'o.png'), '--width', '400']);
   assert.ok(code === 0 || code === 1, `exit ${code}`);
-  if (code === 0) assert.ok(existsSync(join(d, 'o.png')));
+  if (code === 0) {
+    assert.ok(existsSync(join(d, 'o.png')));
+  }
+});
+
+test('ink --measure reads the pen of a drawing', { skip: process.platform !== 'darwin' && 'macOS only' }, async () => {
+  const { spawnSync } = await import('node:child_process');
+  const { createHash } = await import('node:crypto');
+  const d = mkdtempSync(join(tmpdir(), 'dfp-'));
+  const src = new URL('../catalog/tool/draw-from-photo/files/ink.swift', import.meta.url);
+  const bin = fileURLToPath(new URL(`../catalog/tool/draw-from-photo/files/.bin/ink-${createHash('sha256').update(readFileSync(src)).digest('hex').slice(0, 12)}`, import.meta.url));
+  const png = join(d, 'box.png');
+  // a 4 px black outline on white, 1000 px wide: pen about 4, ink a small share
+  const mk = spawnSync('ffmpeg', ['-v', 'error', '-f', 'lavfi', '-i', 'color=c=white:s=1000x400', '-vf', 'drawbox=x=100:y=100:w=800:h=200:color=black:t=4', '-frames:v', '1', png]);
+  if (mk.status !== 0) return;
+  await main(['ink', png, '--out', join(d, 'o.png'), '--width', '400']); // builds the binary; whether Vision finds a subject does not matter here
+  assert.ok(existsSync(bin), 'ink binary was not built');
+  const m = spawnSync(bin, ['--measure', png, '#000000', '#ffffff'], { encoding: 'utf8' });
+  assert.equal(m.status, 0, m.stderr);
+  const r = parseMeasure(m.stdout);
+  assert.ok(r && r.pen > 3 && r.pen < 5, m.stdout);
+  assert.ok(r.ink > 0.01 && r.ink < 0.05, m.stdout);
 });

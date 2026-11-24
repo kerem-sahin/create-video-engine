@@ -15,6 +15,8 @@ Read `AGENTS.md` at the studio root first. The format of `STYLE.md` is fixed: co
 - Run `npx create-video-engine doctor`. If it fails, show the failing lines and their fixes, and stop.
 - If `brands/<slug>/taste/STYLE.md` already exists, this is not setup: use the `learn` skill to change it.
 
+If the person already brings material for a first video (a clip, photos, a link), keep it in `brand.json` as `first_video` and say in one line that you will come back to it as soon as the style is set. Do not start that video in the middle of setup: finish step 7 first (the style frame approved, the person skipped it, its two rounds are over, or nobody can be asked: then the frame is your choice, marked as such). A video made on a guessed style teaches nothing and wastes their time.
+
 Talk to the person in **their** language (the language of their messages), whatever language the skills are written in.
 
 ## 1. Name and sources (one short message)
@@ -41,7 +43,7 @@ Write down what you found as a short list, each item with its source. This list 
 
 ### 3a. What do you make? (lanes)
 
-Run `npx create-video-engine catalog list --json` and read the `ask` of every lane in it (for example talking-head, product-launch, social-photo). Ask them as one short question, "What do you make?", listing the asks in the person's words; they pick one or more (a studio can have several). Prefill your guess from step 2 (a repo with screenshots suggests product-launch). For each pick run `npx create-video-engine add lane:<id>`. Then tell the person what was installed (the new lines in `NOTICE.md`, the lane's recipe) and which tools are missing (`add` prints them with how to install; you never install system tools yourself). If a lane or part is refused, say why. Later, adding a lane is `add lane:<id>`; adding or removing one part is `add <part-id>` or `remove <part-id>`.
+Run `npx create-video-engine catalog list --json` and read the `ask` of every lane in it (for example talking-head, product-launch, social-photo). Ask them as one short question, "What do you make?", listing the asks in the person's words; they pick one or more (a studio can have several). Prefill your guess from step 2 (a repo with screenshots suggests product-launch). For each pick run `npx create-video-engine add lane:<id>`. Then tell the person in one plain sentence what the studio can now do for them. A missing tool (`add` prints it with how to install; you never install system tools yourself) is said only as what it means for their videos, with the install line if they want it. If a lane or part is refused, say why. Later, adding a lane is `add lane:<id>`; adding or removing one part is `add <part-id>` or `remove <part-id>`.
 
 Ask once, after the lanes: *"For better results some parts can use a paid service (for example synthetic voice, better transcription). Do you want that?"* The default is **no**, and on no you never ask again. On yes, set `paid: true` in `studio.json`, say which parts are paid and what data they send (the part card's `paid_api.sends`: audio, text), and explain that the keys live only in the person's environment variables or `.env`, never in files you write, logs or videos. Every paid part keeps a free fallback; without a key the studio uses the free one and says so.
 
@@ -125,7 +127,7 @@ The style frame follows the `make` creative laws and avoids its defaults: a smal
 
 ## 8. Finish
 
-Tell the person, in two lines: what the brand's taste is, and that the next step is *"make a video for <brand>"* (the `make` skill).
+Tell the person, in two lines: what the brand's taste is, and that the next step is *"make a video for <brand>"* (the `make` skill). If `brand.json` has `first_video`, ask whether to start it now.
 
 ## Honesty rules
 

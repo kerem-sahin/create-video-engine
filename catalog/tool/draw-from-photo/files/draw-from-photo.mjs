@@ -151,6 +151,34 @@ export function addToLibrary(lib, item, { replace = false } = {}) {
   return { ...lib, items: [...items, { ...item, approved: false, used_in: old?.used_in ?? [] }] };
 }
 
+export const parseMeasure = (t) => {
+  const m = /^(\d+)x(\d+) pen=([\d.]+) ink=([\d.]+)(?: src=(\d+))?$/.exec(String(t).trim());
+  return m ? { size: `${m[1]}x${m[2]}`, width: Number(m[1]), pen: Number(m[3]), ink: Number(m[4]), src: m[5] ? Number(m[5]) : null } : null;
+};
+const median = (xs) => { const v = [...xs].sort((x, y) => x - y); const k = v.length >> 1; return v.length % 2 ? v[k] : (v[k - 1] + v[k]) / 2; };
+/** A photo enlarged to draw it loses parts and gets blotchy lines. Returns a warning or null. */
+export function sizeCheck(m, width) {
+  if (!m?.src || width <= m.src * 1.25) return null;
+  return `the photo is only ${m.src} px wide and was enlarged to ${width} to draw it: enlarged photos lose parts (wheels, windows) and give blotchy lines. Find a photo at least ${width} px wide, or draw at --width ${m.src} and show it no wider than that.`;
+}
+
+/** One hand: compare a new drawing's pen with the approved drawings. Returns a warning or null. */
+export function penCheck(m, approved, width) {
+  if (!m || !approved.length) return null;
+  const pen = median(approved.map((x) => x.pen)), ink = median(approved.map((x) => x.ink));
+  const heavy = m.pen / pen, dark = m.ink / ink;
+  if (heavy <= 1.35 && heavy >= 0.74 && dark <= 1.5 && dark >= 0.67) return null;
+  // one change at a time: the pen (drawing size) first, the amount of lines (detail) after
+  let fix;
+  if (heavy > 1.35 || heavy < 0.74) {
+    const w = Math.min(3000, Math.max(200, Math.round(width * heavy / 50) * 50));
+    fix = m.src && w > m.src * 1.25
+      ? `Use a bigger photo: for this pen it has to be drawn about ${w} px wide, and this photo is ${m.src} px.`
+      : `Draw again with --width ${w} and place it at the same width on screen as now (${heavy > 1 ? 'shown smaller than drawn, its lines get thinner' : 'shown bigger than drawn, its lines get heavier'}).`;
+  } else fix = `Draw again with ${dark > 1 ? '--detail low (fewer lines)' : '--detail high (more lines)'}.`;
+  return `one hand: this drawing has pen ${m.pen} and ink ${Math.round(m.ink * 100)}%; the approved drawings have pen ${+pen.toFixed(2)} and ink ${Math.round(ink * 100)}% (pen = line width when shown 1000 px wide; scale it if you show this one at a different size). Next to them it will look drawn by ${heavy > 1 || (heavy >= 0.74 && dark > 1) ? 'a heavier' : 'a lighter'} hand. ${fix} Look again, and show the person both.`;
+}
+
 function inkCmd(a) {
   const input = a._[1];
   if (!input || typeof a.out !== 'string') return usage();
@@ -183,7 +211,17 @@ function inkCmd(a) {
   mkdirSync(dirname(out), { recursive: true });
   const r = spawnSync(b.bin, [photo, out, String(width), String(det.noise), String(det.edge), String(det.threshold), String(det.line), String(det.speck), a.flip ? '1' : '0', a.ink ?? '#0a0c0a', a.paper ?? '#f9f9f9'], { encoding: 'utf8' });
   if (r.status !== 0) { console.error('draw-from-photo: ' + ((r.stderr || '').trim() || 'ink failed')); return r.status === 1 ? 1 : r.status === 64 ? 64 : 2; }
-  const size = r.stdout.trim();
+  const m = parseMeasure(r.stdout);
+  const size = m?.size ?? r.stdout.trim();
+  // approved drawings drawn before pens were measured are measured now (and the value kept)
+  const measureFile = (f) => { const x = spawnSync(b.bin, ['--measure', f, a.ink ?? '#0a0c0a', a.paper ?? '#f9f9f9'], { encoding: 'utf8' }); return x.status === 0 ? parseMeasure(x.stdout) : null; };
+  const approved = [];
+  if (lib) for (const it of lib.items) {
+    if (!it.approved || it.name === a.name) continue;
+    if (typeof it.pen !== 'number' || typeof it.ink !== 'number') { const mm = measureFile(join(dirname(libFile), it.file)); if (mm) { it.pen = mm.pen; it.ink = mm.ink; } }
+    if (typeof it.pen === 'number' && typeof it.ink === 'number') approved.push(it);
+  }
+  const warn = [sizeCheck(m, width), penCheck(m, approved, width)].filter(Boolean);
   const line = creditLine(credit);
   if (typeof a.credits === 'string' && credit.licence !== 'own') {
     const f = resolve(a.credits);
@@ -196,10 +234,11 @@ function inkCmd(a) {
     mkdirSync(libDir, { recursive: true });
     const keep = join(libDir, `${a.name}.png`);
     copyFileSync(out, keep);
-    lib = addToLibrary(lib, { name: a.name, what: a.what, file: `${a.name}.png`, size, faces: a.flip ? 'flipped from the photo' : 'as in the photo', detail: a.detail ?? 'mid', credit: credit.licence === 'own' ? 'own photo' : line.slice(2), made: new Date().toISOString().slice(0, 10) }, { replace: !!a.replace });
+    lib = addToLibrary(lib, { name: a.name, what: a.what, file: `${a.name}.png`, size, faces: a.flip ? 'flipped from the photo' : 'as in the photo', detail: a.detail ?? 'mid', pen: m?.pen, ink: m?.ink, credit: credit.licence === 'own' ? 'own photo' : line.slice(2), made: new Date().toISOString().slice(0, 10) }, { replace: !!a.replace });
     writeFileSync(libFile, JSON.stringify(lib, null, 2) + '\n');
   }
-  console.log(`draw-from-photo: ${out} (${size})${credit.licence !== 'own' ? `\n${line}` : ''}${a.library !== undefined ? `\nkept in ${a.library} as "${a.name}" (not approved yet)` : ''}`);
+  console.log(`draw-from-photo: ${out} (${size}${m ? `, pen ${m.pen}, ink ${Math.round(m.ink * 100)}%` : ''})${credit.licence !== 'own' ? `\n${line}` : ''}${a.library !== undefined ? `\nkept in ${a.library} as "${a.name}" (not approved yet)` : ''}`);
+  for (const w of warn) console.log('draw-from-photo: look out: ' + w);
   return 0;
 }
 

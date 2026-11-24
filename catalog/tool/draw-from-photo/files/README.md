@@ -12,7 +12,7 @@ node parts/draw-from-photo/draw-from-photo.mjs ink <dir>/assets/refs/porsche/can
   --out <dir>/assets/porsche.png --width 1000 --flip --ink "#0a0c0a" --paper "#f9f9f9" \
   --credits <dir>/CREDITS.md --library brands/<brand>/library --name porsche-911 --what "Porsche 911, side, facing right"
 ```
-- `--width`: the width it will have on screen (lines are drawn at that size).
+- `--width`: the drawing's size; lines are drawn at that size, so a drawing shown at half its width has half the line width. Default: the width it will have on screen. The photo must be at least that wide: an enlarged photo loses parts and gives blotchy lines. The person's photo from a chat or a screenshot is often small; ask for the original.
 - `--detail low|mid|high`: low for small or busy photos, high for big close-ups. Default mid.
 - `--flip`: mirror it so it faces where it moves.
 - `--ink` / `--paper`: the brand's colours (`STYLE.md`).
@@ -22,6 +22,6 @@ node parts/draw-from-photo/draw-from-photo.mjs ink <dir>/assets/refs/porsche/can
 
 **Look at the drawing before using it.** It is only as good as the photo. Throw it away and pick another photo when a part is missing (black wheels on a dark floor vanish), the body is covered in blotches (reflections, a saturated colour), or it carries text, numbers, logos or stickers. Never "fix" a missing part by drawing it in on top.
 
-**One hand.** A drawing from a photo is more detailed than quick doodles. Put it next to the characters and the other drawings: same line weight, same amount of detail. If it stands out, use `--detail low`, or redraw the others with more care; never leave one object looking traced and the rest scribbled.
+**One hand.** Every drawing in a video looks drawn by the same pen. `ink` prints each drawing's `pen` (line width when shown 1000 px wide) and `ink` (how much of it is black) and keeps them in the library. With `--library` it compares them with the approved drawings and prints `look out: one hand: …` with the one change to make (a different `--width`, a different `--detail`, or a bigger photo). Do that before showing it; if no setting gets close, tell the person, and show both. A drawing shown much smaller or bigger than the others: scale its pen by that before comparing. Quick hand-drawn doodles next to a traced object: draw them with the same line width, never leave one thing traced and the rest scribbled.
 
 macOS 14+ only for `ink`. Elsewhere: open the photo, and draw the thing by hand in SVG with its real proportions (wheelbase, roof line, the one shape everyone knows it by).

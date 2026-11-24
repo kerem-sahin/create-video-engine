@@ -1,6 +1,8 @@
 // ink: photo -> the main subject cut out (Vision) -> ink line drawing on the brand's paper (Core Image), transparent PNG.
 // Built and run by draw-from-photo.mjs on macOS 14+. Exit: 0 ok, 1 no subject found, 2 cannot run, 64 usage.
 //   ink <in> <out.png> <width> <noise> <edge> <threshold> <lineRadius> <minSpeckArea> <flip 0|1> <inkHex> <paperHex>
+//   ink --measure <drawing.png> <inkHex> <paperHex>
+// Both print "WxH pen=<p> ink=<i>" (drawing adds " src=<photo width>"): p = line width in px when the drawing is shown 1000 px wide, i = share of the drawing that is ink.
 import Foundation
 import CoreImage
 import CoreImage.CIFilterBuiltins
@@ -8,14 +10,40 @@ import Vision
 
 func fail(_ m: String, _ code: Int32) -> Never { FileHandle.standardError.write((m + "\n").data(using: .utf8)!); exit(code) }
 let a = CommandLine.arguments
-guard a.count == 12, let width = Double(a[3]), let noise = Float(a[4]), let edge = Float(a[5]), let thr = Float(a[6]),
-      let lineR = Float(a[7]), let minArea = Int(a[8]) else { fail("usage: ink <in> <out.png> <width> <noise> <edge> <threshold> <lineRadius> <minSpeckArea> <flip> <inkHex> <paperHex>", 64) }
-let flip = a[9] == "1"
 func color(_ hex: String) -> CIColor {
   let h = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
   guard h.count == 6, let v = UInt32(h, radix: 16) else { fail("bad colour \(hex) (use #rrggbb)", 64) }
   return CIColor(red: CGFloat((v >> 16) & 255) / 255, green: CGFloat((v >> 8) & 255) / 255, blue: CGFloat(v & 255) / 255)
 }
+
+// how heavy the pen looks: ink pixels / their edge pixels ~ half the line width; scaled to a 1000 px wide drawing
+func measure(_ path: String, _ inkC: CIColor, _ paperC: CIColor) -> String {
+  guard let im = CIImage(contentsOf: URL(fileURLWithPath: path)) else { fail("cannot read \(path)", 2) }
+  let w = Int(im.extent.width), h = Int(im.extent.height)
+  guard w > 0, h > 0 else { fail("empty image \(path)", 2) }
+  var px = [UInt8](repeating: 0, count: w * h * 4)
+  CIContext().render(im, toBitmap: &px, rowBytes: w * 4, bounds: im.extent, format: .RGBA8, colorSpace: CGColorSpace(name: CGColorSpace.sRGB)!)
+  func d(_ r: Double, _ g: Double, _ b: Double, _ c: CIColor) -> Double { let x = r - Double(c.red), y = g - Double(c.green), z = b - Double(c.blue); return x * x + y * y + z * z }
+  var isInk = [Bool](repeating: false, count: w * h)
+  var solid = 0, ink = 0, edge = 0
+  for i in 0..<(w * h) {
+    let al = Double(px[i * 4 + 3]); if al < 128 { continue }
+    solid += 1
+    let r = Double(px[i * 4]) / al, g = Double(px[i * 4 + 1]) / al, b = Double(px[i * 4 + 2]) / al
+    if d(r, g, b, inkC) < d(r, g, b, paperC) { isInk[i] = true; ink += 1 }
+  }
+  for y in 0..<h { for x in 0..<w where isInk[y * w + x] {
+    if x == 0 || y == 0 || x == w - 1 || y == h - 1 || !isInk[y * w + x - 1] || !isInk[y * w + x + 1] || !isInk[(y - 1) * w + x] || !isInk[(y + 1) * w + x] { edge += 1 }
+  } }
+  let pen = edge > 0 ? 2 * Double(ink) / Double(edge) * 1000 / Double(w) : 0
+  let share = solid > 0 ? Double(ink) / Double(solid) : 0
+  return "\(w)x\(h) pen=\(String(format: "%.2f", pen)) ink=\(String(format: "%.3f", share))"
+}
+if a.count == 5 && a[1] == "--measure" { print(measure(a[2], color(a[3]), color(a[4]))); exit(0) }
+
+guard a.count == 12, let width = Double(a[3]), let noise = Float(a[4]), let edge = Float(a[5]), let thr = Float(a[6]),
+      let lineR = Float(a[7]), let minArea = Int(a[8]) else { fail("usage: ink <in> <out.png> <width> <noise> <edge> <threshold> <lineRadius> <minSpeckArea> <flip> <inkHex> <paperHex> | ink --measure <png> <inkHex> <paperHex>", 64) }
+let flip = a[9] == "1"
 let inkC = color(a[10]), paperC = color(a[11])
 guard let raw = CIImage(contentsOf: URL(fileURLWithPath: a[1]), options: [.applyOrientationProperty: true]) else { fail("cannot read \(a[1])", 2) }
 
@@ -117,4 +145,4 @@ let outBox = CGRect(x: 0, y: 0, width: sub.width, height: sub.height)
 do {
   try ctx.writePNGRepresentation(of: out.cropped(to: outBox), to: URL(fileURLWithPath: a[2]), format: .RGBA8, colorSpace: CGColorSpace(name: CGColorSpace.sRGB)!)
 } catch { fail("cannot write \(a[2]): \(error.localizedDescription)", 2) }
-print("\(Int(outBox.width))x\(Int(outBox.height))")
+print(measure(a[2], inkC, paperC) + " src=\(Int(raw.extent.width))")

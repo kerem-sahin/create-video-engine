@@ -5,12 +5,15 @@ import { findUp } from '../lib/fsx.mjs';
 import { which } from '../lib/exec.mjs';
 
 export const NOTICE_HEADER = '# Notices\n\nParts copied into this studio, with the attribution their licences ask for.\n\n';
-const INSTALL_HINT = {
+/** Every tool a catalog part may list under `needs`, with how to install it (the catalog validator checks this list). */
+export const INSTALL_HINT = {
   ffmpeg: 'brew install ffmpeg (or your package manager)',
   ffprobe: 'it ships with ffmpeg: brew install ffmpeg',
   python3: 'install Python 3 (brew install python)',
   'whisper-cli': 'brew install whisper-cpp',
   node: 'install Node 22 or newer',
+  hyperframes: 'it comes with the studio: run npm install in the studio folder',
+  swiftc: 'macOS only: xcode-select --install',
 };
 
 export const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');

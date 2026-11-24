@@ -34,8 +34,7 @@
   "requires": [],
   "needs": [
     "ffmpeg",
-    "python3 (3.9+, with the venv module); `node parts/speakers/speakers.mjs --install` makes a private venv in ~/.cache/create-video-engine/speakers/ and pip-installs sherpa-onnx (Apache-2.0) and numpy there, no root",
-    "two ONNX models downloaded once from github.com/k2-fsa/sherpa-onnx releases, sha-256 checked: pyannote-segmentation-3.0 (MIT, ~7 MB) and 3D-Speaker CAM++ zh_en (Apache-2.0, ~28 MB), cached in the same folder"
+    "python3 (3.9+, with the venv module); `node parts/speakers/speakers.mjs --install` makes a private venv in ~/.cache/create-video-engine/speakers/ and pip-installs sherpa-onnx (Apache-2.0) and numpy there, no root"
   ],
   "paid_api": null,
   "verified_with": {
@@ -46,5 +45,5 @@
   "requirements": [
     "P3"
   ],
-  "notes": "Free local default; pyannote's own gated pipeline (Hugging Face token) is deliberately not used. Install footprint about 120 MB (wheels ~30 MB + onnxruntime, models ~35 MB). Speed on an 8 GB M1: 28 min of audio in about 4 min. Same-voice-type cases (two men, one phone mic, outdoor noise) are the weak spot; it cannot label overlapping speech separately beyond what the segmentation model resolves."
+  "notes": "Free local default; pyannote's own gated pipeline (Hugging Face token) is deliberately not used. Install footprint about 120 MB (wheels ~30 MB + onnxruntime, models ~35 MB). Speed on an 8 GB M1: 28 min of audio in about 4 min. Same-voice-type cases (two men, one phone mic, outdoor noise) are the weak spot; it cannot label overlapping speech separately beyond what the segmentation model resolves. Models: two ONNX models downloaded once from github.com/k2-fsa/sherpa-onnx releases, sha-256 checked: pyannote-segmentation-3.0 (MIT, ~7 MB) and 3D-Speaker CAM++ zh_en (Apache-2.0, ~28 MB), cached in the same folder."
 }

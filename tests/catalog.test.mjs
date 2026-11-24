@@ -1,7 +1,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { INSTALL_HINT, needTool } from '../src/add/core.mjs';
 import { join } from 'node:path';
 import { checkCatalog, validateCard, validateLane } from '../src/catalog/validate.mjs';
 import { builtinCard, goodCard, goodLane, makeCatalog, writeCard } from './catalog-fixture.mjs';
@@ -66,6 +67,21 @@ test('copied needs ref, attribution and files/LICENSE; registry needs a name, no
   const e2 = errsOf(reg);
   assert.ok(e2.some((e) => e.startsWith('registry')));
   assert.ok(e2.some((e) => /registry part must have no files/.test(e)));
+});
+
+test('shipped catalog: every needs entry starts with a tool that has an install hint', () => {
+  // a real slip: "two ONNX models ..." made `add` warn that a tool called "two" was missing
+  const root = new URL('../catalog/', import.meta.url).pathname;
+  const bad = [];
+  for (const kind of readdirSync(root)) {
+    if (kind === 'lanes' || !statSync(join(root, kind)).isDirectory()) continue;
+    for (const id of readdirSync(join(root, kind))) {
+      const f = join(root, kind, id, 'part.json');
+      try { statSync(f); } catch { continue; }
+      for (const n of JSON.parse(readFileSync(f, 'utf8')).needs ?? []) if (!Object.hasOwn(INSTALL_HINT, needTool(n))) bad.push(`${id}: ${needTool(n)}`);
+    }
+  }
+  assert.deepEqual(bad, [], 'start each needs entry with a command name (add new tools to INSTALL_HINT); notes go in "notes"');
 });
 
 test('files: from must exist inside the card, to must be under parts/<id>/', () => {

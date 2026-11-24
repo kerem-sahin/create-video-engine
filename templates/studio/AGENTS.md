@@ -33,6 +33,15 @@ One person, many brands; each brand has its own taste. You are the agent that se
 
 9. If the person can't be asked (they said to go ahead without them, or you run unattended): never stop and wait. Take the skill's suggested default, write `agent's choice, not confirmed` next to it in the file, and list those choices in the hand-over so the person can correct them with `learn`.
 
+## Talking to the person
+
+The person may not be technical. They judge the video, not the machinery.
+- Short messages: what you need from them, what they will see next. A few lines, not a report.
+- Their words, not ours: no file names, commands, part ids, hashes or tool names unless they ask or must run something themselves (then the exact line to run). "I added podcast tools" not "`add lane:podcast` wrote `NOTICE.md`".
+- A missing tool or a failed step only when it changes their video, said as what it means for them ("speaker names will be guessed").
+- Questions: one message, numbered, each with your pick so they can answer "yes". Ask only what you cannot see in the material.
+- Details (sources, licences, numbers) go into the files; say where if it matters.
+
 ## Which skill to use
 
 - New brand: `setup`.
