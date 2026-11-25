@@ -126,8 +126,11 @@ export async function runUpgrade(argv = []) {
   const cards = new Map(cardList.map((p) => [p.card.id, p]));
   const cardMap = new Map(cardList.map((p) => [p.card.id, p.card]));
   const have = new Set(studio.parts.map((r) => r.id));
+  const retired = new Set();
   for (const rec of studio.parts) {
     const p = cards.get(rec.id);
+    // a builtin command this package no longer has (no files in the studio): its record goes, nothing else to undo
+    if (!p && !Object.keys(rec.files ?? {}).length) { retired.add(rec.id); res.updated.push(`parts/${rec.id} (no longer part of the engine; record removed)`); continue; }
     if (!p) { res.warnings.push(`part ${rec.id} is not in this package's catalog; not updated`); continue; }
     const bad = validateCard(p.card, p.dir, { cards: cardMap });
     if (bad.length) { res.warnings.push(`part ${rec.id}: the catalog card is invalid (${bad[0]}); not updated`); continue; }
@@ -155,6 +158,7 @@ export async function runUpgrade(argv = []) {
     rec.source = sourceLabel(p.card);
     rec.requires = deps(p.card);
   }
+  if (!o.dryRun && retired.size) studio.parts = studio.parts.filter((r) => !retired.has(r.id));
 
   // 5. HyperFrames pin: reported, never changed.
   let pinned = studio.hyperframes;

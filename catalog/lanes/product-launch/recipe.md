@@ -15,15 +15,15 @@ Which real flow shows it in use (entry → key action → result)? A stranger wh
 ## Material rules
 
 - Product shots are the **real product UI**, never a mock-up you invented. Sample data in screenshots must be clearly fake or the person's own; if a screenshot shows someone else's data, crop it out or ask for another.
-- Store screenshots are cropped to the real UI (`npx create-video-engine crop <img> --auto --out <file>`, `--status-bar` drops the iOS status bar; `--rect x,y,w,h` by hand if it exits 1), then put in a new, thin frame of the brand's own, never shown with their marketing caption. Never stretch or redraw UI.
+- Store screenshots are cropped to the real UI (`npx create-video-engine crop <img> --auto --out <file>`, `--status-bar` drops the iOS status bar; `--rect x,y,w,h` by hand if it exits 1), never shown with their marketing caption. Never stretch or redraw UI.
 
-## Fill the frame with the product
+## Show the part the line is about
 
-The real UI is the hero, so it is big (as a rough guide, a phone screen around 80 % of a 9:16 frame's width). When the line talks about one part of the screen (a card, a button), push in on it or crop to it rather than showing the whole phone small. The product may run under the platform's buttons; only text keeps to safe zones. Shorten the text rather than shrinking the product. A small product in a big empty frame was the most common failure in our tests.
+A whole phone screenshot reads as a screenshot: its small UI text is unreadable in a feed, and a screen sliced by the frame edge looks like a mistake. Each shot shows **only the part of the screen the line talks about** (the photo box, the pin and its card, the story and its button), cropped from the real screen and large: about 85–95 % of the frame width, every edge of it inside the frame, nothing cut mid-card. Show the whole screen only when its layout is the point (e.g. "everything on one screen"), and then all of it, never cut by the frame edge. How the crop sits (a card with the brand's corner radius, a device, full bleed) is a brand decision in `STYLE.md`, set with the style frame. Shorten the text rather than shrinking the product. A small product in a big empty frame was the most common failure in our tests; a screenshot running off the bottom edge was the next.
 
 ## Show it in use
 
-The product is shown **in use**, not as a slide: things appear one by one, a tap or swipe is simulated on the real screen, text is typed, a state changes (empty → filled, draft → published). A screenshot that only pans is the weakest shot; use it rarely, and let something on it still happen.
+The product is shown **in use**, not as a slide: things appear one by one, a tap or swipe is simulated on the real screen, text is typed, a state changes (empty → filled, draft → published). A screenshot that only pans is the weakest shot; use it rarely, and let something on it still happen. When the line names an action ("tap", "share", "get directions"), the action is seen: the press on the real control (a brief press state, a ripple or a finger), then its result. A line about a tap with no visible press is a broken promise.
 
 ## Carry across cuts
 

@@ -146,21 +146,5 @@ export function listSoundCues(project, manifestPath) {
     }
   };
   walk(project);
-  // A scored music track is one <audio> but many notes: list the notes (time, kind, beat) instead of the file,
-  // so the reviewer can check each against the frame at that second.
-  let scored = null;
-  try {
-    const sc = JSON.parse(readFileSync(join(project, 'assets', 'music', 'score.json'), 'utf8'));
-    if (Array.isArray(sc.cues) && sc.cues.length) scored = sc.cues.filter((c) => Number.isFinite(Number(c?.time)));
-  } catch { /* no score: the track is listed as one cue */ }
-  if (scored?.length) {
-    const music = (c) => /(^|\/)music\//.test(c.src);
-    const rest = cues.filter((c) => !music(c));
-    for (const c of scored) {
-      rest.push({ id: null, start: Number(c.time), duration: NaN, volume: null, src: 'assets/music/score.json', kind: String(c.kind),
-        beat: Number(c.beat), described: null, in: 'assets/music/score.json' });
-    }
-    return rest.sort((a, b) => (a.start || 0) - (b.start || 0));
-  }
   return cues.sort((a, b) => (a.start || 0) - (b.start || 0));
 }

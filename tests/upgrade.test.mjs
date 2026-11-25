@@ -126,6 +126,21 @@ test('parts: changed catalog file updates an unchanged part; an edited part is k
   assert.equal(rec(s).parts[0].files[F], sha('v2\n'));
 });
 
+test('parts: a builtin the engine dropped loses its record; a part with files that left the catalog stays', () => {
+  const s = newStudio(); const o = rec(s);
+  o.parts.push({ id: 'old-builtin', source: 'own', hash: null, files: {}, requires: [] }, { id: 'old-files', source: 'own', hash: 'x', files: { 'parts/old-files/a.txt': 'x' }, requires: [] });
+  save(s, o);
+  const dry = up(s, '--dry-run');
+  assert.equal(dry.status, 0, dry.stderr);
+  assert.ok(rec(s).parts.some((r) => r.id === 'old-builtin'), 'dry run keeps it');
+  const r = up(s);
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /old-builtin \(no longer part of the engine/);
+  assert.ok(!rec(s).parts.some((x) => x.id === 'old-builtin'));
+  assert.ok(rec(s).parts.some((x) => x.id === 'old-files'));
+  assert.match(r.stdout + r.stderr, /old-files is not in this package's catalog/);
+});
+
 test('a different HyperFrames pin is reported, never changed', () => {
   const s = newStudio();
   const p = JSON.parse(rd(join(s, 'package.json'))); p.devDependencies.hyperframes = '0.9.1';

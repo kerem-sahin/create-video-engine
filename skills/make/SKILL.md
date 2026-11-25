@@ -50,7 +50,7 @@ Copy only the assets you use into `<dir>/assets/`. Fonts the brand uses go to `a
 
 - Every number, name, price and claim on screen comes from the person or their material.
 - No personal data, no real people's names or faces, nothing showing other people, unless the person gave it for this video.
-- Only material they own or that is licensed for it (CC0/CC BY with credit; never NC/SA/ND, never MusicGen weights).
+- Only material they own or that is licensed for it (CC0/CC BY with credit; never NC/SA/ND).
 - Text at least `format.min_text_px`; at 9:16 text and the call to action stay out of the top 270 px, the bottom 420 px and the right 130 px (the subject may run under them). These numbers win over HyperFrames' `vertical.md` band.
 - Audio −16 LUFS ±1, true peak ≤ −1 dBTP, measured by verify on the rendered file (HyperFrames' mix changes the level, so measuring the source file is not enough).
 
@@ -61,18 +61,17 @@ a small centred item in a dark void; a centred white headline on a gradient; glo
 
 ### Sound
 
-You cannot hear; the person can. So the person picks the music.
+The engine does not find or make music: you cannot hear it, and free catalogues and code-made tracks were the weakest part of every test video.
 
-1. **Their own track** first (`STYLE.md` `sound.track`), or a track they liked before (`NOTEBOOK.md` → `Liked`).
-2. Otherwise find candidates: `npx create-video-engine music --mood "<sound.feel>" --duration <s> --out <dir> --used brands/<brand>/music-used.json`. It writes up to three recorded CC0/CC BY tracks fitted to the length, each with a 10 s preview (`assets/music/candidates/<n>-preview.mp3`), skipping tracks this brand already used. Give the person the previews with the draft; they pick: `music --pick <n> --out <dir> --used brands/<brand>/music-used.json` (writes `assets/music/track.wav` and the credit). Their pick and what they said about it go to the notebook.
-3. Nobody to ask, no network, or nothing fitting: deliver **without music** and say so. Never put an unheard track under a video. `music --score <cues.json>` (music composed in code) only if the person asks for it.
-4. Cut the edit to the track's beats. Effects only with a visible cause (a tap, a stamp), a few kinds, quiet under the music. In a speech-led video the voice is the sound; music only under it, ducked. `music: none` means silent.
+1. **Their own track** (`STYLE.md` `sound.track`, or a file they give for this video, rights theirs): use it, cut the edit to its beats and write `cues.json`. Name it in the ledger.
+2. **No track** (the default): the video is made without music. The product's own sound and effects with a visible cause (a tap, a stamp) stay, a few kinds, quiet. Cut to a steady pulse anyway (`cues.json` with the bpm you cut to) so a sound added later sits on the cuts. In the hand-over tell them where music goes: on Reels or TikTok they add a sound from the app's own library when posting (that also helps the video travel); elsewhere they can send you a track of their own and you put it under. Give the cut times and the bpm.
+3. A speech-led video: the voice is the sound. Their own track only under it, ducked.
 
 ### Two small files for verify
 
 Write them as you build; they let verify check what the eye might miss:
 - `<dir>/shots.json`: `{ "shots": [ { "start": 0, "end": 2.5, "transition_out": "carry: map pin" }, { "start": 2.5, "end": 6 } ], "structure": [ "hook: map on frame 0", "walk-through", "end card" ] }`. verify compares cuts with it and with the last video in the ledger (the same transitions or structure again is a warning).
-- `<dir>/cues.json`, only when the edit is cut to a track's beat: `{ "bpm": 96 }` (beat 0 = the first frame). verify then checks the cuts against that grid.
+- `<dir>/cues.json`: the pulse the edit is cut to, `{ "bpm": 96 }` (beat 0 = the first frame). verify then checks the cuts against that grid.
 
 ## 4. Look, then a fast draft
 
@@ -82,7 +81,7 @@ Write them as you build; they let verify check what the eye might miss:
 
 **Fresh critic.** Follow the `verify` skill: a sub-agent that has not seen the code looks at the frames with the brief and the person's dislikes and says what a stranger would see. Fix every P0 and re-check.
 
-**Show the draft.** Give the person the draft, three or four stills, the music candidates and the `MOMENTS` from verify, and ask for one note. If nobody can be asked (AGENTS rule 9), go on without music, render the final, and say in the hand-over that no one saw the draft.
+**Show the draft.** Give the person the draft, three or four stills and the `MOMENTS` from verify, and ask for one note. If nobody can be asked (AGENTS rule 9), render the final and say in the hand-over that no one saw the draft.
 
 **Keep the loop short.** Check every change with `snapshot` at the moments it touches (a few seconds), not with a render. Render a draft only when you are about to show it (on an M1 a 15 s draft takes about 30 s; `--fps 15` saves a little; `--start/--end` does not save time). Footage-heavy and long videos have their own fast path in the recipe.
 
@@ -91,7 +90,7 @@ Write them as you build; they let verify check what the eye might miss:
 `npx hyperframes render <dir> --quality delivery -o <dir>/renders/<slug>.mp4` and verify it. Only a file that passed verify is delivered.
 
 - `<dir>/share-copy.txt`: 1–3 sentences, postable as-is, specific, in the brand's voice and the person's language; any CC BY credit at the end.
-- Append to `taste/ledger.json` `videos`: `{ "slug", "lane", "date", "aspect", "length", "structure": [...], "transitions": [...], "music": <title and source, or null>, "drawings": [<library names used>], "verified": true, "feedback": null }`. Add this video's slug to each used drawing's `used_in` in `library.json`. Copy each used drawing's `credit` line from `library.json` into `<dir>/CREDITS.md`; a CC BY credit also goes at the end of `share-copy.txt`.
+- Append to `taste/ledger.json` `videos`: `{ "slug", "lane", "date", "aspect", "length", "structure": [...], "transitions": [...], "music": <their track's title, or null>, "drawings": [<library names used>], "verified": true, "feedback": null }`. Add this video's slug to each used drawing's `used_in` in `library.json`. Copy each used drawing's `credit` line from `library.json` into `<dir>/CREDITS.md`; a CC BY credit also goes at the end of `share-copy.txt`.
 - Tell the person: the file, the share copy, one line on the idea, what verify measured, the moments to watch. Ask three things: would you post it as it is; if not, the one thing to change; what did you like. Their answers go to the `learn` skill.
 
 Never call the video great, cinematic or stunning. Say what it is and what was checked.

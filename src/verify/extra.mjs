@@ -15,13 +15,11 @@ function readJson(file) {
 
 // ---------- on-beat ----------
 
-/** cues.json (+ optional assets/music/score.json) of a project, or null. */
+/** cues.json of a project (the bpm the edit was cut to); cues is null when there is none. */
 export function readMusicPlan(project) {
   const cuesFile = join(project, 'cues.json');
-  const scoreFile = join(project, 'assets', 'music', 'score.json');
   const cues = existsSync(cuesFile) ? readJson(cuesFile) : null;
-  const score = existsSync(scoreFile) ? readJson(scoreFile) : null;
-  return { cuesFile, scoreFile, cues, score: score?.ok ? score.value : null };
+  return { cuesFile, cues };
 }
 
 /** Interior shot boundaries (each shot start after the first) from <project>/shots.json. */
@@ -83,7 +81,7 @@ export function checkOnBeat({ plan, cuts, fps, shots = null, change = null }) {
     if (cuts && !cuts.ok) return { status: 'error', message: `cut detection failed: ${cuts.error}` };
     return { status: 'skipped', message: 'no cuts detected in the video and no shots.json boundaries, nothing to compare with the beat grid' };
   }
-  const bpm = plan.cues ? Number(plan.cues.value?.bpm ?? plan.score?.bpm) : NaN;
+  const bpm = plan.cues ? Number(plan.cues.value?.bpm) : NaN;
   const gridOk = bpm >= 20 && bpm <= 400;
   const issues = [];
   const passes = [];
@@ -186,10 +184,6 @@ export function checkSubjectScale({ cover, duration }) {
 const norm = (s) => String(s ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
 const sameList = (a, b) => a.length > 0 && a.length === b.length && a.every((x, i) => x === b[i]);
 
-const normVal = (v) => (Array.isArray(v) ? v.map(norm).join(' ') : v && typeof v === 'object' ? JSON.stringify(v) : norm(v)) || null;
-const MUSIC_KEYS = ['style', 'palette', 'progression', 'bpm', 'key', 'mode', 'fingerprint'];
-const musicOf = (o) => Object.fromEntries(MUSIC_KEYS.map((k) => [k, normVal(o?.[k])]));
-
 export function checkVariety({ project }) {
   const file = join(project, 'shots.json');
   if (!existsSync(file)) return { status: 'skipped', message: 'no shots.json in the project (the make skill writes it)' };
@@ -228,27 +222,6 @@ export function checkVariety({ project }) {
       const ps = Array.isArray(prev.structure) ? prev.structure.map(norm).filter(Boolean) : [];
       if (sameList(transitions, pt)) issues.push(`same transition list as ${prev.slug} (${transitions.join(', ')})`);
       if (sameList(structure, ps)) issues.push(`same structure as ${prev.slug}`);
-
-      const scoreFile = join(project, 'assets', 'music', 'score.json');
-      const sc = existsSync(scoreFile) ? readJson(scoreFile) : null;
-      if (sc?.ok && sc.value && typeof sc.value === 'object') {
-        const cur = musicOf(sc.value);
-        data.music = cur;
-        const full = Boolean(cur.fingerprint || cur.style);
-        const pm = prev.music && typeof prev.music === 'object' ? musicOf(prev.music) : null;
-        if (!pm) ledgerNote += '; previous ledger video has no music record, so music not compared';
-        else {
-          if (!full) ledgerNote += '; score.json has no fingerprint or style (older score), so music compared by palette and progression only';
-          const styleBoth = full && cur.style && pm.style;
-          const progSame = cur.progression !== null && cur.progression === pm.progression;
-          const first = styleBoth ? cur.style === pm.style && progSame : cur.palette !== null && cur.palette === pm.palette && progSame;
-          if (first) issues.push(`music: ${styleBoth ? 'same style and progression' : 'same palette and progression'} as ${prev.slug}`);
-        }
-        if (cur.fingerprint) {
-          const hit = vids.slice(-T.VARIETY_MUSIC_LOOKBACK).find((v) => v.music && musicOf(v.music).fingerprint === cur.fingerprint);
-          if (hit) issues.push(`music: same fingerprint as ${hit.slug ?? 'an earlier video'} (one of the last ${T.VARIETY_MUSIC_LOOKBACK})`);
-        }
-      }
     }
   }
   if (issues.length) return { status: 'warn', message: `${issues.join('; ')} (${ledgerNote})`, data };
@@ -533,9 +506,7 @@ export async function writeCriticFrames({ mp4, project, cuts, duration }) {
 
 // ---------- human moments ----------
 
-const CUE_PRIORITY = ['impact', 'end', 'confirm', 'highlight', 'cut', 'tick', 'type'];
-
-export function pickMoments({ duration, cuts, energy, soundCues, score, offGrid, endHoldStart, loudAt }) {
+export function pickMoments({ duration, cuts, energy, soundCues, offGrid, endHoldStart, loudAt }) {
   const cands = [];
   cands.push({ t: 0, why: `hook: the first ${T.HOOK_SECONDS} s. Would this stop a scroll?` });
 
@@ -547,14 +518,10 @@ export function pickMoments({ duration, cuts, energy, soundCues, score, offGrid,
   }
   cands.push({ t: end, why: 'end card: is the last thing on screen what you want remembered?' });
 
-  const cues = (soundCues ?? []).filter((c) => !c.kind && Number.isFinite(c.start));
+  const cues = (soundCues ?? []).filter((c) => Number.isFinite(c.start));
   if (cues.length) {
     const loud = [...cues].sort((a, b) => (b.volume || 0) - (a.volume || 0))[0];
     cands.push({ t: loud.start, why: `loudest sound cue (${String(loud.src).split('/').pop()}, gain ${loud.volume}): does it fit what is on screen?` });
-  } else if (score?.cues?.length) {
-    const ranked = [...score.cues].filter((c) => Number.isFinite(c.time))
-      .sort((a, b) => (CUE_PRIORITY.indexOf(a.kind) + 1 || 99) - (CUE_PRIORITY.indexOf(b.kind) + 1 || 99) || a.time - b.time);
-    if (ranked[0]) cands.push({ t: ranked[0].time, why: `strongest scored sound cue (${ranked[0].kind}): does it fit what is on screen?` });
   } else if (Number.isFinite(loudAt)) {
     cands.push({ t: loudAt, why: 'loudest passage of the soundtrack: is it too much?' });
   }

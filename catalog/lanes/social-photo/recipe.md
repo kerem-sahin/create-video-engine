@@ -51,4 +51,4 @@ Photos keep moving through their shot (push, pan, drift or parallax), not only d
 
 ## Sound
 
-Music as in `make`; lookbook cuts land on the track's beats. No trailer sounds.
+Sound as in `make`; lookbook cuts land on the pulse in `cues.json`, so a sound added when posting sits on them. No trailer sounds.

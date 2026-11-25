@@ -18,7 +18,7 @@ Ask these inside make's one brief message, each with your guess:
 3. **Fillers**: Turkish "ıı, eee" always out; "şey" stays unless the person says it is a tic. English "um, uh" out.
 4. **Captions**: on or off, `pop` (word highlight, short-form) or `clean` (sentence lines, long-form). Default: long video `clean`, shorts `pop`.
 5. **Cards**: which moments deserve one (a name at the start, a number, the takeaway). Default: a name card at the first sentence, a card only where the person says a number or a rule.
-6. **Music**: none (default for speech), or a quiet bed ducked under the voice. If wanted: their own track, or `music --mood ... --duration ...` finds a recorded one.
+6. **Music**: none (default for speech), or a quiet bed ducked under the voice. If wanted: their own track.
 7. **Shorts**: how many and for which platform; default 3 clips of 20-40 s.
 
 Put the answers in `BRIEF.md`. The structure of a talking video is the person's own order of ideas, so the "three stories" of make step 2 become three **cut plans** for the same footage: e.g. keep everything but tighten; lead with the strongest claim then explain; trim to the three key points with cards. They differ in structure, not wording.
@@ -64,7 +64,7 @@ node parts/captions/frame-vars.mjs <dir>/frame.md --out <dir>/assets/brand.css
 - **Captions**: `node parts/captions/build-captions.mjs --words <dir>/words.json --style <clean|pop> --aspect <16:9|9:16> --duration <cut length> --out <dir>/compositions/captions.html`, mounted with `data-track-kind="captions"`. Colours and fonts come from `frame.md` only. Check the Turkish glyphs (ç ğ ı ö ş ü İ) in the brand's display font on a snapshot.
 - **Cards on the beats of the speech**: read `words.json` and pick the moment each card belongs to: the name card when the first sentence starts (about 1 s in), a stat card when the number is spoken (start the card 0.2 s before the word), a takeaway when a sentence begins "so", "the point is", "kısacası", "özetle". `node parts/overlay-cards/build-card.mjs --kind ... --text ... --aspect ... --duration ... --id card-1 --out <dir>/compositions/card-1.html`. At most one card on screen at a time, about one per 6-8 s, never on the face, never while a caption group needs the same area (16:9: cards above the caption row; 9:16: upper band). Words on a card are words the person said or numbers they gave.
 - **Emphasis without effects**: a slow push-in (scale 1.00 to the brand's `camera.push_in_max`) on a wrapper around the video during the strongest sentence is enough. No shake, no zoom blur, no flashes.
-- **Sound**: none added by default. If the person wants music: a bed at -22 LUFS under the voice, ducked 8-10 dB while words are present (HyperFrames `data-automation` envelope from the word timings, `/media-use`), faded out before the last word; never music over the first sentence. Use `music --mood calm --duration <len>`; no vocal tracks.
+- **Sound**: none added by default. If the person gives a track of their own: a bed at -22 LUFS under the voice, ducked 8-10 dB while words are present (HyperFrames `data-automation` envelope from the word timings, `/media-use`), faded out before the last word; never music over the first sentence. No vocal tracks.
 
 Spec, `check`, snapshots: as in make steps 4-5. Snapshot at the first caption, a card's start and settle, a cut join, and the end.
 

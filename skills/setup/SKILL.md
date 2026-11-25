@@ -93,7 +93,7 @@ Copy `skills/setup/assets/STYLE.template.md` to `brands/<slug>/taste/STYLE.md` a
 - **never**: always include the generated-design defaults unless the brand itself uses them: *Inter, Space Grotesk, Instrument Serif, Geist or JetBrains Mono as the display face; centered white headline on a dark gradient; purple-blue gradients; glassmorphism cards; generic "✨" sparkle motifs.* The disliked video's rules go to `NOTEBOOK.md` → `Never`. Every item concrete enough that someone could check it by looking at a frame.
 - **signature**: offer two options drawn from the brand's own world — first choice: a behaviour of the product itself from step 2 (how it marks, confirms or moves); otherwise its icon's shape or a phrase it uses. Let the person pick. The signature recurs in every video.
 - **format.min_text_px**: 48 for 16:9 social posts, 40 for 9:16, 32 for a README or website hero. A 1920-wide video in a phone feed is shown about 390 px wide; smaller text is unreadable there.
-- **sound**: ask once whether they have a track of their own (a file, or a song they own the rights to) and write it as `sound.track`. Otherwise write three `sound` feel words (from their feel words and the brand's world) that the `music` command searches with, and whether a product sound exists (a bell, a tick: write exactly what you found). `music: none` if they want no music. Music is never composed in code.
+- **sound**: if they mention a track of their own (a file, or a song they own the rights to), write it as `sound.track`; do not ask for one, videos are made without music by default and they add a sound when posting. Write whether a product sound exists (a bell, a tick: write exactly what you found). The engine never finds or composes music.
 - **Prose sections**: as in the template.
 
 Every value has a source or is marked `default`. Do not invent brand facts. Do not flatter the brand in the prose; describe it.
@@ -116,14 +116,14 @@ Ask what is wrong. Apply corrections. Then write the rest:
 
 ## 7. Style frame (strongly recommended)
 
-Before any full video, prove the taste on one still. Create `brands/<slug>/style-frame/` with `npx hyperframes init brands/<slug>/style-frame --example blank --resolution <landscape|portrait|square> --skip-skills --non-interactive` **first** (it refuses a folder that is not empty), then add fonts and assets: a minimal HyperFrames project (one 3-second scene: the brand's real product UI or icon, one headline in the brand's voice, the signature element), copy `STYLE.md` into it as `frame.md`, then run from the studio root:
+Before any full video, prove the taste on one still. Create `brands/<slug>/style-frame/` with `npx hyperframes init brands/<slug>/style-frame --example blank --resolution <landscape|portrait|square> --skip-skills --non-interactive` **first** (it refuses a folder that is not empty), then add fonts and assets: a minimal HyperFrames project (one 3-second scene: the brand's real product, one headline in the brand's voice, the signature element), copy `STYLE.md` into it as `frame.md`, then run from the studio root:
 
 ```
 npx hyperframes check brands/<slug>/style-frame --json
 npx hyperframes snapshot brands/<slug>/style-frame --at 2 -o brands/<slug>/style-frame/snapshots
 ```
 
-The style frame follows the `make` creative laws and avoids its defaults: a small product in a big empty frame is the most common failure, not a style. Fix every `check` error before the snapshot. Show the PNG from `snapshots/`. If the person approves, save it to `taste/examples/approved/style-frame.png` with a one-line `.txt` saying why and a `Liked` line in the notebook. If not, ask what is off, fix `STYLE.md`, and note it under `Not liked`. Two rounds at most; then move on and let the first video teach the rest.
+If the brand has product screens (an app, a site, software), the scene shows one real screen **the way its videos will show it**, not only the icon or a graphic built from it: how screens look is the thing a first video most often gets rejected for, and it must be approved here, before anyone waits for a draft. Write the approved way into `STYLE.md`. The style frame follows the `make` creative laws and avoids its defaults: a small product in a big empty frame is the most common failure, not a style. Fix every `check` error before the snapshot. Show the PNG from `snapshots/`. If the person approves, save it to `taste/examples/approved/style-frame.png` with a one-line `.txt` saying why and a `Liked` line in the notebook. If not, ask what is off, fix `STYLE.md`, and note it under `Not liked`. Two rounds at most; then move on and let the first video teach the rest.
 
 ## 8. Finish
 

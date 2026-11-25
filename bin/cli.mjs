@@ -13,10 +13,6 @@ Commands:
   verify <project> [--mp4 <file>] [--json] [--no-hf-check]
                                                     verify a video before delivery
   refs <video-file> --out <dir> [--json]            analyse a reference video
-  music --mood "<words>" --duration <s> --out <dir> [--candidates 3] [--used <file>] [--json]
-                                                    up to three CC0/CC BY tracks with previews to pick from
-  music --pick <n> --out <dir> [--used <file>]      make candidate n the video's track
-  music --score <cues.json> --out <dir>             compose a bed in code (only if asked)
   crop <image> --out <file.png> [--auto] [--rect x,y,w,h] [--status-bar] [--json]
                                                     crop a store screenshot to the real app screen
   catalog check [--dir <catalog-dir>] [--json]      validate the parts catalog
@@ -38,7 +34,6 @@ const COMMANDS = {
   init: ['../src/init.mjs', 'runInit'],
   verify: ['../src/verify/index.mjs', 'runVerify'],
   refs: ['../src/refs/index.mjs', 'runRefs'],
-  music: ['../src/music/index.mjs', 'runMusic'],
   crop: ['../src/crop/index.mjs', 'runCrop'],
   catalog: ['../src/catalog/index.mjs', 'runCatalog'],
   add: ['../src/add/index.mjs', 'runAdd'],

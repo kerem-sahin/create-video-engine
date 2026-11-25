@@ -6,7 +6,6 @@
   "ask": "Do you turn photos (products, collections, campaigns) into short social media videos?",
   "parts": [
     "cve-motion",
-    "openverse-source",
     "mp4-checks"
   ],
   "recipe": "recipe.md"

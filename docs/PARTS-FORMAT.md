@@ -41,7 +41,7 @@
 - `source.how`: `own code` | `copied` (open licence, notice kept, `ref` required) | `link-only` (no files, never installable) | `registry` (a HyperFrames registry block; `registry` names it, no files).
 - `source.licence` / `assets_licence`: SPDX as written in the upstream LICENSE (`MIT`, `Apache-2.0`, `BSD-3-Clause`, `CC0-1.0`, `CC-BY-4.0`) or `own`. Non-commercial or missing licence → only `link-only`. `assets_licence` when media/fonts/brand files differ from the code licence (e.g. "brand assets excluded").
 - `attribution`: the line appended to the studio's `NOTICE.md` on install; required for `copied` and `registry`.
-- `builtin: true`: the part is a command of this CLI (verify checks, music scorer, crop, refs). It has a card for transparency; `add` only records it. `files` empty.
+- `builtin: true`: the part is a command of this CLI (verify checks, crop, refs). It has a card for transparency; `add` only records it. `files` empty.
 - `files[].from`: relative to the card's folder (copied upstream files live in `catalog/<kind>/<id>/files/`, with the upstream `LICENSE` copied next to them as `files/LICENSE`). `files[].to`: relative to the studio root, always under `parts/<id>/`.
 - `docs`: path (relative to the card folder) to a short usage note copied to `parts/<id>/README.md`; printed after install.
 - `requires`: part ids, installed first (recursively, no cycles).

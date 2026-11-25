@@ -157,8 +157,7 @@ function humanReport(r, reportPath) {
   if (r.soundCues?.length) {
     L.push(`SOUND   ${r.soundCues.length} cue(s) — check each against the action on screen and STYLE.md sound:`);
     for (const c of r.soundCues) {
-      if (c.kind) L.push(`  ${String(c.start).padStart(6)}s  scored ${c.kind}  beat ${c.beat}`);
-      else L.push(`  ${String(c.start).padStart(6)}s  ${c.src.split('/').pop()}  gain ${c.volume}${c.described ? `  (${c.described.split(' — ')[0]})` : ''}`);
+      L.push(`  ${String(c.start).padStart(6)}s  ${c.src.split('/').pop()}  gain ${c.volume}${c.described ? `  (${c.described.split(' — ')[0]})` : ''}`);
     }
   }
   if (r.moments?.length) {

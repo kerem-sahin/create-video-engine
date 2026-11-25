@@ -42,11 +42,9 @@ test('on-beat: cuts on beats and half-beats pass', opts, async () => {
   assert.equal(c.data.cuts.length, 2);
 });
 
-test('on-beat: a cut 3 frames off the grid warns and names its time (bpm from score.json)', opts, async () => {
+test('on-beat: a cut 3 frames off the grid warns and names its time', opts, async () => {
   const p = proj();
-  writeFileSync(join(p, 'cues.json'), JSON.stringify({ duration: 6 }));
-  mkdirSync(join(p, 'assets', 'music'), { recursive: true });
-  writeFileSync(join(p, 'assets', 'music', 'score.json'), JSON.stringify({ bpm: 120, cues: [] }));
+  writeFileSync(join(p, 'cues.json'), JSON.stringify({ bpm: 120, duration: 6 }));
   const { report } = await run(p, cutClip(join(root, `c${n++}.mp4`), [2, 3.1], 6));
   const c = check(report, 'on-beat');
   assert.equal(c.status, 'warn', JSON.stringify(c));
@@ -114,46 +112,6 @@ test('variety runs in the report', opts, async () => {
   const { report } = await run(p, clip6());
   assert.equal(check(report, 'variety').status, 'warn');
 });
-// music
-const withScore = (p, score) => { mkdirSync(join(p, 'assets', 'music'), { recursive: true }); writeFileSync(join(p, 'assets', 'music', 'score.json'), JSON.stringify(score)); return p; };
-const musicLedger = (...ms) => ({ videos: ms.map((m, i) => ({ slug: `v${i}`, structure: [`s${i}`], transitions: [`t${i}`], music: m })) });
-const sh = mkShots(['hard cut', 'mask wipe'], ['a']);
-
-test('variety music: same style and progression as the previous video warns', () => {
-  const p = withScore(brandProject(sh, musicLedger({ style: 'Lo-Fi', progression: ['I', 'V', 'vi', 'IV'], palette: 'nylon' })), { style: 'lo-fi', progression: ['I', 'V', 'vi', 'IV'], palette: 'felt-piano', fingerprint: 'zzz' });
-  const r = checkVariety({ project: p });
-  assert.equal(r.status, 'warn');
-  assert.match(r.message, /same style and progression as v0/);
-});
-
-test('variety music: same style but another progression passes', () => {
-  const p = withScore(brandProject(sh, musicLedger({ style: 'lofi', progression: 'I V' })), { style: 'lofi', progression: 'ii V I', fingerprint: 'new' });
-  assert.equal(checkVariety({ project: p }).status, 'pass');
-});
-
-test('variety music: the same fingerprint in any of the last 3 videos warns, the 4th back does not', () => {
-  const ms = [{ fingerprint: 'abc', style: 'a', progression: 'x' }, { fingerprint: 'b' }, { fingerprint: 'c' }, { fingerprint: 'd' }];
-  const warn = checkVariety({ project: withScore(brandProject(sh, musicLedger(...ms)), { fingerprint: 'b', style: 'q', progression: 'z' }) });
-  assert.equal(warn.status, 'warn');
-  assert.match(warn.message, /same fingerprint as v1/);
-  const ok = checkVariety({ project: withScore(brandProject(sh, musicLedger(...ms)), { fingerprint: 'abc', style: 'q', progression: 'z' }) });
-  assert.equal(ok.status, 'pass', ok.message);
-});
-
-test('variety music: an older score compares palette and progression only and says so', () => {
-  const p = withScore(brandProject(sh, musicLedger({ palette: 'nylon', progression: 'I V', style: 'other' })), { palette: 'nylon', progression: 'I V' });
-  const r = checkVariety({ project: p });
-  assert.equal(r.status, 'warn');
-  assert.match(r.message, /same palette and progression as v0/);
-  assert.match(r.message, /older score/);
-});
-
-test('variety music: no ledger skips the comparison with the usual note', () => {
-  const r = checkVariety({ project: withScore(brandProject(sh), { style: 'a', progression: 'x', fingerprint: 'f' }) });
-  assert.equal(r.status, 'pass');
-  assert.match(r.message, /no brand ledger/);
-});
-
 // ---- static-shots ----
 const bins = (flags) => ({ ok: true, bins: flags.map((m, i) => ({ t: i * 0.5, mean: m ? 5 : 0.5, moving: m })) });
 const mkShotsB = (b) => ({ ok: true, boundaries: b });
@@ -383,7 +341,7 @@ test('pickMoments: at most 5, hook first, loudest cue, most change, flagged cut,
   const m = pickMoments({
     duration: 24, cuts: [5, 10, 15, 20], energy: [0, 1, 9, 2, 0], endHoldStart: 21,
     soundCues: [{ start: 3, volume: 0.5, src: 'a.mp3' }, { start: 7, volume: 1.5, src: 'b.mp3' }],
-    score: null, offGrid: [15, 10], loudAt: null,
+    offGrid: [15, 10], loudAt: null,
   });
   assert.ok(m.length <= 5);
   assert.deepEqual(m.map((x) => x.t), [0, 2, 7, 15, 21]);
@@ -393,13 +351,11 @@ test('pickMoments: at most 5, hook first, loudest cue, most change, flagged cut,
   assert.match(m[4].why, /end card/);
 });
 
-test('pickMoments: falls back to score.json, then to the loudest passage; merges moments within 1 s', () => {
+test('pickMoments: falls back to the loudest passage; merges moments within 1 s', () => {
   const base = { duration: 20, cuts: [], energy: null, soundCues: [], endHoldStart: null, offGrid: [] };
-  const a = pickMoments({ ...base, score: { cues: [{ kind: 'tick', time: 2 }, { kind: 'impact', time: 8 }] }, loudAt: 5 });
-  assert.ok(a.some((x) => x.t === 8 && /impact/.test(x.why)));
-  const b = pickMoments({ ...base, score: null, loudAt: 5 });
+  const b = pickMoments({ ...base, loudAt: 5 });
   assert.ok(b.some((x) => x.t === 5 && /loudest passage/.test(x.why)));
-  const c = pickMoments({ ...base, score: null, loudAt: 0.4 });
+  const c = pickMoments({ ...base, loudAt: 0.4 });
   assert.equal(c.filter((x) => x.t < 1).length, 1);
   assert.equal(c.at(-1).t, 18); // no cuts, no hold: end card is the last 2 s
 });
@@ -509,13 +465,3 @@ test('on-beat: a declared boundary 3 frames off the grid warns; no cues, no cuts
 });
 
 // ---- SOUND list ----
-test('soundCues: a scored project lists each scored cue instead of the track', async () => {
-  const { listSoundCues } = await import('../src/verify/project.mjs');
-  const d = proj();
-  writeFileSync(join(d, 'index.html'), '<audio id="music" src="assets/music/track.wav" data-start="0" data-duration="6"></audio><audio src="assets/sfx/pop.wav" data-start="1" data-volume="0.5"></audio>');
-  mkdirSync(join(d, 'assets', 'music'), { recursive: true });
-  writeFileSync(join(d, 'assets', 'music', 'score.json'), JSON.stringify({ bpm: 120, cues: [{ kind: 'cut', beat: 4, time: 2 }, { kind: 'end', beat: 8, time: 4 }] }));
-  const cues = listSoundCues(d, null);
-  assert.deepEqual(cues.map((c) => [c.start, c.kind ?? null, c.beat ?? null]), [[1, null, null], [2, 'cut', 4], [4, 'end', 8]]);
-  assert.ok(!cues.some((c) => c.src.endsWith('track.wav')));
-});

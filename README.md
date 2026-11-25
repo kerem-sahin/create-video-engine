@@ -46,8 +46,8 @@ A check that could not run is reported as *skipped*, never as passed. Then a rev
 
 | Lane | For | Parts it installs |
 |---|---|---|
-| `product-launch` | app, site or product launches and updates from real screens | screenshot crop, spring motion and shared-element carry, a recorded track found by feel |
-| `social-photo` | a small brand's photos into Reels/TikTok/feed videos | photo shots that keep moving, offer cards, a recorded track found by feel |
+| `product-launch` | app, site or product launches and updates from real screens | screenshot crop, spring motion and shared-element carry |
+| `social-photo` | a small brand's photos into Reels/TikTok/feed videos | photo shots that keep moving, offer cards |
 | `talking-head` *(beta)* | YouTube talks/lessons and Shorts cut from them | local transcription, silence and filler cut (approved before it's applied), branded word-by-word captions, overlay cards, shorts with 9:16 reframe |
 | `podcast` *(beta)* | a podcast or voice recordings into vertical clips that draw what is said | reads the show's feed and past episodes into a memory, clip cutting, medium-model transcription with a sync check |
 
@@ -78,7 +78,6 @@ remove <part>|lane:<id>         remove it (refuses if you changed its files)
 upgrade                         update skills, recipes and parts; never touches your brands or edited files
 catalog list|check              list lanes and parts / validate cards
 verify <project> --mp4 <file>   measure a render (exit 0 ok, 1 problems, 2 could not check)
-music --mood "<words>" ...      three CC0/CC BY tracks with previews; you pick (your own track comes first)
 refs <video> --out <dir>        measure a reference video's grammar (cuts, rhythm, palette)
 crop <image> --auto             cut a store screenshot down to the real app screen
 ```
@@ -89,7 +88,7 @@ No telemetry. No runtime dependencies. HyperFrames' own usage beacon is skipped.
 
 Honest list, from our own tests:
 
-- **You pick the music.** Your own track, or three open-licence candidates with 10 s previews; the agent cannot hear, so it never chooses one for you. With nobody to pick, the video is delivered silent. Composing in code is still there (`music --score`) but only on request: it sounded alike across videos.
+- **No music from the engine.** The agent cannot hear, and free catalogues and code-made tracks were the weakest part of every test. Videos come without music, cut to a steady pulse, with the cut times: add a sound in Instagram or TikTok when you post, or give your own track and it goes under the video.
 - **Layouts look alike across brands.** Colours, fonts and signatures differ; the composition (big headline top-left, one large subject below) is still too similar. Brand-specific layouts are next.
 - **Talking-head lane is beta.** Proven end to end on a synthetic recording; not yet on real footage.
 - **Only tested with Claude Code on macOS.** The studio has an `AGENTS.md`, so Codex, Cursor or Antigravity should be able to follow it, but we haven't verified that. Linux should work; Windows is untested.

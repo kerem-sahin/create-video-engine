@@ -39,7 +39,7 @@ export const DEFAULT_FPS = 30;
 export const FRAME_COUNT_TOLERANCE = 1;
 
 // loudness (warn only). Only comparable on ffmpeg 8.0.1.
-export const LOUDNESS_MIN_LUFS = -17;   // -16 target with 1 LU measurement tolerance: the approved brag reference measured -16.3 and our scorer normalises to -16
+export const LOUDNESS_MIN_LUFS = -17;   // -16 target with 1 LU measurement tolerance: the approved brag reference measured -16.3
 export const LOUDNESS_MAX_LUFS = -12;
 export const TRUE_PEAK_MAX_DBTP = -1;
 // Sparse sound (effects only): when the audio above SPARSE_SILENCE_DB is less than
@@ -66,7 +66,6 @@ export const ON_BEAT_LIST_MAX = 5;      // worst offenders named in the message
 // variety (warn only)
 export const VARIETY_MAX_REPEAT = 3;    // the same transition this many times in a row is a tic
 
-export const VARIETY_MUSIC_LOOKBACK = 3; // the same music fingerprint in any of the last 3 ledger videos is a repeat
 
 // stillness (warn only). Measured on 128 px wide gray samples at SAMPLE_FPS, 16 px cells, mean
 // absolute luma difference between consecutive samples (0-255 scale). Measured on a real map

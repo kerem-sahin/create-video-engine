@@ -7,7 +7,6 @@
   "parts": [
     "screenshot-crop",
     "cve-motion",
-    "openverse-source",
     "mp4-checks"
   ],
   "recipe": "recipe.md"

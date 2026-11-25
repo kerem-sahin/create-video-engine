@@ -387,7 +387,6 @@ export async function runMp4Checks({ mp4, project, probe, root, audio, ffmpegVer
     cuts: cuts.ok ? cuts.cuts : [],
     energy: energy.ok ? energy.energy : null,
     soundCues,
-    score: plan.score,
     offGrid: onBeat.data?.offGrid ?? [],
     endHoldStart: holdIv ? holdIv.start : null,
     loudAt: loud?.ok ? loud.shortTermAt : null,

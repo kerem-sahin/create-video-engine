@@ -41,9 +41,7 @@ never:
 signature: "<the one recurring element, from the brand's own world — ideally something the product itself does>"
 
 sound:
-  track: null            # the person's own track (a file they own the rights to); used first
-  feel: [warm, calm, acoustic]   # words the `music` command searches Openverse with when there is no track
-  music: found           # found = a CC0/CC BY track by feel; none = silent by choice
+  track: null            # the person's own track (a file they own the rights to); without one the video has no music and they add a sound when posting
   product_sound: null    # the product's own sound if it has one ("a soft bell on save"), exactly as found
 ---
 
