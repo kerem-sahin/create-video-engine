@@ -29,3 +29,12 @@ test('doctor outside a studio says how to get the full check', () => {
   const r = spawnSync(process.execPath, [CLI, 'doctor'], { encoding: 'utf8', cwd });
   assert.match(r.stdout, /inside your studio folder/);
 });
+
+test('doctor leaves out HyperFrames tools this engine never uses; optional misses warn, required ones fail', async () => {
+  const { normalizeHf } = await import('../src/doctor.mjs');
+  const out = normalizeHf({ checks: [
+    { name: 'TTS (Kokoro)', ok: false, hint: 'pip install kokoro-onnx' }, { name: 'BGM (MusicGen)', ok: false, hint: 'pip install torch' },
+    { name: 'Docker', ok: false }, { name: 'Docker running', ok: false }, { name: 'Memory', ok: false }, { name: 'Chrome', ok: false },
+  ] });
+  assert.deepEqual(out.map((c) => [c.name, c.status]), [['hyperframes: Memory', 'warn'], ['hyperframes: Chrome', 'fail']]);
+});

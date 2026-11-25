@@ -8,7 +8,7 @@ Built on [HeyGen HyperFrames](https://github.com/heygen-com/hyperframes) (HTML �
 
 *Three videos, each made by a fresh agent in its own studio from the brand's own material: an app launch ([SweetSpot](https://github.com/kerem-sahin/create-video-engine/blob/main/media/sweetspot.mp4)), a planner app ([Plainday](https://github.com/kerem-sahin/create-video-engine/blob/main/media/plainday.mp4)) and a café Reel from photos ([test brand](https://github.com/kerem-sahin/create-video-engine/blob/main/media/cafe.mp4), CC0 photos). Click a name for the full video with sound.*
 
-> **Status: 0.1, early.** Works end to end with Claude Code on macOS. Read [Known limits](#known-limits) before you rely on it.
+> **Status: 0.2, early.** Works end to end with Claude Code on macOS. Read [Known limits](#known-limits) before you rely on it.
 
 ## Why another video repo
 
@@ -40,7 +40,7 @@ MOMENTS 4 moment(s) for you to watch or listen to:
 RESULT ok (everything that ran passed)
 ```
 
-A check that could not run is reported as *skipped*, never as passed. Then a reviewer sub-agent that has not seen the code grades the frames against your taste file, and you get five questions about the video; your answers become rules.
+A check that could not run is reported as *skipped*, never as passed. Then a reviewer sub-agent that has not seen the code grades the frames against your taste file, and you get three questions about the video; your answers become rules.
 
 ## Lanes (kinds of video)
 
@@ -55,7 +55,7 @@ A check that could not run is reported as *skipped*, never as passed. Then a rev
 
 ## Install
 
-Needs Node ≥ 22, `ffmpeg`/`ffprobe` (8.x) and Chrome (used by HyperFrames to render).
+Needs Node ≥ 22 and `ffmpeg`/`ffprobe` (8.x); on a Mac: `brew install node ffmpeg`. HyperFrames downloads its own headless Chrome for rendering. You also need a coding agent (tested with Claude Code).
 
 ```bash
 npx create-video-engine init my-studio
@@ -66,7 +66,14 @@ Open the folder in Claude Code and say: **"set up my studio"** (or in your langu
 
 ## What it costs
 
-Measured with Claude Sonnet on an M1 MacBook Air (8 GB): first setup plus one 15–20 s video ≈ **150–225k tokens**, 40–65 tool calls, 12–16 minutes, 4–6 renders. Later videos for the same brand skip setup. No paid service is needed; optional paid parts (e.g. better transcription) always have a free fallback and are only installed if you say yes.
+Measured in real sessions (Claude Opus, reviewers on Sonnet, M1 MacBook Air 8 GB), with the person answering as they went:
+
+| | Time | New tokens | Cached reads |
+|---|---|---|---|
+| Brand setup + first 27 s launch video | about 70 min | about 0.6 M | about 28 M |
+| A later 30 s video for the same brand | about 25 min | about 0.3 M | about 10 M |
+
+On a Pro plan a first setup takes a noticeable share of the weekly limit. Later videos skip setup and need fewer corrections. No paid service is needed; optional paid parts (e.g. better transcription) always have a free fallback and are only installed if you say yes.
 
 ## Commands
 
@@ -90,7 +97,7 @@ Honest list, from our own tests:
 
 - **No music from the engine.** The agent cannot hear, and free catalogues and code-made tracks were the weakest part of every test. Videos come without music, cut to a steady pulse, with the cut times: add a sound in Instagram or TikTok when you post, or give your own track and it goes under the video.
 - **Layouts look alike across brands.** Colours, fonts and signatures differ; the composition (big headline top-left, one large subject below) is still too similar. Brand-specific layouts are next.
-- **Talking-head lane is beta.** Proven end to end on a synthetic recording; not yet on real footage.
+- **Talking-head lane is beta.** Proven end to end on a synthetic recording; not yet on real footage. The podcast lane has made two posted clips from a real show, both by its owner.
 - **Only tested with Claude Code on macOS.** The studio has an `AGENTS.md`, so Codex, Cursor or Antigravity should be able to follow it, but we haven't verified that. Linux should work; Windows is untested.
 - **Renders need a network connection** (HyperFrames loads GSAP and Google Fonts during render). Our own commands make no network calls except optional ones you ask for.
 - **8 GB machines work but are slow;** renders take about a minute per 20 s.
@@ -107,17 +114,17 @@ MIT licence.
 
 **Kodlama ajanının kurduğu, sana ait bir video stüdyosu.** Markanı öğrenir, yalnızca senin yaptığın video türleri için gereken araçları kurar, her videoyu sana göstermeden önce ölçer ve geri bildirimini kurala çevirir; bir sonraki video istediğine daha yakın başlar.
 
-**Kurulum:** Node 22+, ffmpeg ve Chrome gerekir.
+**Kurulum:** Node 22+ ve ffmpeg gerekir (Mac'te `brew install node ffmpeg`); bir de kodlama ajanı (Claude Code ile denendi).
 
 ```bash
 npx create-video-engine init studyom
 cd studyom
 ```
 
-Klasörü Claude Code'da aç ve **"stüdyomu kur"** de. Sonra: **"bir tanıtım videosu yap"**, **"bu kaydı YouTube videosu ve Shorts'a çevir"**, **"bu fotoğraflardan Reels yap"**.
+Adım adım anlatım: [docs/BASLANGIC.md](docs/BASLANGIC.md). Kısaca: klasörü Claude Code'da aç ve **"stüdyomu kur"** de. Sonra: **"bir tanıtım videosu yap"**, **"bu kaydı YouTube videosu ve Shorts'a çevir"**, **"bu fotoğraflardan Reels yap"**.
 
-**Üç hat:** ürün/uygulama tanıtımı, fotoğraftan sosyal medya videosu, konuşma videosu (YouTube, beta). Kurulum hangisini yaptığını sorar ve yalnız onların parçalarını kurar; her parçanın kaynağı ve lisansı kayıtlıdır.
+**Dört hat:** ürün/uygulama tanıtımı, fotoğraftan sosyal medya videosu, podcast'ten çizimli kesit (beta), konuşma videosu (YouTube, beta). Kurulum hangisini yaptığını sorar ve yalnız onların parçalarını kurar; her parçanın kaynağı ve lisansı kayıtlıdır.
 
-**Maliyet:** ilk kurulum + bir video yaklaşık 150–225 bin token (Sonnet), 12–16 dakika. Ücretli servis gerekmez.
+**Maliyet (gerçek oturumlardan):** marka kurulumu + ilk tanıtım videosu yaklaşık 70 dakika; aynı markanın sonraki videosu yaklaşık 25 dakika. Pro planda ilk kurulum haftalık limitin hissedilir bir kısmını kullanır. Ücretli servis gerekmez.
 
-**Bilinen eksikler:** müzik ya senin parçan ya açık lisanslı bir katalogdan gelir (kodla besteleme kaldırıldı); markaların görüntü düzeni benzeşiyor; konuşma videosu hattı henüz gerçek çekimle denenmedi; yalnız Claude Code + macOS'ta denendi. Ayrıntılar yukarıda, "Known limits" bölümünde.
+**Bilinen eksikler:** sistem müzik eklemez: video sabit bir tempoya kesilmiş gelir, sesi paylaşırken Instagram/TikTok'tan eklersin ya da kendi parçanı verirsin; markaların görüntü düzeni benzeşiyor; konuşma videosu hattı henüz gerçek çekimle denenmedi; yalnız Claude Code + macOS'ta denendi. Ayrıntılar yukarıda, "Known limits" bölümünde.

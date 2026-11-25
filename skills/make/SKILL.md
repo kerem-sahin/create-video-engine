@@ -52,8 +52,8 @@ Copy only the assets you use into `<dir>/assets/`. Fonts the brand uses go to `a
 - Every number, name, price and claim on screen comes from the person or their material.
 - No personal data, no real people's names or faces, nothing showing other people, unless the person gave it for this video.
 - Only material they own or that is licensed for it (CC0/CC BY with credit; never NC/SA/ND).
-- Text at least `format.min_text_px`; at 9:16 text and the call to action stay out of the top 270 px, the bottom 420 px and the right 130 px (the subject may run under them). These numbers win over HyperFrames' `vertical.md` band.
-- Audio −16 LUFS ±1, true peak ≤ −1 dBTP, measured by verify on the rendered file (HyperFrames' mix changes the level, so measuring the source file is not enough).
+- Text at least `format.min_text_px`; at 9:16 text and the call to action stay out of the top 270 px, the bottom 420 px and the right 130 px (the subject may run under them). These numbers win over HyperFrames' `vertical.md` band; an `outside_safe_zone` warning from `hyperframes check` on text inside them is answered by these numbers, not by moving the text.
+- Audio −16 LUFS ±1, true peak ≤ −1 dBTP, measured by verify on the rendered file. HyperFrames' mix raises a full-length voice or track by about 3 dB, so bring that source to about −19 LUFS first: measure it, apply the difference as a gain under a peak limiter (`ffmpeg -i in.wav -af "volume=<dB>dB,alimiter=limit=0.6" out.wav`) and measure again, as `assemble-long` does; single-pass `loudnorm` cannot lift a quiet recording. Measuring the source file is not enough.
 
 ### Defaults to avoid
 

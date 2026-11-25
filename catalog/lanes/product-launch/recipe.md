@@ -31,4 +31,4 @@ Every scene change links to the next. With `parts/cve-motion/cve-motion.js` load
 
 ## Sound
 
-The product's own sound wins: if it plays a bell or a tick, use the closest effect at that moment, never a louder one. Music as in `make`.
+The product's own sound wins: if it plays a bell or a tick, use the closest effect at that moment, never a louder one. Music as in `make` (none unless the person gives a track).

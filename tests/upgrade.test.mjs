@@ -30,7 +30,7 @@ test('upgrade on a current studio changes nothing but the engine', () => {
   const r = up(s);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /0 updated, 0 added, 0 backed up, 0 kept/);
-  assert.match(rec(s).engine, /^create-video-engine@0\.1/);
+  assert.equal(rec(s).engine, `create-video-engine@${JSON.parse(rd(new URL('../package.json', import.meta.url).pathname)).version}`);
   assert.equal(baks(s, 'skills/make').length, 0);
 });
 

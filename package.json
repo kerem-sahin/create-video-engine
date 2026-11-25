@@ -1,6 +1,6 @@
 {
   "name": "create-video-engine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Your own video studio, set up by your coding agent: learns your brand, installs only the parts for the videos you make, verifies every render. Built on HyperFrames.",
   "type": "module",
   "license": "MIT",

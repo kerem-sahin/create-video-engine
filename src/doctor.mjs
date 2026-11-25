@@ -8,6 +8,9 @@ import { SYMBOL, out, err, printJson } from './lib/log.mjs';
 
 // HyperFrames reports optional tools (Docker, whisper, TTS) as ok:false; only these block rendering.
 const HF_REQUIRED = new Set(['chrome', 'ffmpeg', 'ffprobe', 'node.js']);
+// HyperFrames tools this engine never uses: listing them with their install hints (pip install torch, Docker)
+// sends a new person off to install gigabytes for nothing, so they are left out.
+const HF_UNUSED = /^(tts\b|bgm\b|docker\b)/;
 const check = (name, status, detail, hint = '') => ({ name, status, detail, hint });
 
 async function toolVersion(cmd) {
@@ -16,10 +19,10 @@ async function toolVersion(cmd) {
   return r.code === 0 ? (m ? m[1] : 'unknown') : null;
 }
 
-function normalizeHf(parsed) {
+export function normalizeHf(parsed) {
   const list = Array.isArray(parsed) ? parsed : Array.isArray(parsed?.checks) ? parsed.checks : null;
   if (!list) return [check('hyperframes doctor', 'warn', 'unrecognised output from hyperframes doctor --json', 'Run `npx hyperframes doctor` to see it.')];
-  return list.map((c) => {
+  return list.filter((c) => !HF_UNUSED.test(String(c.name ?? c.id ?? '').toLowerCase())).map((c) => {
     let status = c.status;
     if (status === 'pass' || status === 'passed') status = 'ok';
     if (status === 'warning') status = 'warn';
