@@ -101,6 +101,7 @@ Her adım hangi ayağı ya da seviye maddesini ilerlettiğini söyler; söyleyem
 
 **25 Kasım, yeni sıra** (1 ve 2 tamam, 7692050; kerem-podcast stüdyosu güncellendi, iki markanın müzik ayarı yeni kurala çekildi):
 - **a. Büyüme:** aynı stüdyoda ikinci SweetSpot videosu. Sistem krem kâğıt ve ekran parçalarıyla başlamalı; hedef 0–1 düzeltme (6. madde).
+  - **25 Kasım, "saklı spotlar" (30 sn):** 0 düzeltme, 3 mesaj (hikâye seçimi, "böyle iyi, son render", "Evet, paylaşırım"), ~26 dk etkin süre (Kerem'in ağ kesintisi hariç). Sistem stil sormadan krem kâğıtla başladı, önceki videonun yapısını kendisi işaretledi, bütün detaylar uygulamanın kendi spot hikâyelerinden. İlk SweetSpot: 2 düzeltme, ~70 dk. Zayıf: üç bilmece aynı kalıpta (aynı yerleşim, aynı ritim); Süleymaniye'nin fotoğrafı herkesin bildiği kartpostal manzarası ve ipucundaki çay ocağını göstermiyor, yani "saklı" iddiasını görüntü desteklemiyor; Moda ve Pokut fotoğrafları yumuşak.
 - **b. Reels gerçek fotoğraflarla:** Kerem bir yerin ya da ürünün 8–15 fotoğrafını verir (3. madde).
 - **c. Başka biri:** kendi malzemesiyle, temiz stüdyoda, yardımsız (5. ve 7. maddenin ilk gerçek kanıtı). Duyurudan önce şart.
 - **d. Uzun video, e. duyuru.**
