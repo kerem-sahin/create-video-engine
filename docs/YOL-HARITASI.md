@@ -98,3 +98,10 @@ Ajanların ortak skill sorunları (düzeltilecek):
 9. **Duyuru** (6. aşama): yalnız Kerem "gerçekten işe yarıyor" deyince; repo tasarımı ve npm güncellemesi o zaman.
 
 Her adım hangi ayağı ya da seviye maddesini ilerlettiğini söyler; söyleyemiyorsa yapılmaz.
+
+**25 Kasım, yeni sıra** (1 ve 2 tamam, 7692050; kerem-podcast stüdyosu güncellendi, iki markanın müzik ayarı yeni kurala çekildi):
+- **a. Büyüme:** aynı stüdyoda ikinci SweetSpot videosu. Sistem krem kâğıt ve ekran parçalarıyla başlamalı; hedef 0–1 düzeltme (6. madde).
+- **b. Reels gerçek fotoğraflarla:** Kerem bir yerin ya da ürünün 8–15 fotoğrafını verir (3. madde).
+- **c. Başka biri:** kendi malzemesiyle, temiz stüdyoda, yardımsız (5. ve 7. maddenin ilk gerçek kanıtı). Duyurudan önce şart.
+- **d. Uzun video, e. duyuru.**
+- 8. madde (VoxCPM2) ağır model kurulumu içeriyor: 10 GB dersinden sonra yalnız isteğe bağlı ve hafifse yapılır.
